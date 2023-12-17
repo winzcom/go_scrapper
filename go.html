@@ -1,0 +1,3257 @@
+<html lang="en" data-layout="responsive" data-local="" style="--js-unit-header-height: 6.0625rem; --js-sticky-header-height: 3.5rem; --js-unit-header-top: -2.5625rem;"><head>
+    
+    <script type="text/javascript" async="" src="https://www.google-analytics.com/analytics.js"></script><script type="text/javascript" async="" src="https://www.googletagmanager.com/gtag/js?id=G-HL38R6X1Q3&amp;l=dataLayer&amp;cx=c"></script><script>
+      window.addEventListener('error', window.__err=function f(e){f.p=f.p||[];f.p.push(e)});
+    </script>
+    <script>
+      (function() {
+        const theme = document.cookie.match(/prefers-color-scheme=(light|dark|auto)/)?.[1]
+        if (theme) {
+          document.querySelector('html').setAttribute('data-theme', theme);
+        }
+      }())
+    </script>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="Description" content="Package genai is a client for the Google Labs generative AI model.">
+    
+    <meta class="js-gtmID" data-gtmid="GTM-W8MVQXG">
+    <link rel="shortcut icon" href="/static/shared/icon/favicon.ico">
+    
+  
+    <link rel="canonical" href="https://pkg.go.dev/github.com/google/generative-ai-go/genai">
+  
+
+    <link href="/static/frontend/frontend.min.css?version=prod-frontend-00079-8jf" rel="stylesheet">
+    
+    <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="Go Packages">
+    
+    
+  <title>genai package - github.com/google/generative-ai-go/genai - Go Packages</title>
+
+    
+  <link href="/static/frontend/unit/unit.min.css?version=prod-frontend-00079-8jf" rel="stylesheet">
+  <link href="/static/frontend/unit/main/main.min.css?version=prod-frontend-00079-8jf" rel="stylesheet">
+  <script src="/third_party/dialog-polyfill/dialog-polyfill.js"></script><script src="/static/frontend/frontend.js" type="module" async="" defer=""></script><script src="https://www.googletagmanager.com/gtm.js?id=GTM-W8MVQXG" type="module" async="" defer=""></script><script src="/static/frontend/unit/main/main.js" type="module" async="" defer=""></script><script src="/static/frontend/unit/unit.js" type="module" async="" defer=""></script><meta http-equiv="origin-trial" content="AymqwRC7u88Y4JPvfIF2F37QKylC04248hLCdJAsh8xgOfe/dVJPV3XS3wLFca1ZMVOtnBfVjaCMTVudWM//5g4AAAB7eyJvcmlnaW4iOiJodHRwczovL3d3dy5nb29nbGV0YWdtYW5hZ2VyLmNvbTo0NDMiLCJmZWF0dXJlIjoiUHJpdmFjeVNhbmRib3hBZHNBUElzIiwiZXhwaXJ5IjoxNjk1MTY3OTk5LCJpc1RoaXJkUGFydHkiOnRydWV9"></head>
+  <body>
+    
+    <script>
+      function loadScript(src, mod = true) {
+        let s = document.createElement('script');
+        s.src = src;
+        if (mod) {
+          s.type = 'module';
+          s.async = true;
+          s.defer = true
+        }
+        document.head.appendChild(s);
+      }
+      loadScript("/third_party/dialog-polyfill/dialog-polyfill.js", false)
+      loadScript("/static/frontend/frontend.js");
+    </script>
+    
+  <header class="go-Header go-Header--full js-siteHeader"><div></div>
+    <div class="go-Header-inner go-Header-inner--dark">
+      <nav class="go-Header-nav">
+        <a href="https://go.dev/" class="js-headerLogo" data-gtmc="nav link" data-test-id="go-header-logo-link" role="heading" aria-level="1">
+          <img class="go-Header-logo" src="/static/shared/logo/go-white.svg" alt="Go">
+        </a>
+         <div class="skip-navigation-wrapper">
+            <a class="skip-to-content-link" aria-label="Skip to main content" href="#main-content"> Skip to Main Content </a>
+          </div>
+        <div class="go-Header-rightContent">
+          
+<div class="go-SearchForm js-searchForm">
+  <form class="go-InputGroup go-ShortcutKey go-SearchForm-form" action="/search" data-shortcut="/" data-shortcut-alt="search" data-gtmc="search form" aria-label="Search for a package" role="search">
+    <input name="q" class="go-Input js-searchFocus" aria-label="Search for a package" type="search" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Search packages or symbols" value="">
+    <input name="m" value="" hidden="">
+    <button class="go-Button go-Button--inverted" aria-label="Submit search">
+      <img class="go-Icon" height="24" width="24" src="/static/shared/icon/search_gm_grey_24dp.svg" alt="">
+    </button>
+  </form>
+  <button class="go-SearchForm-expandSearch js-expandSearch" data-gtmc="nav button" aria-label="Open search" data-test-id="expand-search">
+    <img class="go-Icon go-Icon--inverted" height="24" width="24" src="/static/shared/icon/search_gm_grey_24dp.svg" alt="">
+
+  </button>
+</div>
+
+          <ul class="go-Header-menu">
+            <li class="go-Header-menuItem">
+              <a class="js-desktop-menu-hover" href="#" data-gtmc="nav link">
+                Why Go
+                <img class="go-Icon" height="24" width="24" src="/static/shared/icon/arrow_drop_down_gm_grey_24dp.svg" alt="submenu dropdown icon">
+              </a>
+              <ul class="go-Header-submenu go-Header-submenu--why js-desktop-submenu-hover" aria-label="submenu">
+                  <li class="go-Header-submenuItem">
+                    <div>
+                      <a href="https://go.dev/solutions#case-studies">
+                        Case Studies
+                      </a>
+                    </div>
+                    <p>Common problems companies solve with Go</p>
+                  </li>
+                  <li class="go-Header-submenuItem">
+                    <div>
+                      <a href="https://go.dev/solutions#use-cases">
+                        Use Cases
+                      </a>
+                    </div>
+                    <p>Stories about how and why companies use Go</p>
+                  </li>
+                  <li class="go-Header-submenuItem">
+                    <div>
+                      <a href="https://go.dev/security/policy/">
+                        Security Policy
+                      </a>
+                    </div>
+                    <p>How Go can help keep you secure by default</p>
+                  </li>
+              </ul>
+            </li>
+            <li class="go-Header-menuItem">
+              <a href="https://go.dev/learn/" data-gtmc="nav link">Learn</a>
+            </li>
+            <li class="go-Header-menuItem">
+              <a class="js-desktop-menu-hover" href="#" data-gtmc="nav link">
+                Docs
+                <img class="go-Icon" height="24" width="24" src="/static/shared/icon/arrow_drop_down_gm_grey_24dp.svg" alt="submenu dropdown icon">
+              </a>
+              <ul class="go-Header-submenu go-Header-submenu--docs js-desktop-submenu-hover" aria-label="submenu">
+                <li class="go-Header-submenuItem">
+                  <div>
+                    <a href="https://go.dev/doc/effective_go">
+                      <span>Effective Go</span>
+                    </a>
+                  </div>
+                  <p>Tips for writing clear, performant, and idiomatic Go code</p>
+                </li>
+                <li class="go-Header-submenuItem">
+                  <div>
+                    <a href="https://go.dev/doc/">
+                      <span>Go User Manual</span>
+                    </a>
+                  </div>
+                  <p>A complete introduction to building software with Go</p>
+                </li>
+                <li class="go-Header-submenuItem">
+                  <div>
+                    <a href="https://pkg.go.dev/std">
+                      <span>Standard library</span>
+                    </a>
+                  </div>
+                  <p>Reference documentation for Go's standard library</p>
+                </li>
+                <li class="go-Header-submenuItem">
+                  <div>
+                    <a href="https://go.dev/doc/devel/release">
+                      <span>Release Notes</span>
+                    </a>
+                  </div>
+                  <p>Learn what's new in each Go release</p>
+                </li>
+              </ul>
+            </li>
+            <li class="go-Header-menuItem go-Header-menuItem--active">
+              <a href="/" data-gtmc="nav link">Packages</a>
+            </li>
+            <li class="go-Header-menuItem">
+              <a class="js-desktop-menu-hover" href="#" data-gtmc="nav link">
+                Community
+                <img class="go-Icon" height="24" width="24" src="/static/shared/icon/arrow_drop_down_gm_grey_24dp.svg" alt="submenu dropdown icon">
+              </a>
+              <ul class="go-Header-submenu go-Header-submenu--community js-desktop-submenu-hover" aria-label="submenu">
+                <li class="go-Header-submenuItem">
+                  <div>
+                    <a href="https://go.dev/talks/">
+                      <span>Recorded Talks</span>
+                    </a>
+                  </div>
+                  <p>Videos from prior events</p>
+                </li>
+                <li class="go-Header-submenuItem">
+                  <div>
+                    <a href="https://www.meetup.com/pro/go">
+                      <span>Meetups</span>
+                      <i class="material-icons">
+                        <img class="go-Icon" height="24" width="24" src="/static/shared/icon/launch_gm_grey_24dp.svg" alt="">
+                      </i>
+                    </a>
+                  </div>
+                  <p>Meet other local Go developers</p>
+                </li>
+                <li class="go-Header-submenuItem">
+                  <div>
+                    <a href="https://github.com/golang/go/wiki/Conferences">
+                      <span>Conferences</span>
+                      <i class="material-icons">
+                        <img class="go-Icon" height="24" width="24" src="/static/shared/icon/launch_gm_grey_24dp.svg" alt="">
+                      </i>
+                    </a>
+                  </div>
+                  <p>Learn and network with Go developers from around the world</p>
+                </li>
+                <li class="go-Header-submenuItem">
+                  <div>
+                    <a href="https://go.dev/blog">
+                      <span>Go blog</span>
+                    </a>
+                  </div>
+                  <p>The Go project's official blog.</p>
+                </li>
+                <li class="go-Header-submenuItem">
+                  <div>
+                    <a href="https://go.dev/help">
+                      <span>Go project</span>
+                    </a>
+                  </div>
+                  <p>Get help and stay informed from Go</p>
+                </li>
+                <li class="go-Header-submenuItem">
+                  <div>
+                    Get connected
+                  </div>
+                  <p></p>
+                  <div class="go-Header-socialIcons">
+                      <a class="go-Header-socialIcon" aria-label="Get connected with google-groups (Opens in new window)" href="https://groups.google.com/g/golang-nuts"><img src="/static/shared/logo/social/google-groups.svg"></a>
+                      <a class="go-Header-socialIcon" aria-label="Get connected with github (Opens in new window)" href="https://github.com/golang"><img src="/static/shared/logo/social/github.svg"></a>
+                      <a class="go-Header-socialIcon" aria-label="Get connected with twitter (Opens in new window)" href="https://twitter.com/golang"><img src="/static/shared/logo/social/twitter.svg"></a>
+                      <a class="go-Header-socialIcon" aria-label="Get connected with reddit (Opens in new window)" href="https://www.reddit.com/r/golang/"><img src="/static/shared/logo/social/reddit.svg"></a>
+                      <a class="go-Header-socialIcon" aria-label="Get connected with slack (Opens in new window)" href="https://invite.slack.golangbridge.org/"><img src="/static/shared/logo/social/slack.svg"></a>
+                      <a class="go-Header-socialIcon" aria-label="Get connected with stack-overflow (Opens in new window)" href="https://stackoverflow.com/collectives/go"><img src="/static/shared/logo/social/stack-overflow.svg"></a>
+                  </div>
+                </li>
+              </ul>
+            </li>
+          </ul>
+          <button class="go-Header-navOpen js-headerMenuButton go-Header-navOpen--white" data-gtmc="nav button" aria-label="Open navigation">
+          </button>
+        </div>
+      </nav>
+    </div>
+  </header>
+  <aside class="go-NavigationDrawer js-header">
+    <nav class="go-NavigationDrawer-nav">
+      <div class="go-NavigationDrawer-header">
+        <a href="https://go.dev/" tabindex="-1">
+          <img class="go-NavigationDrawer-logo" src="/static/shared/logo/go-blue.svg" alt="Go.">
+        </a>
+      </div>
+      <ul class="go-NavigationDrawer-list">
+          <li class="go-NavigationDrawer-listItem js-mobile-subnav-trigger go-NavigationDrawer-hasSubnav">
+            <a href="#" tabindex="-1">
+              <span>Why Go</span>
+              <i class="material-icons">
+                <img class="go-Icon" height="24" width="24" src="/static/shared/icon/navigate_next_gm_grey_24dp.svg" alt="">
+              </i>
+            </a>
+
+            <div class="go-NavigationDrawer go-NavigationDrawer-submenuItem">
+              <div class="go-NavigationDrawer-nav">
+                <div class="go-NavigationDrawer-header">
+                  <a href="#" tabindex="-1">
+                    <i class="material-icons">
+                      <img class="go-Icon" height="24" width="24" src="/static/shared/icon/navigate_before_gm_grey_24dp.svg" alt="">
+                      </i>
+                      Why Go
+                  </a>
+                </div>
+                <ul class="go-NavigationDrawer-list">
+                  <li class="go-NavigationDrawer-listItem">
+                    <a href="https://go.dev/solutions#case-studies" tabindex="-1">
+                      Case Studies
+                    </a>
+                  </li>
+                  <li class="go-NavigationDrawer-listItem">
+                    <a href="https://go.dev/solutions#use-cases" tabindex="-1">
+                      Use Cases
+                    </a>
+                  </li>
+                  <li class="go-NavigationDrawer-listItem">
+                    <a href="https://go.dev/security/policy/" tabindex="-1">
+                      Security Policy
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="go-NavigationDrawer-listItem">
+            <a href="https://go.dev/learn/" tabindex="-1">Learn</a>
+          </li>
+          <li class="go-NavigationDrawer-listItem js-mobile-subnav-trigger go-NavigationDrawer-hasSubnav">
+            <a href="#" tabindex="-1">
+              <span>Docs</span>
+              <i class="material-icons">
+                <img class="go-Icon" height="24" width="24" src="/static/shared/icon/navigate_next_gm_grey_24dp.svg" alt="">
+              </i>
+            </a>
+
+            <div class="go-NavigationDrawer go-NavigationDrawer-submenuItem">
+              <div class="go-NavigationDrawer-nav">
+                <div class="go-NavigationDrawer-header">
+                  <a href="#" tabindex="-1"><i class="material-icons">
+                    <img class="go-Icon" height="24" width="24" src="/static/shared/icon/navigate_before_gm_grey_24dp.svg" alt="">
+                    </i>
+                    Docs
+                  </a>
+                </div>
+                <ul class="go-NavigationDrawer-list">
+                  <li class="go-NavigationDrawer-listItem">
+                    <a href="https://go.dev/doc/effective_go" tabindex="-1">
+                      Effective Go
+                    </a>
+                  </li>
+                  <li class="go-NavigationDrawer-listItem">
+                    <a href="https://go.dev/doc/" tabindex="-1">
+                      Go User Manual
+                    </a>
+                  </li>
+                  <li class="go-NavigationDrawer-listItem">
+                    <a href="https://pkg.go.dev/std" tabindex="-1">
+                      Standard library
+                    </a>
+                  </li>
+                  <li class="go-NavigationDrawer-listItem">
+                    <a href="https://go.dev/doc/devel/release" tabindex="-1">
+                      Release Notes
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="go-NavigationDrawer-listItem go-NavigationDrawer-listItem--active">
+            <a href="/" tabindex="-1">Packages</a>
+          </li>
+          <li class="go-NavigationDrawer-listItem js-mobile-subnav-trigger go-NavigationDrawer-hasSubnav">
+            <a href="#" tabindex="-1">
+              <span>Community</span>
+              <i class="material-icons">
+                <img class="go-Icon" height="24" width="24" src="/static/shared/icon/navigate_next_gm_grey_24dp.svg" alt="">
+              </i>
+            </a>
+            <div class="go-NavigationDrawer go-NavigationDrawer-submenuItem">
+              <div class="go-NavigationDrawer-nav">
+                <div class="go-NavigationDrawer-header">
+                  <a href="#" tabindex="-1">
+                    <i class="material-icons">
+                      <img class="go-Icon" height="24" width="24" src="/static/shared/icon/navigate_before_gm_grey_24dp.svg" alt="">
+                    </i>
+                    Community
+                  </a>
+                </div>
+                <ul class="go-NavigationDrawer-list">
+                  <li class="go-NavigationDrawer-listItem">
+                    <a href="https://go.dev/talks/" tabindex="-1">
+                      Recorded Talks
+                    </a>
+                  </li>
+                  <li class="go-NavigationDrawer-listItem">
+                    <a href="https://www.meetup.com/pro/go" tabindex="-1">
+                      Meetups
+                      <i class="material-icons">
+                      <img class="go-Icon" height="24" width="24" src="/static/shared/icon/launch_gm_grey_24dp.svg" alt="">
+                      </i>
+                    </a>
+                  </li>
+                  <li class="go-NavigationDrawer-listItem">
+                    <a href="https://github.com/golang/go/wiki/Conferences" tabindex="-1">
+                      Conferences
+                      <i class="material-icons">
+                        <img class="go-Icon" height="24" width="24" src="/static/shared/icon/launch_gm_grey_24dp.svg" alt="">
+                      </i>
+                    </a>
+                  </li>
+                  <li class="go-NavigationDrawer-listItem">
+                    <a href="https://go.dev/blog" tabindex="-1">
+                      Go blog
+                    </a>
+                  </li>
+                  <li class="go-NavigationDrawer-listItem">
+                    <a href="https://go.dev/help" tabindex="-1">
+                      Go project
+                    </a>
+                  </li>
+                  <li class="go-NavigationDrawer-listItem">
+                    <div>Get connected</div>
+                    <div class="go-Header-socialIcons">
+                        <a class="go-Header-socialIcon" href="https://groups.google.com/g/golang-nuts" tabindex="-1"><img src="/static/shared/logo/social/google-groups.svg"></a>
+                        <a class="go-Header-socialIcon" href="https://github.com/golang" tabindex="-1"><img src="/static/shared/logo/social/github.svg"></a>
+                        <a class="go-Header-socialIcon" href="https://twitter.com/golang" tabindex="-1"><img src="/static/shared/logo/social/twitter.svg"></a>
+                        <a class="go-Header-socialIcon" href="https://www.reddit.com/r/golang/" tabindex="-1"><img src="/static/shared/logo/social/reddit.svg"></a>
+                        <a class="go-Header-socialIcon" href="https://invite.slack.golangbridge.org/" tabindex="-1"><img src="/static/shared/logo/social/slack.svg"></a>
+                        <a class="go-Header-socialIcon" href="https://stackoverflow.com/collectives/go" tabindex="-1"><img src="/static/shared/logo/social/stack-overflow.svg"></a>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </li>
+      </ul>
+    </nav>
+  </aside>
+  <div class="go-NavigationDrawer-scrim js-scrim" role="presentation"></div>
+
+    
+  <main class="go-Main" id="main-content">
+    <div class="go-Main-banner" role="alert"></div>
+    <header class="go-Main-header js-mainHeader" data-fixed="true" data-raised="true">
+  
+  
+  <nav class="go-Main-headerBreadcrumb go-Breadcrumb" aria-label="Breadcrumb" data-test-id="UnitHeader-breadcrumb" data-fixed="true">
+    <ol>
+      
+        
+          <li data-test-id="UnitHeader-breadcrumbItem">
+            <a href="/" data-gtmc="breadcrumb link">Discover Packages</a>
+          </li>
+        
+          <li data-test-id="UnitHeader-breadcrumbItem">
+            <a href="/github.com/google/generative-ai-go" data-gtmc="breadcrumb link">github.com/google/generative-ai-go</a>
+          </li>
+        
+        <li>
+          <a href="/github.com/google/generative-ai-go@v0.4.0/genai" data-gtmc="breadcrumb link" aria-current="location" data-test-id="UnitHeader-breadcrumbCurrent">
+            genai
+          </a>
+          
+            <button class="go-Button go-Button--inline go-Clipboard js-clipboard" title="Copy path to clipboard.
+
+github.com/google/generative-ai-go/genai" aria-label="Copy Path to Clipboard" data-to-copy="github.com/google/generative-ai-go/genai" data-gtmc="breadcrumbs button">
+              <img class="go-Icon go-Icon--accented" height="24" width="24" src="/static/shared/icon/content_copy_gm_grey_24dp.svg" alt="">
+            </button>
+          
+        
+      </li>
+    </ol>
+  </nav>
+
+  <div class="go-Main-headerContent" data-fixed="true">
+    
+  <div class="go-Main-headerTitle js-stickyHeader" data-fixed="true">
+    <a class="go-Main-headerLogo" href="https://go.dev/" aria-hidden="true" tabindex="-1" data-gtmc="header link" aria-label="Link to Go Homepage" data-fixed="true">
+      <img height="78" width="207" src="/static/shared/logo/go-blue.svg" alt="Go">
+    </a>
+    <h1 class="UnitHeader-titleHeading" data-test-id="UnitHeader-title">genai</h1>
+    
+      <span class="go-Chip go-Chip--inverted">package</span>
+    
+    
+      
+        <button class="go-Button go-Button--inline go-Clipboard js-clipboard" title="Copy path to clipboard.
+
+github.com/google/generative-ai-go/genai" aria-label="Copy Path to Clipboard" data-to-copy="github.com/google/generative-ai-go/genai" data-gtmc="title button" tabindex="-1">
+          <img class="go-Icon go-Icon--accented" height="24" width="24" src="/static/shared/icon/content_copy_gm_grey_24dp.svg" alt="">
+        </button>
+      
+    
+  </div>
+
+    
+  <div class="go-Main-headerDetails" data-fixed="true">
+    
+      
+  <span class="go-Main-headerDetailItem" data-test-id="UnitHeader-version" data-fixed="true">
+    <a href="?tab=versions" aria-label="Version: v0.4.0" data-gtmc="header link" aria-describedby="version-description">
+      <span class="go-textSubtle" aria-hidden="true">Version: </span>
+        v0.4.0
+    </a>
+    <div class="screen-reader-only" id="version-description" hidden="">
+      Opens a new window with list of versions in this module.
+    </div>
+    
+    <span class="DetailsHeader-badge--latest" data-test-id="UnitHeader-minorVersionBanner">
+      <span class="go-Chip DetailsHeader-span--latest">Latest</span>
+      <span class="go-Chip DetailsHeader-span--notAtLatest">
+        Latest
+        
+  <details class="go-Tooltip js-tooltip" data-gtmc="tooltip">
+    <summary>
+      <img class="go-Icon go-Icon--inverted" height="24" width="24" src="/static/shared/icon/alert_gm_grey_24dp.svg" alt="Warning">
+    </summary>
+    <p>This package is not in the latest version of its module.</p>
+  </details>
+
+      </span>
+      <a href="/github.com/google/generative-ai-go/genai" aria-label="Go to Latest Version" data-gtmc="header link">
+        <span class="go-Chip go-Chip--alert DetailsHeader-span--goToLatest">Go to latest</span>
+      </a>
+    </span>
+  </span>
+
+      
+  <span class="go-Main-headerDetailItem" data-test-id="UnitHeader-commitTime" data-fixed="true">
+    Published: Dec 14, 2023
+  </span>
+
+      
+  <span class="go-Main-headerDetailItem" data-test-id="UnitHeader-licenses" data-fixed="true">
+    License: <a href="/github.com/google/generative-ai-go/genai?tab=licenses" data-test-id="UnitHeader-license" data-gtmc="header link" aria-describedby="license-description">Apache-2.0</a>
+      
+    
+  </span>
+  <div class="screen-reader-only" id="license-description" hidden="">
+    Opens a new window with license information.
+  </div>
+
+      
+        
+  <span class="go-Main-headerDetailItem" data-test-id="UnitHeader-imports" data-fixed="true">
+    <a href="/github.com/google/generative-ai-go/genai?tab=imports" aria-label="Imports: 10" data-gtmc="header link" aria-describedby="imports-description">
+      <span class="go-textSubtle">Imports: </span>10
+    </a>
+  </span>
+  <div class="screen-reader-only" id="imports-description" hidden="">
+    Opens a new window with list of imports.
+  </div>
+
+        
+  <span class="go-Main-headerDetailItem" data-test-id="UnitHeader-importedby" data-fixed="true">
+    <a href="/github.com/google/generative-ai-go/genai?tab=importedby" aria-label="Imported By: 1" data-gtmc="header link" aria-describedby="importedby-description">
+       <span class="go-textSubtle">Imported by: </span>1
+    </a>
+  </span>
+  <div class="screen-reader-only" id="importedby-description" hidden="">
+    Opens a new window with list of known importers.
+  </div>
+
+      
+    
+  </div>
+  
+  <div class="UnitHeader-overflowContainer">
+    <svg class="UnitHeader-overflowImage" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
+      <path d="M0 0h24v24H0z" fill="none"></path>
+      <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"></path>
+    </svg>
+    <select class="UnitHeader-overflowSelect js-selectNav" tabindex="-1">
+      <option value="/">Main</option>
+      <option value="/github.com/google/generative-ai-go/genai?tab=versions">
+        Versions
+      </option>
+      <option value="/github.com/google/generative-ai-go/genai?tab=licenses">
+        Licenses
+      </option>
+      
+        <option value="/github.com/google/generative-ai-go/genai?tab=imports">
+          Imports
+        </option>
+        <option value="/github.com/google/generative-ai-go/genai?tab=importedby">
+          Imported By
+        </option>
+      
+    </select>
+  </div>
+
+
+  </div>
+
+</header>
+    <aside class="go-Main-aside  js-mainAside"><div></div>
+  
+  <div class="UnitMeta">
+    <h2 class="go-textLabel">Details</h2>
+    
+  <ul class="UnitMeta-details">
+    <li>
+      <details class="go-Tooltip js-tooltip" data-gtmc="tooltip">
+        <summary class="go-textSubtle">
+          
+  <img class="go-Icon go-Icon--accented" src="/static/shared/icon/check_circle_gm_grey_24dp.svg" alt="checked" height="24" width="24">
+
+          Valid <a href="https://github.com/google/generative-ai-go/tree/v0.4.0/go.mod" target="_blank" rel="noopener">go.mod</a> file
+          <img class="go-Icon" src="/static/shared/icon/help_gm_grey_24dp.svg" alt="" height="24" width="24">
+        </summary>
+        <p>
+          The Go module system was introduced in Go 1.11 and is the official dependency management
+          solution for Go.
+        </p>
+      </details>
+    </li>
+    <li>
+      <details class="go-Tooltip js-tooltip" data-gtmc="tooltip">
+        <summary class="go-textSubtle">
+          
+  <img class="go-Icon go-Icon--accented" src="/static/shared/icon/check_circle_gm_grey_24dp.svg" alt="checked" height="24" width="24">
+
+          Redistributable license
+          <img class="go-Icon" src="/static/shared/icon/help_gm_grey_24dp.svg" alt="" height="24" width="24">
+        </summary>
+        <p>
+          Redistributable licenses place minimal restrictions on how software can be used,
+          modified, and redistributed.
+        </p>
+      </details>
+    </li>
+    <li>
+      <details class="go-Tooltip js-tooltip" data-gtmc="tooltip">
+        <summary class="go-textSubtle">
+          
+  <img class="go-Icon go-Icon--accented" src="/static/shared/icon/check_circle_gm_grey_24dp.svg" alt="checked" height="24" width="24">
+
+          Tagged version
+          <img class="go-Icon" src="/static/shared/icon/help_gm_grey_24dp.svg" alt="" height="24" width="24">
+        </summary>
+        <p>Modules with tagged versions give importers more predictable builds.</p>
+      </details>
+    </li>
+    <li>
+      <details class="go-Tooltip js-tooltip" data-gtmc="tooltip">
+        <summary class="go-textSubtle">
+          
+  <img class="go-Icon" src="/static/shared/icon/cancel_gm_grey_24dp.svg" alt="unchecked" height="24" width="24">
+
+          Stable version
+          <img class="go-Icon" src="/static/shared/icon/help_gm_grey_24dp.svg" alt="" height="24" width="24">
+        </summary>
+        <p>When a project reaches major version v1 it is considered stable.</p>
+      </details>
+    </li>
+    <li class="UnitMeta-detailsLearn">
+      <a href="/about#best-practices" data-gtmc="meta link">Learn more about best practices</a>
+    </li>
+  </ul>
+
+    <h2 class="go-textLabel">Repository</h2>
+    <div class="UnitMeta-repo">
+      
+        <a href="https://github.com/google/generative-ai-go" title="https://github.com/google/generative-ai-go" target="_blank" rel="noopener">
+          github.com/google/generative-ai-go
+        </a>
+      
+    </div>
+    
+      <h2 class="go-textLabel">Links</h2>
+      <ul class="UnitMeta-links">
+        
+        
+          <li>
+            <a href="https://deps.dev/go/github.com%2Fgoogle%2Fgenerative-ai-go/v0.4.0" title="View this module on Open Source Insights" target="_blank" rel="noopener" data-test-id="meta-link-depsdev">
+              <img class="depsdev-Icon" src="/static/shared/icon/depsdev-logo.svg" alt="Open Source Insights Logo">
+              Open Source Insights
+            </a>
+          </li>
+        
+        
+  
+
+        
+  
+
+        
+  
+
+      </ul>
+    
+  </div>
+
+</aside>
+    <nav class="go-Main-nav go-Main-nav--sticky js-mainNav go-Main-nav--fixed" aria-label="Outline" data-fixed="true"><div></div>
+  <div class="go-Main-navDesktop">
+    
+  <div class="UnitOutline-jumpTo">
+    <button class="UnitOutline-jumpToInput go-ShortcutKey js-jumpToInput" aria-controls="jump-to-modal" aria-label="Open Jump to Identifier" data-shortcut="f" data-shortcut-alt="find" data-test-id="jump-to-button" data-gtmc="outline button">
+      Jump to ...
+    </button>
+  </div>
+  <ul class="go-Tree js-tree" role="tree" aria-label="Outline" style="--js-tree-height: 0px;">
+    
+    
+      <li role="none">
+        <a href="#section-documentation" data-gtmc="outline link" tabindex="-1" aria-level="1" aria-owns="_nav_group_Documentation" aria-expanded="true" role="treeitem" aria-selected="false">
+          Documentation
+        </a>
+        
+<ul role="group" id="_nav_group_Documentation">
+  
+    <li role="none">
+      <a href="#pkg-overview" data-gtmc="doc outline link" tabindex="-1" aria-level="2" role="treeitem" aria-selected="false">Overview</a>
+    </li>
+  <li class="DocNav-overview" role="none">
+      <a href="#pkg-index" data-gtmc="doc outline link" tabindex="-1" aria-level="2" aria-owns="Documentation_nav_group_Index" aria-expanded="false" role="treeitem" aria-selected="false">
+        Index
+      </a>
+      
+        <ul role="group" id="Documentation_nav_group_Index">
+          <li role="none">
+            <a href="#pkg-examples" data-gtmc="doc outline link" tabindex="-1" aria-level="3" role="treeitem" aria-selected="false">
+              Examples
+            </a>
+          </li>
+        </ul>
+      
+    </li>
+    <li class="DocNav-constants" role="none">
+      <a href="#pkg-constants" data-gtmc="doc outline link" tabindex="-1" aria-level="2" role="treeitem" aria-selected="false">
+        Constants
+      </a>
+    </li>
+    <li class="DocNav-variables" role="none">
+      <a href="#pkg-variables" data-gtmc="doc outline link" tabindex="-1" aria-level="2" role="treeitem">
+        Variables
+      </a>
+    </li>
+    <li class="DocNav-functions" role="none">
+      <a href="#pkg-functions" data-gtmc="doc outline link" tabindex="-1" aria-level="2" role="treeitem">
+        Functions
+      </a>
+      
+    </li>
+    <li class="DocNav-types" role="none">
+      <a href="#pkg-types" data-gtmc="doc outline link" tabindex="-1" aria-level="2" aria-owns="Documentation_nav_group_Types" aria-expanded="true" role="treeitem" aria-selected="false">
+        Types
+      </a>
+      <ul role="group" id="Documentation_nav_group_Types">
+        
+          
+          <li role="none">
+            <a href="#Blob" title="type Blob" data-gtmc="doc outline link" tabindex="-1" aria-level="3" aria-owns="Types_nav_group_type_Blob" aria-expanded="false" role="treeitem" aria-selected="false">
+              type Blob
+            </a>
+            
+              <ul role="group" id="Types_nav_group_type_Blob">
+                
+                  <li role="none">
+                    <a href="#ImageData" title="ImageData(format, data)" data-gtmc="doc outline link" tabindex="-1" aria-level="4" role="treeitem" aria-selected="false">
+                      ImageData(format, data)
+                    </a>
+                  </li>
+                
+                
+              </ul>
+             
+          </li>
+        
+          
+          <li role="none">
+            <a href="#BlockReason" title="type BlockReason" data-gtmc="doc outline link" tabindex="-1" aria-level="3" aria-owns="Types_nav_group_type_BlockReason" aria-expanded="false" role="treeitem" aria-selected="false">
+              type BlockReason
+            </a>
+            
+              <ul role="group" id="Types_nav_group_type_BlockReason">
+                
+                
+                  <li role="none">
+                    <a href="#BlockReason.String" title="(v) String()" data-gtmc="doc outline link" tabindex="-1" aria-level="4" role="treeitem" aria-selected="false">
+                      (v) String()
+                    </a>
+                  </li>
+                
+              </ul>
+             
+          </li>
+        
+          
+          <li role="none">
+            <a href="#BlockedError" title="type BlockedError" data-gtmc="doc outline link" tabindex="-1" aria-level="3" aria-owns="Types_nav_group_type_BlockedError" aria-expanded="false" role="treeitem" aria-selected="false">
+              type BlockedError
+            </a>
+            
+              <ul role="group" id="Types_nav_group_type_BlockedError">
+                
+                
+                  <li role="none">
+                    <a href="#BlockedError.Error" title="(e) Error()" data-gtmc="doc outline link" tabindex="-1" aria-level="4" role="treeitem" aria-selected="false">
+                      (e) Error()
+                    </a>
+                  </li>
+                
+              </ul>
+             
+          </li>
+        
+          
+          <li role="none">
+            <a href="#Candidate" title="type Candidate" data-gtmc="doc outline link" tabindex="-1" aria-level="3" role="treeitem">
+              type Candidate
+            </a>
+             
+          </li>
+        
+          
+          <li role="none">
+            <a href="#ChatSession" title="type ChatSession" data-gtmc="doc outline link" tabindex="-1" aria-level="3" aria-owns="Types_nav_group_type_ChatSession" aria-expanded="false" role="treeitem" aria-selected="false">
+              type ChatSession
+            </a>
+            
+              <ul role="group" id="Types_nav_group_type_ChatSession">
+                
+                
+                  <li role="none">
+                    <a href="#ChatSession.SendMessage" title="(cs) SendMessage(ctx, parts)" data-gtmc="doc outline link" tabindex="-1" aria-level="4" role="treeitem" aria-selected="false">
+                      (cs) SendMessage(ctx, parts)
+                    </a>
+                  </li>
+                
+                  <li role="none">
+                    <a href="#ChatSession.SendMessageStream" title="(cs) SendMessageStream(ctx, parts)" data-gtmc="doc outline link" tabindex="-1" aria-level="4" role="treeitem" aria-selected="false">
+                      (cs) SendMessageStream(ctx, parts)
+                    </a>
+                  </li>
+                
+              </ul>
+             
+          </li>
+        
+          
+          <li role="none">
+            <a href="#CitationMetadata" title="type CitationMetadata" data-gtmc="doc outline link" tabindex="-1" aria-level="3" role="treeitem" aria-selected="false">
+              type CitationMetadata
+            </a>
+             
+          </li>
+        
+          
+          <li role="none">
+            <a href="#CitationSource" title="type CitationSource" data-gtmc="doc outline link" tabindex="-1" aria-level="3" role="treeitem" aria-selected="false">
+              type CitationSource
+            </a>
+             
+          </li>
+        
+          
+          <li role="none">
+            <a href="#Client" title="type Client" data-gtmc="doc outline link" tabindex="-1" aria-level="3" aria-owns="Types_nav_group_type_Client" aria-expanded="false" role="treeitem" aria-selected="false">
+              type Client
+            </a>
+            
+              <ul role="group" id="Types_nav_group_type_Client">
+                
+                  <li role="none">
+                    <a href="#NewClient" title="NewClient(ctx, opts)" data-gtmc="doc outline link" tabindex="-1" aria-level="4" role="treeitem" aria-selected="false">
+                      NewClient(ctx, opts)
+                    </a>
+                  </li>
+                
+                
+                  <li role="none">
+                    <a href="#Client.Close" title="(c) Close()" data-gtmc="doc outline link" tabindex="-1" aria-level="4" role="treeitem" aria-selected="false">
+                      (c) Close()
+                    </a>
+                  </li>
+                
+                  <li role="none">
+                    <a href="#Client.EmbeddingModel" title="(c) EmbeddingModel(name)" data-gtmc="doc outline link" tabindex="-1" aria-level="4" role="treeitem" aria-selected="false">
+                      (c) EmbeddingModel(name)
+                    </a>
+                  </li>
+                
+                  <li role="none">
+                    <a href="#Client.GenerativeModel" title="(c) GenerativeModel(name)" data-gtmc="doc outline link" tabindex="-1" aria-level="4" role="treeitem" aria-selected="false">
+                      (c) GenerativeModel(name)
+                    </a>
+                  </li>
+                
+                  <li role="none">
+                    <a href="#Client.ListModels" title="(c) ListModels(ctx)" data-gtmc="doc outline link" tabindex="-1" aria-level="4" role="treeitem" aria-selected="false">
+                      (c) ListModels(ctx)
+                    </a>
+                  </li>
+                
+              </ul>
+             
+          </li>
+        
+          
+          <li role="none">
+            <a href="#Content" title="type Content" data-gtmc="doc outline link" tabindex="0" aria-level="3" role="treeitem" aria-selected="true">
+              type Content
+            </a>
+             
+          </li>
+        
+          
+          <li role="none">
+            <a href="#ContentEmbedding" title="type ContentEmbedding" data-gtmc="doc outline link" tabindex="-1" aria-level="3" role="treeitem" aria-selected="false">
+              type ContentEmbedding
+            </a>
+             
+          </li>
+        
+          
+          <li role="none">
+            <a href="#CountTokensResponse" title="type CountTokensResponse" data-gtmc="doc outline link" tabindex="-1" aria-level="3" role="treeitem">
+              type CountTokensResponse
+            </a>
+             
+          </li>
+        
+          
+          <li role="none">
+            <a href="#EmbedContentResponse" title="type EmbedContentResponse" data-gtmc="doc outline link" tabindex="-1" aria-level="3" role="treeitem">
+              type EmbedContentResponse
+            </a>
+             
+          </li>
+        
+          
+          <li role="none">
+            <a href="#EmbeddingModel" title="type EmbeddingModel" data-gtmc="doc outline link" tabindex="-1" aria-level="3" aria-owns="Types_nav_group_type_EmbeddingModel" aria-expanded="false" role="treeitem">
+              type EmbeddingModel
+            </a>
+            
+              <ul role="group" id="Types_nav_group_type_EmbeddingModel">
+                
+                
+                  <li role="none">
+                    <a href="#EmbeddingModel.EmbedContent" title="(m) EmbedContent(ctx, parts)" data-gtmc="doc outline link" tabindex="-1" aria-level="4" role="treeitem">
+                      (m) EmbedContent(ctx, parts)
+                    </a>
+                  </li>
+                
+                  <li role="none">
+                    <a href="#EmbeddingModel.EmbedContentWithTitle" title="(m) EmbedContentWithTitle(ctx, title, parts)" data-gtmc="doc outline link" tabindex="-1" aria-level="4" role="treeitem">
+                      (m) EmbedContentWithTitle(ctx, title, parts)
+                    </a>
+                  </li>
+                
+              </ul>
+             
+          </li>
+        
+          
+          <li role="none">
+            <a href="#FinishReason" title="type FinishReason" data-gtmc="doc outline link" tabindex="-1" aria-level="3" aria-owns="Types_nav_group_type_FinishReason" aria-expanded="false" role="treeitem">
+              type FinishReason
+            </a>
+            
+              <ul role="group" id="Types_nav_group_type_FinishReason">
+                
+                
+                  <li role="none">
+                    <a href="#FinishReason.String" title="(v) String()" data-gtmc="doc outline link" tabindex="-1" aria-level="4" role="treeitem">
+                      (v) String()
+                    </a>
+                  </li>
+                
+              </ul>
+             
+          </li>
+        
+          
+          <li role="none">
+            <a href="#GenerateContentResponse" title="type GenerateContentResponse" data-gtmc="doc outline link" tabindex="-1" aria-level="3" role="treeitem">
+              type GenerateContentResponse
+            </a>
+             
+          </li>
+        
+          
+          <li role="none">
+            <a href="#GenerateContentResponseIterator" title="type GenerateContentResponseIterator" data-gtmc="doc outline link" tabindex="-1" aria-level="3" aria-owns="Types_nav_group_type_GenerateContentResponseIterator" aria-expanded="false" role="treeitem">
+              type GenerateContentResponseIterator
+            </a>
+            
+              <ul role="group" id="Types_nav_group_type_GenerateContentResponseIterator">
+                
+                
+                  <li role="none">
+                    <a href="#GenerateContentResponseIterator.Next" title="(iter) Next()" data-gtmc="doc outline link" tabindex="-1" aria-level="4" role="treeitem">
+                      (iter) Next()
+                    </a>
+                  </li>
+                
+              </ul>
+             
+          </li>
+        
+          
+          <li role="none">
+            <a href="#GenerationConfig" title="type GenerationConfig" data-gtmc="doc outline link" tabindex="-1" aria-level="3" role="treeitem">
+              type GenerationConfig
+            </a>
+             
+          </li>
+        
+          
+          <li role="none">
+            <a href="#GenerativeModel" title="type GenerativeModel" data-gtmc="doc outline link" tabindex="-1" aria-level="3" aria-owns="Types_nav_group_type_GenerativeModel" aria-expanded="false" role="treeitem">
+              type GenerativeModel
+            </a>
+            
+              <ul role="group" id="Types_nav_group_type_GenerativeModel">
+                
+                
+                  <li role="none">
+                    <a href="#GenerativeModel.CountTokens" title="(m) CountTokens(ctx, parts)" data-gtmc="doc outline link" tabindex="-1" aria-level="4" role="treeitem">
+                      (m) CountTokens(ctx, parts)
+                    </a>
+                  </li>
+                
+                  <li role="none">
+                    <a href="#GenerativeModel.GenerateContent" title="(m) GenerateContent(ctx, parts)" data-gtmc="doc outline link" tabindex="-1" aria-level="4" role="treeitem">
+                      (m) GenerateContent(ctx, parts)
+                    </a>
+                  </li>
+                
+                  <li role="none">
+                    <a href="#GenerativeModel.GenerateContentStream" title="(m) GenerateContentStream(ctx, parts)" data-gtmc="doc outline link" tabindex="-1" aria-level="4" role="treeitem">
+                      (m) GenerateContentStream(ctx, parts)
+                    </a>
+                  </li>
+                
+                  <li role="none">
+                    <a href="#GenerativeModel.Name" title="(m) Name()" data-gtmc="doc outline link" tabindex="-1" aria-level="4" role="treeitem">
+                      (m) Name()
+                    </a>
+                  </li>
+                
+                  <li role="none">
+                    <a href="#GenerativeModel.StartChat" title="(m) StartChat()" data-gtmc="doc outline link" tabindex="-1" aria-level="4" role="treeitem">
+                      (m) StartChat()
+                    </a>
+                  </li>
+                
+              </ul>
+             
+          </li>
+        
+          
+          <li role="none">
+            <a href="#HarmBlockThreshold" title="type HarmBlockThreshold" data-gtmc="doc outline link" tabindex="-1" aria-level="3" aria-owns="Types_nav_group_type_HarmBlockThreshold" aria-expanded="false" role="treeitem">
+              type HarmBlockThreshold
+            </a>
+            
+              <ul role="group" id="Types_nav_group_type_HarmBlockThreshold">
+                
+                
+                  <li role="none">
+                    <a href="#HarmBlockThreshold.String" title="(v) String()" data-gtmc="doc outline link" tabindex="-1" aria-level="4" role="treeitem">
+                      (v) String()
+                    </a>
+                  </li>
+                
+              </ul>
+             
+          </li>
+        
+          
+          <li role="none">
+            <a href="#HarmCategory" title="type HarmCategory" data-gtmc="doc outline link" tabindex="-1" aria-level="3" aria-owns="Types_nav_group_type_HarmCategory" aria-expanded="false" role="treeitem">
+              type HarmCategory
+            </a>
+            
+              <ul role="group" id="Types_nav_group_type_HarmCategory">
+                
+                
+                  <li role="none">
+                    <a href="#HarmCategory.String" title="(v) String()" data-gtmc="doc outline link" tabindex="-1" aria-level="4" role="treeitem">
+                      (v) String()
+                    </a>
+                  </li>
+                
+              </ul>
+             
+          </li>
+        
+          
+          <li role="none">
+            <a href="#HarmProbability" title="type HarmProbability" data-gtmc="doc outline link" tabindex="-1" aria-level="3" aria-owns="Types_nav_group_type_HarmProbability" aria-expanded="false" role="treeitem">
+              type HarmProbability
+            </a>
+            
+              <ul role="group" id="Types_nav_group_type_HarmProbability">
+                
+                
+                  <li role="none">
+                    <a href="#HarmProbability.String" title="(v) String()" data-gtmc="doc outline link" tabindex="-1" aria-level="4" role="treeitem">
+                      (v) String()
+                    </a>
+                  </li>
+                
+              </ul>
+             
+          </li>
+        
+          
+          <li role="none">
+            <a href="#Model" title="type Model" data-gtmc="doc outline link" tabindex="-1" aria-level="3" role="treeitem">
+              type Model
+            </a>
+             
+          </li>
+        
+          
+          <li role="none">
+            <a href="#ModelIterator" title="type ModelIterator" data-gtmc="doc outline link" tabindex="-1" aria-level="3" aria-owns="Types_nav_group_type_ModelIterator" aria-expanded="false" role="treeitem">
+              type ModelIterator
+            </a>
+            
+              <ul role="group" id="Types_nav_group_type_ModelIterator">
+                
+                
+                  <li role="none">
+                    <a href="#ModelIterator.Next" title="(it) Next()" data-gtmc="doc outline link" tabindex="-1" aria-level="4" role="treeitem">
+                      (it) Next()
+                    </a>
+                  </li>
+                
+                  <li role="none">
+                    <a href="#ModelIterator.PageInfo" title="(it) PageInfo()" data-gtmc="doc outline link" tabindex="-1" aria-level="4" role="treeitem">
+                      (it) PageInfo()
+                    </a>
+                  </li>
+                
+              </ul>
+             
+          </li>
+        
+          
+          <li role="none">
+            <a href="#Part" title="type Part" data-gtmc="doc outline link" tabindex="-1" aria-level="3" role="treeitem">
+              type Part
+            </a>
+             
+          </li>
+        
+          
+          <li role="none">
+            <a href="#PromptFeedback" title="type PromptFeedback" data-gtmc="doc outline link" tabindex="-1" aria-level="3" role="treeitem">
+              type PromptFeedback
+            </a>
+             
+          </li>
+        
+          
+          <li role="none">
+            <a href="#SafetyRating" title="type SafetyRating" data-gtmc="doc outline link" tabindex="-1" aria-level="3" role="treeitem">
+              type SafetyRating
+            </a>
+             
+          </li>
+        
+          
+          <li role="none">
+            <a href="#SafetySetting" title="type SafetySetting" data-gtmc="doc outline link" tabindex="-1" aria-level="3" role="treeitem">
+              type SafetySetting
+            </a>
+             
+          </li>
+        
+          
+          <li role="none">
+            <a href="#TaskType" title="type TaskType" data-gtmc="doc outline link" tabindex="-1" aria-level="3" aria-owns="Types_nav_group_type_TaskType" aria-expanded="false" role="treeitem">
+              type TaskType
+            </a>
+            
+              <ul role="group" id="Types_nav_group_type_TaskType">
+                
+                
+                  <li role="none">
+                    <a href="#TaskType.String" title="(v) String()" data-gtmc="doc outline link" tabindex="-1" aria-level="4" role="treeitem">
+                      (v) String()
+                    </a>
+                  </li>
+                
+              </ul>
+             
+          </li>
+        
+          
+          <li role="none">
+            <a href="#Text" title="type Text" data-gtmc="doc outline link" tabindex="-1" aria-level="3" role="treeitem">
+              type Text
+            </a>
+             
+          </li>
+         
+      </ul>
+    </li>
+  
+  
+</ul>
+
+      </li>
+    
+    
+      <li role="none">
+        <a href="#section-sourcefiles" data-gtmc="outline link" tabindex="-1" aria-level="1" role="treeitem">
+          Source Files
+        </a>
+      </li>
+    
+    
+  </ul>
+
+  </div>
+  <div class="go-Main-navMobile js-mainNavMobile">
+    <label class="go-Label" aria-label="Menu"><select class="go-Select js-selectNav"><optgroup label="Outline"><option label="Documentation" value="github.com/google/generative-ai-go/genai#section-documentation">Documentation</option><option label="Source Files" value="github.com/google/generative-ai-go/genai#section-sourcefiles">Source Files</option></optgroup><optgroup label="Documentation"><option label="Overview" value="github.com/google/generative-ai-go/genai#pkg-overview">Overview</option><option label="Index" value="github.com/google/generative-ai-go/genai#pkg-index">Index</option><option label="Constants" value="github.com/google/generative-ai-go/genai#pkg-constants">Constants</option><option label="Variables" value="github.com/google/generative-ai-go/genai#pkg-variables">Variables</option><option label="Functions" value="github.com/google/generative-ai-go/genai#pkg-functions">Functions</option><option label="Types" value="github.com/google/generative-ai-go/genai#pkg-types">Types</option></optgroup><optgroup label="Index"><option label="Examples" value="github.com/google/generative-ai-go/genai#pkg-examples">Examples</option></optgroup><optgroup label="Types"><option label="type Blob" value="github.com/google/generative-ai-go/genai#Blob">type Blob</option><option label="type BlockReason" value="github.com/google/generative-ai-go/genai#BlockReason">type BlockReason</option><option label="type BlockedError" value="github.com/google/generative-ai-go/genai#BlockedError">type BlockedError</option><option label="type Candidate" value="github.com/google/generative-ai-go/genai#Candidate">type Candidate</option><option label="type ChatSession" value="github.com/google/generative-ai-go/genai#ChatSession">type ChatSession</option><option label="type CitationMetadata" value="github.com/google/generative-ai-go/genai#CitationMetadata">type CitationMetadata</option><option label="type CitationSource" value="github.com/google/generative-ai-go/genai#CitationSource">type CitationSource</option><option label="type Client" value="github.com/google/generative-ai-go/genai#Client">type Client</option><option label="type Content" value="github.com/google/generative-ai-go/genai#Content">type Content</option><option label="type ContentEmbedding" value="github.com/google/generative-ai-go/genai#ContentEmbedding">type ContentEmbedding</option><option label="type CountTokensResponse" value="github.com/google/generative-ai-go/genai#CountTokensResponse">type CountTokensResponse</option><option label="type EmbedContentResponse" value="github.com/google/generative-ai-go/genai#EmbedContentResponse">type EmbedContentResponse</option><option label="type EmbeddingModel" value="github.com/google/generative-ai-go/genai#EmbeddingModel">type EmbeddingModel</option><option label="type FinishReason" value="github.com/google/generative-ai-go/genai#FinishReason">type FinishReason</option><option label="type GenerateContentResponse" value="github.com/google/generative-ai-go/genai#GenerateContentResponse">type GenerateContentResponse</option><option label="type GenerateContentResponseIterator" value="github.com/google/generative-ai-go/genai#GenerateContentResponseIterator">type GenerateContentResponseIterator</option><option label="type GenerationConfig" value="github.com/google/generative-ai-go/genai#GenerationConfig">type GenerationConfig</option><option label="type GenerativeModel" value="github.com/google/generative-ai-go/genai#GenerativeModel">type GenerativeModel</option><option label="type HarmBlockThreshold" value="github.com/google/generative-ai-go/genai#HarmBlockThreshold">type HarmBlockThreshold</option><option label="type HarmCategory" value="github.com/google/generative-ai-go/genai#HarmCategory">type HarmCategory</option><option label="type HarmProbability" value="github.com/google/generative-ai-go/genai#HarmProbability">type HarmProbability</option><option label="type Model" value="github.com/google/generative-ai-go/genai#Model">type Model</option><option label="type ModelIterator" value="github.com/google/generative-ai-go/genai#ModelIterator">type ModelIterator</option><option label="type Part" value="github.com/google/generative-ai-go/genai#Part">type Part</option><option label="type PromptFeedback" value="github.com/google/generative-ai-go/genai#PromptFeedback">type PromptFeedback</option><option label="type SafetyRating" value="github.com/google/generative-ai-go/genai#SafetyRating">type SafetyRating</option><option label="type SafetySetting" value="github.com/google/generative-ai-go/genai#SafetySetting">type SafetySetting</option><option label="type TaskType" value="github.com/google/generative-ai-go/genai#TaskType">type TaskType</option><option label="type Text" value="github.com/google/generative-ai-go/genai#Text">type Text</option></optgroup><optgroup label="type Blob"><option label="ImageData(format, data)" value="github.com/google/generative-ai-go/genai#ImageData">ImageData(format, data)</option></optgroup><optgroup label="type BlockReason"><option label="(v) String()" value="github.com/google/generative-ai-go/genai#BlockReason.String">(v) String()</option></optgroup><optgroup label="type BlockedError"><option label="(e) Error()" value="github.com/google/generative-ai-go/genai#BlockedError.Error">(e) Error()</option></optgroup><optgroup label="type ChatSession"><option label="(cs) SendMessage(ctx, parts)" value="github.com/google/generative-ai-go/genai#ChatSession.SendMessage">(cs) SendMessage(ctx, parts)</option><option label="(cs) SendMessageStream(ctx, parts)" value="github.com/google/generative-ai-go/genai#ChatSession.SendMessageStream">(cs) SendMessageStream(ctx, parts)</option></optgroup><optgroup label="type Client"><option label="NewClient(ctx, opts)" value="github.com/google/generative-ai-go/genai#NewClient">NewClient(ctx, opts)</option><option label="(c) Close()" value="github.com/google/generative-ai-go/genai#Client.Close">(c) Close()</option><option label="(c) EmbeddingModel(name)" value="github.com/google/generative-ai-go/genai#Client.EmbeddingModel">(c) EmbeddingModel(name)</option><option label="(c) GenerativeModel(name)" value="github.com/google/generative-ai-go/genai#Client.GenerativeModel">(c) GenerativeModel(name)</option><option label="(c) ListModels(ctx)" value="github.com/google/generative-ai-go/genai#Client.ListModels">(c) ListModels(ctx)</option></optgroup><optgroup label="type EmbeddingModel"><option label="(m) EmbedContent(ctx, parts)" value="github.com/google/generative-ai-go/genai#EmbeddingModel.EmbedContent">(m) EmbedContent(ctx, parts)</option><option label="(m) EmbedContentWithTitle(ctx, title, parts)" value="github.com/google/generative-ai-go/genai#EmbeddingModel.EmbedContentWithTitle">(m) EmbedContentWithTitle(ctx, title, parts)</option></optgroup><optgroup label="type FinishReason"><option label="(v) String()" value="github.com/google/generative-ai-go/genai#FinishReason.String">(v) String()</option></optgroup><optgroup label="type GenerateContentResponseIterator"><option label="(iter) Next()" value="github.com/google/generative-ai-go/genai#GenerateContentResponseIterator.Next">(iter) Next()</option></optgroup><optgroup label="type GenerativeModel"><option label="(m) CountTokens(ctx, parts)" value="github.com/google/generative-ai-go/genai#GenerativeModel.CountTokens">(m) CountTokens(ctx, parts)</option><option label="(m) GenerateContent(ctx, parts)" value="github.com/google/generative-ai-go/genai#GenerativeModel.GenerateContent">(m) GenerateContent(ctx, parts)</option><option label="(m) GenerateContentStream(ctx, parts)" value="github.com/google/generative-ai-go/genai#GenerativeModel.GenerateContentStream">(m) GenerateContentStream(ctx, parts)</option><option label="(m) Name()" value="github.com/google/generative-ai-go/genai#GenerativeModel.Name">(m) Name()</option><option label="(m) StartChat()" value="github.com/google/generative-ai-go/genai#GenerativeModel.StartChat">(m) StartChat()</option></optgroup><optgroup label="type HarmBlockThreshold"><option label="(v) String()" value="github.com/google/generative-ai-go/genai#HarmBlockThreshold.String">(v) String()</option></optgroup><optgroup label="type HarmCategory"><option label="(v) String()" value="github.com/google/generative-ai-go/genai#HarmCategory.String">(v) String()</option></optgroup><optgroup label="type HarmProbability"><option label="(v) String()" value="github.com/google/generative-ai-go/genai#HarmProbability.String">(v) String()</option></optgroup><optgroup label="type ModelIterator"><option label="(it) Next()" value="github.com/google/generative-ai-go/genai#ModelIterator.Next">(it) Next()</option><option label="(it) PageInfo()" value="github.com/google/generative-ai-go/genai#ModelIterator.PageInfo">(it) PageInfo()</option></optgroup><optgroup label="type TaskType"><option label="(v) String()" value="github.com/google/generative-ai-go/genai#TaskType.String">(v) String()</option></optgroup></select></label>
+  </div>
+</nav>
+    <article class="go-Main-article js-mainContent">
+  <div class="UnitDetails" data-test-id="UnitDetails" style="display: block;">
+    <div class="UnitDetails-content js-unitDetailsContent" data-test-id="UnitDetails-content">
+      
+      
+        
+          
+  <div class="UnitDoc">
+    <h2 class="UnitDoc-title" id="section-documentation">
+      <img class="go-Icon" height="24" width="24" src="/static/shared/icon/code_gm_grey_24dp.svg" alt="">
+      Documentation
+      <a class="UnitDoc-idLink" href="#section-documentation" aria-label="Go to Documentation">¶</a>
+    </h2>
+    
+  
+    
+  
+
+    <div class="Documentation js-documentation">
+      
+        
+
+<div class="Documentation-content js-docContent"> <section class="Documentation-overview">
+    <h3 tabindex="-1" id="pkg-overview" class="Documentation-overviewHeader">Overview <a href="#pkg-overview" aria-label="Go to Overview">¶</a></h3>
+
+<p>Package genai is a client for the Google Labs generative AI model.
+</p>
+</section><section class="Documentation-index">
+    <h3 id="pkg-index" class="Documentation-indexHeader">Index <a href="#pkg-index" aria-label="Go to Index">¶</a></h3>
+
+<ul class="Documentation-indexList">
+<li class="Documentation-indexType">
+          <a href="#Blob">type Blob</a></li>
+<li><ul class="Documentation-indexTypeFunctions">
+<li>
+            <a href="#ImageData">func ImageData(format string, data []byte) Blob</a></li>
+</ul></li>
+<li class="Documentation-indexType">
+          <a href="#BlockReason">type BlockReason</a></li>
+<li><ul class="Documentation-indexTypeMethods">
+<li>
+            <a href="#BlockReason.String">func (v BlockReason) String() string</a></li>
+</ul></li>
+<li class="Documentation-indexType">
+          <a href="#BlockedError">type BlockedError</a></li>
+<li><ul class="Documentation-indexTypeMethods">
+<li>
+            <a href="#BlockedError.Error">func (e *BlockedError) Error() string</a></li>
+</ul></li>
+<li class="Documentation-indexType">
+          <a href="#Candidate">type Candidate</a></li>
+<li class="Documentation-indexType">
+          <a href="#ChatSession">type ChatSession</a></li>
+<li><ul class="Documentation-indexTypeMethods">
+<li>
+            <a href="#ChatSession.SendMessage">func (cs *ChatSession) SendMessage(ctx context.Context, parts ...Part) (*GenerateContentResponse, error)</a></li>
+<li>
+            <a href="#ChatSession.SendMessageStream">func (cs *ChatSession) SendMessageStream(ctx context.Context, parts ...Part) *GenerateContentResponseIterator</a></li>
+</ul></li>
+<li class="Documentation-indexType">
+          <a href="#CitationMetadata">type CitationMetadata</a></li>
+<li class="Documentation-indexType">
+          <a href="#CitationSource">type CitationSource</a></li>
+<li class="Documentation-indexType">
+          <a href="#Client">type Client</a></li>
+<li><ul class="Documentation-indexTypeFunctions">
+<li>
+            <a href="#NewClient">func NewClient(ctx context.Context, opts ...option.ClientOption) (*Client, error)</a></li>
+</ul></li>
+<li><ul class="Documentation-indexTypeMethods">
+<li>
+            <a href="#Client.Close">func (c *Client) Close() error</a></li>
+<li>
+            <a href="#Client.EmbeddingModel">func (c *Client) EmbeddingModel(name string) *EmbeddingModel</a></li>
+<li>
+            <a href="#Client.GenerativeModel">func (c *Client) GenerativeModel(name string) *GenerativeModel</a></li>
+<li>
+            <a href="#Client.ListModels">func (c *Client) ListModels(ctx context.Context) *ModelIterator</a></li>
+</ul></li>
+<li class="Documentation-indexType">
+          <a href="#Content">type Content</a></li>
+<li class="Documentation-indexType">
+          <a href="#ContentEmbedding">type ContentEmbedding</a></li>
+<li class="Documentation-indexType">
+          <a href="#CountTokensResponse">type CountTokensResponse</a></li>
+<li class="Documentation-indexType">
+          <a href="#EmbedContentResponse">type EmbedContentResponse</a></li>
+<li class="Documentation-indexType">
+          <a href="#EmbeddingModel">type EmbeddingModel</a></li>
+<li><ul class="Documentation-indexTypeMethods">
+<li>
+            <a href="#EmbeddingModel.EmbedContent">func (m *EmbeddingModel) EmbedContent(ctx context.Context, parts ...Part) (*EmbedContentResponse, error)</a></li>
+<li>
+            <a href="#EmbeddingModel.EmbedContentWithTitle">func (m *EmbeddingModel) EmbedContentWithTitle(ctx context.Context, title string, parts ...Part) (*EmbedContentResponse, error)</a></li>
+</ul></li>
+<li class="Documentation-indexType">
+          <a href="#FinishReason">type FinishReason</a></li>
+<li><ul class="Documentation-indexTypeMethods">
+<li>
+            <a href="#FinishReason.String">func (v FinishReason) String() string</a></li>
+</ul></li>
+<li class="Documentation-indexType">
+          <a href="#GenerateContentResponse">type GenerateContentResponse</a></li>
+<li class="Documentation-indexType">
+          <a href="#GenerateContentResponseIterator">type GenerateContentResponseIterator</a></li>
+<li><ul class="Documentation-indexTypeMethods">
+<li>
+            <a href="#GenerateContentResponseIterator.Next">func (iter *GenerateContentResponseIterator) Next() (*GenerateContentResponse, error)</a></li>
+</ul></li>
+<li class="Documentation-indexType">
+          <a href="#GenerationConfig">type GenerationConfig</a></li>
+<li class="Documentation-indexType">
+          <a href="#GenerativeModel">type GenerativeModel</a></li>
+<li><ul class="Documentation-indexTypeMethods">
+<li>
+            <a href="#GenerativeModel.CountTokens">func (m *GenerativeModel) CountTokens(ctx context.Context, parts ...Part) (*CountTokensResponse, error)</a></li>
+<li>
+            <a href="#GenerativeModel.GenerateContent">func (m *GenerativeModel) GenerateContent(ctx context.Context, parts ...Part) (*GenerateContentResponse, error)</a></li>
+<li>
+            <a href="#GenerativeModel.GenerateContentStream">func (m *GenerativeModel) GenerateContentStream(ctx context.Context, parts ...Part) *GenerateContentResponseIterator</a></li>
+<li>
+            <a href="#GenerativeModel.Name">func (m *GenerativeModel) Name() string</a></li>
+<li>
+            <a href="#GenerativeModel.StartChat">func (m *GenerativeModel) StartChat() *ChatSession</a></li>
+</ul></li>
+<li class="Documentation-indexType">
+          <a href="#HarmBlockThreshold">type HarmBlockThreshold</a></li>
+<li><ul class="Documentation-indexTypeMethods">
+<li>
+            <a href="#HarmBlockThreshold.String">func (v HarmBlockThreshold) String() string</a></li>
+</ul></li>
+<li class="Documentation-indexType">
+          <a href="#HarmCategory">type HarmCategory</a></li>
+<li><ul class="Documentation-indexTypeMethods">
+<li>
+            <a href="#HarmCategory.String">func (v HarmCategory) String() string</a></li>
+</ul></li>
+<li class="Documentation-indexType">
+          <a href="#HarmProbability">type HarmProbability</a></li>
+<li><ul class="Documentation-indexTypeMethods">
+<li>
+            <a href="#HarmProbability.String">func (v HarmProbability) String() string</a></li>
+</ul></li>
+<li class="Documentation-indexType">
+          <a href="#Model">type Model</a></li>
+<li class="Documentation-indexType">
+          <a href="#ModelIterator">type ModelIterator</a></li>
+<li><ul class="Documentation-indexTypeMethods">
+<li>
+            <a href="#ModelIterator.Next">func (it *ModelIterator) Next() (*Model, error)</a></li>
+<li>
+            <a href="#ModelIterator.PageInfo">func (it *ModelIterator) PageInfo() *iterator.PageInfo</a></li>
+</ul></li>
+<li class="Documentation-indexType">
+          <a href="#Part">type Part</a></li>
+<li class="Documentation-indexType">
+          <a href="#PromptFeedback">type PromptFeedback</a></li>
+<li class="Documentation-indexType">
+          <a href="#SafetyRating">type SafetyRating</a></li>
+<li class="Documentation-indexType">
+          <a href="#SafetySetting">type SafetySetting</a></li>
+<li class="Documentation-indexType">
+          <a href="#TaskType">type TaskType</a></li>
+<li><ul class="Documentation-indexTypeMethods">
+<li>
+            <a href="#TaskType.String">func (v TaskType) String() string</a></li>
+</ul></li>
+<li class="Documentation-indexType">
+          <a href="#Text">type Text</a></li>
+</ul>
+</section><section class="Documentation-examples">
+    <h4 tabindex="-1" id="pkg-examples" class="Documentation-examplesHeader">Examples <a class="Documentation-idLink" href="#pkg-examples" aria-label="Go to Examples">¶</a></h4>
+<ul class="Documentation-examplesList">
+<li><a href="#example-ChatSession" class="js-exampleHref">ChatSession</a></li>
+<li><a href="#example-Client.ListModels" class="js-exampleHref">Client.ListModels</a></li>
+<li><a href="#example-EmbeddingModel.EmbedContent" class="js-exampleHref">EmbeddingModel.EmbedContent</a></li>
+<li><a href="#example-GenerativeModel.CountTokens" class="js-exampleHref">GenerativeModel.CountTokens</a></li>
+<li><a href="#example-GenerativeModel.GenerateContent" class="js-exampleHref">GenerativeModel.GenerateContent</a></li>
+<li><a href="#example-GenerativeModel.GenerateContent-Config" class="js-exampleHref">GenerativeModel.GenerateContent (Config)</a></li>
+<li><a href="#example-GenerativeModel.GenerateContent-SafetySetting" class="js-exampleHref">GenerativeModel.GenerateContent (SafetySetting)</a></li>
+<li><a href="#example-GenerativeModel.GenerateContentStream" class="js-exampleHref">GenerativeModel.GenerateContentStream</a></li>
+</ul>
+</section><h3 tabindex="-1" id="pkg-constants" class="Documentation-constantsHeader">Constants <a href="#pkg-constants" aria-label="Go to Constants">¶</a></h3>
+
+  <section class="Documentation-constants"><p class="Documentation-empty">This section is empty.</p></section>
+
+  <h3 tabindex="-1" id="pkg-variables" class="Documentation-variablesHeader">Variables <a href="#pkg-variables" aria-label="Go to Variables">¶</a></h3>
+
+  <section class="Documentation-variables"><p class="Documentation-empty">This section is empty.</p></section>
+
+  <h3 tabindex="-1" id="pkg-functions" class="Documentation-functionsHeader">Functions <a href="#pkg-functions" aria-label="Go to Functions">¶</a></h3>
+
+  <section class="Documentation-functions"><p class="Documentation-empty">This section is empty.</p></section>
+
+  <h3 tabindex="-1" id="pkg-types" class="Documentation-typesHeader">Types <a href="#pkg-types" aria-label="Go to Types">¶</a></h3>
+
+  <section class="Documentation-types"><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="Blob" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/generativelanguagepb_veneer.gen.go#L29">Blob</a> <a class="Documentation-idLink" href="#Blob" aria-label="Go to Blob">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type Blob struct {
+<span id="Blob.MIMEType" data-kind="field">	<span class="comment">// The IANA standard MIME type of the source data.</span>
+</span>	<span class="comment">// Accepted types include: "image/png", "image/jpeg", "image/heic",</span>
+	<span class="comment">// "image/heif", "image/webp".</span>
+	MIMEType <a href="/builtin#string">string</a>
+<span id="Blob.Data" data-kind="field">	<span class="comment">// Raw bytes for media formats.</span>
+</span>	Data []<a href="/builtin#byte">byte</a>
+}</pre>
+    </div>
+  <p>Blob contains raw media bytes.
+</p><p>Text should not be sent as raw bytes, use the 'text' field.
+</p>
+<div class="Documentation-typeFunc">
+    
+  
+  
+    <h4 tabindex="-1" id="ImageData" data-kind="function" class="Documentation-typeFuncHeader">
+      <span>func <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/content.go#L75">ImageData</a> <a class="Documentation-idLink" href="#ImageData" aria-label="Go to ImageData">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>func ImageData(format <a href="/builtin#string">string</a>, data []<a href="/builtin#byte">byte</a>) <a href="#Blob">Blob</a></pre>
+    </div>
+  <p>ImageData is a convenience function for creating an image
+Blob for input to a model.
+The format should be the second part of the MIME type, after "image/".
+For example, for a PNG image, pass "png".
+</p>
+
+  
+
+  </div>
+  
+
+    </div><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="BlockReason" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/generativelanguagepb_veneer.gen.go#L59">BlockReason</a> <a class="Documentation-idLink" href="#BlockReason" aria-label="Go to BlockReason">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type BlockReason <a href="/builtin#int32">int32</a></pre>
+    </div>
+  <p>BlockReason is specifies what was the reason why prompt was blocked.
+</p>
+<div class="Documentation-typeConstant">
+    <div class="Documentation-declaration">
+      <pre>const (
+<span id="BlockReasonUnspecified" data-kind="constant">	<span class="comment">// BlockReasonUnspecified means default value. This value is unused.</span>
+</span>	BlockReasonUnspecified <a href="#BlockReason">BlockReason</a> = 0
+<span id="BlockReasonSafety" data-kind="constant">	<span class="comment">// BlockReasonSafety means prompt was blocked due to safety reasons. You can inspect</span>
+</span>	<span class="comment">// `safety_ratings` to understand which safety category blocked it.</span>
+	BlockReasonSafety <a href="#BlockReason">BlockReason</a> = 1
+<span id="BlockReasonOther" data-kind="constant">	<span class="comment">// BlockReasonOther means prompt was blocked due to unknown reaasons.</span>
+</span>	BlockReasonOther <a href="#BlockReason">BlockReason</a> = 2
+)</pre>
+    </div>
+  
+</div><div class="Documentation-typeMethod">
+    
+  
+  
+    <h4 tabindex="-1" id="BlockReason.String" data-kind="method" class="Documentation-typeMethodHeader">
+      <span>func (BlockReason) <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/generativelanguagepb_veneer.gen.go#L77">String</a> <a class="Documentation-idLink" href="#BlockReason.String" aria-label="Go to BlockReason.String">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>func (v <a href="#BlockReason">BlockReason</a>) String() <a href="/builtin#string">string</a></pre>
+    </div>
+  
+
+  
+
+  </div>
+  
+
+    </div><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="BlockedError" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/client.go#L227">BlockedError</a> <a class="Documentation-idLink" href="#BlockedError" aria-label="Go to BlockedError">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type BlockedError struct {
+<span id="BlockedError.Candidate" data-kind="field">	<span class="comment">// If non-nil, the model's response was blocked.</span>
+</span>	<span class="comment">// Consult the Candidate and SafetyRatings fields for details.</span>
+	Candidate *<a href="#Candidate">Candidate</a>
+
+<span id="BlockedError.PromptFeedback" data-kind="field">	<span class="comment">// If non-nil, there was a problem with the prompt.</span>
+</span>	PromptFeedback *<a href="#PromptFeedback">PromptFeedback</a>
+}</pre>
+    </div>
+  <p>A BlockedError indicates that the model's response was blocked.
+There can be two underlying causes: the prompt or a candidate response.
+</p>
+<div class="Documentation-typeMethod">
+    
+  
+  
+    <h4 tabindex="-1" id="BlockedError.Error" data-kind="method" class="Documentation-typeMethodHeader">
+      <span>func (*BlockedError) <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/client.go#L236">Error</a> <a class="Documentation-idLink" href="#BlockedError.Error" aria-label="Go to BlockedError.Error">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>func (e *<a href="#BlockedError">BlockedError</a>) Error() <a href="/builtin#string">string</a></pre>
+    </div>
+  
+
+  
+
+  </div>
+  
+
+    </div><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="Candidate" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/generativelanguagepb_veneer.gen.go#L85">Candidate</a> <a class="Documentation-idLink" href="#Candidate" aria-label="Go to Candidate">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type Candidate struct {
+<span id="Candidate.Index" data-kind="field">	<span class="comment">// Output only. Index of the candidate in the list of candidates.</span>
+</span>	Index <a href="/builtin#int32">int32</a>
+<span id="Candidate.Content" data-kind="field">	<span class="comment">// Output only. Generated content returned from the model.</span>
+</span>	Content *<a href="#Content">Content</a>
+<span id="Candidate.FinishReason" data-kind="field">	<span class="comment">// Optional. Output only. The reason why the model stopped generating tokens.</span>
+</span>	<span class="comment">//</span>
+	<span class="comment">// If empty, the model has not stopped generating the tokens.</span>
+	FinishReason <a href="#FinishReason">FinishReason</a>
+<span id="Candidate.SafetyRatings" data-kind="field">	<span class="comment">// List of ratings for the safety of a response candidate.</span>
+</span>	<span class="comment">//</span>
+	<span class="comment">// There is at most one rating per category.</span>
+	SafetyRatings []*<a href="#SafetyRating">SafetyRating</a>
+<span id="Candidate.CitationMetadata" data-kind="field">	<span class="comment">// Output only. Citation information for model-generated candidate.</span>
+</span>	<span class="comment">//</span>
+	<span class="comment">// This field may be populated with recitation information for any text</span>
+	<span class="comment">// included in the `content`. These are passages that are "recited" from</span>
+	<span class="comment">// copyrighted material in the foundational LLM's training data.</span>
+	CitationMetadata *<a href="#CitationMetadata">CitationMetadata</a>
+<span id="Candidate.TokenCount" data-kind="field">	<span class="comment">// Output only. Token count for this candidate.</span>
+</span>	TokenCount <a href="/builtin#int32">int32</a>
+}</pre>
+    </div>
+  <p>Candidate is a response candidate generated from the model.
+</p>
+
+  
+
+    </div><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="ChatSession" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/chat.go#L22">ChatSession</a> <a class="Documentation-idLink" href="#ChatSession" aria-label="Go to ChatSession">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type ChatSession struct {
+<span id="ChatSession.History" data-kind="field">	History []*<a href="#Content">Content</a>
+</span>	<span class="comment">// contains filtered or unexported fields</span>
+}</pre>
+    </div>
+  <p>A ChatSession provides interactive chat.
+</p>
+<details tabindex="-1" id="example-ChatSession" class="Documentation-exampleDetails js-exampleContainer" open="">
+<summary class="Documentation-exampleDetailsHeader">Example <a href="#example-ChatSession" aria-label="Go to Example">¶</a></summary>
+<div class="Documentation-exampleDetailsBody">
+
+<textarea class="Documentation-exampleCode code" spellcheck="false" style="height: 82.125rem;"></textarea>
+
+<pre><span class="Documentation-exampleOutputLabel">Output:</span>
+
+<span class="Documentation-exampleOutput"></span></pre>
+</div>
+<div class="Documentation-exampleButtonsContainer">
+        <p class="Documentation-exampleError" role="alert" aria-atomic="true"></p>
+        <button class="Documentation-exampleShareButton" aria-label="Share Code">Share</button>
+        <button class="Documentation-exampleFormatButton" aria-label="Format Code">Format</button>
+        <button class="Documentation-exampleRunButton" aria-label="Run Code">Run</button>
+      </div></details>
+
+<div class="Documentation-typeMethod">
+    
+  
+  
+    <h4 tabindex="-1" id="ChatSession.SendMessage" data-kind="method" class="Documentation-typeMethodHeader">
+      <span>func (*ChatSession) <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/chat.go#L33">SendMessage</a> <a class="Documentation-idLink" href="#ChatSession.SendMessage" aria-label="Go to ChatSession.SendMessage">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>func (cs *<a href="#ChatSession">ChatSession</a>) SendMessage(ctx <a href="/context">context</a>.<a href="/context#Context">Context</a>, parts ...<a href="#Part">Part</a>) (*<a href="#GenerateContentResponse">GenerateContentResponse</a>, <a href="/builtin#error">error</a>)</pre>
+    </div>
+  <p>SendMessage sends a request to the model as part of a chat session.
+</p>
+
+  
+
+  </div><div class="Documentation-typeMethod">
+    
+  
+  
+    <h4 tabindex="-1" id="ChatSession.SendMessageStream" data-kind="method" class="Documentation-typeMethodHeader">
+      <span>func (*ChatSession) <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/chat.go#L48">SendMessageStream</a> <a class="Documentation-idLink" href="#ChatSession.SendMessageStream" aria-label="Go to ChatSession.SendMessageStream">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>func (cs *<a href="#ChatSession">ChatSession</a>) SendMessageStream(ctx <a href="/context">context</a>.<a href="/context#Context">Context</a>, parts ...<a href="#Part">Part</a>) *<a href="#GenerateContentResponseIterator">GenerateContentResponseIterator</a></pre>
+    </div>
+  <p>SendMessageStream is like SendMessage, but with a streaming request.
+</p>
+
+  
+
+  </div>
+  
+
+    </div><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="CitationMetadata" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/generativelanguagepb_veneer.gen.go#L137">CitationMetadata</a> <a class="Documentation-idLink" href="#CitationMetadata" aria-label="Go to CitationMetadata">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type CitationMetadata struct {
+<span id="CitationMetadata.CitationSources" data-kind="field">	<span class="comment">// Citations to sources for a specific response.</span>
+</span>	CitationSources []*<a href="#CitationSource">CitationSource</a>
+}</pre>
+    </div>
+  <p>CitationMetadata is a collection of source attributions for a piece of content.
+</p>
+
+  
+
+    </div><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="CitationSource" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/generativelanguagepb_veneer.gen.go#L161">CitationSource</a> <a class="Documentation-idLink" href="#CitationSource" aria-label="Go to CitationSource">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type CitationSource struct {
+<span id="CitationSource.StartIndex" data-kind="field">	<span class="comment">// Optional. Start of segment of the response that is attributed to this</span>
+</span>	<span class="comment">// source.</span>
+	<span class="comment">//</span>
+	<span class="comment">// Index indicates the start of the segment, measured in bytes.</span>
+	StartIndex *<a href="/builtin#int32">int32</a>
+<span id="CitationSource.EndIndex" data-kind="field">	<span class="comment">// Optional. End of the attributed segment, exclusive.</span>
+</span>	EndIndex *<a href="/builtin#int32">int32</a>
+<span id="CitationSource.URI" data-kind="field">	<span class="comment">// Optional. URI that is attributed as a source for a portion of the text.</span>
+</span>	URI *<a href="/builtin#string">string</a>
+<span id="CitationSource.License" data-kind="field">	<span class="comment">// Optional. License for the GitHub project that is attributed as a source for</span>
+</span>	<span class="comment">// segment.</span>
+	<span class="comment">//</span>
+	<span class="comment">// License info is required for code citations.</span>
+	License <a href="/builtin#string">string</a>
+}</pre>
+    </div>
+  <p>CitationSource contains a citation to a source for a portion of a specific response.
+</p>
+
+  
+
+    </div><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="Client" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/client.go#L36">Client</a> <a class="Documentation-idLink" href="#Client" aria-label="Go to Client">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type Client struct {
+	<span class="comment">// contains filtered or unexported fields</span>
+}</pre>
+    </div>
+  <p>A Client is a Google generative AI client.
+</p>
+<div class="Documentation-typeFunc">
+    
+  
+  
+    <h4 tabindex="-1" id="NewClient" data-kind="function" class="Documentation-typeFuncHeader">
+      <span>func <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/client.go#L48">NewClient</a> <a class="Documentation-idLink" href="#NewClient" aria-label="Go to NewClient">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>func NewClient(ctx <a href="/context">context</a>.<a href="/context#Context">Context</a>, opts ...<a href="/google.golang.org/api/option">option</a>.<a href="/google.golang.org/api/option#ClientOption">ClientOption</a>) (*<a href="#Client">Client</a>, <a href="/builtin#error">error</a>)</pre>
+    </div>
+  <p>NewClient creates a new Google generative AI client.
+</p><p>Clients should be reused instead of created as needed. The methods of Client
+are safe for concurrent use by multiple goroutines.
+</p><p>You may configure the client by passing in options from the <a href="/google.golang.org/api/option">google.golang.org/api/option</a>
+package.
+</p>
+
+  
+
+  </div><div class="Documentation-typeMethod">
+    
+  
+  
+    <h4 tabindex="-1" id="Client.Close" data-kind="method" class="Documentation-typeMethodHeader">
+      <span>func (*Client) <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/client.go#L62">Close</a> <a class="Documentation-idLink" href="#Client.Close" aria-label="Go to Client.Close">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>func (c *<a href="#Client">Client</a>) Close() <a href="/builtin#error">error</a></pre>
+    </div>
+  <p>Close closes the client.
+</p>
+
+  
+
+  </div><div class="Documentation-typeMethod">
+    
+  
+  
+    <h4 tabindex="-1" id="Client.EmbeddingModel" data-kind="method" class="Documentation-typeMethodHeader">
+      <span>func (*Client) <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/embed.go#L25">EmbeddingModel</a> <a class="Documentation-idLink" href="#Client.EmbeddingModel" aria-label="Go to Client.EmbeddingModel">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+      <span class="Documentation-sinceVersionLabel">added in</span>
+      <span class="Documentation-sinceVersionVersion">v0.2.0</span>
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>func (c *<a href="#Client">Client</a>) EmbeddingModel(name <a href="/builtin#string">string</a>) *<a href="#EmbeddingModel">EmbeddingModel</a></pre>
+    </div>
+  <p>EmbeddingModel creates a new instance of the named embedding model.
+</p>
+
+  
+
+  </div><div class="Documentation-typeMethod">
+    
+  
+  
+    <h4 tabindex="-1" id="Client.GenerativeModel" data-kind="method" class="Documentation-typeMethodHeader">
+      <span>func (*Client) <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/client.go#L81">GenerativeModel</a> <a class="Documentation-idLink" href="#Client.GenerativeModel" aria-label="Go to Client.GenerativeModel">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>func (c *<a href="#Client">Client</a>) GenerativeModel(name <a href="/builtin#string">string</a>) *<a href="#GenerativeModel">GenerativeModel</a></pre>
+    </div>
+  <p>GenerativeModel creates a new instance of the named generative model.
+</p>
+
+  
+
+  </div><div class="Documentation-typeMethod">
+    
+  
+  
+    <h4 tabindex="-1" id="Client.ListModels" data-kind="method" class="Documentation-typeMethodHeader">
+      <span>func (*Client) <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/list_models.go#L26">ListModels</a> <a class="Documentation-idLink" href="#Client.ListModels" aria-label="Go to Client.ListModels">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+      <span class="Documentation-sinceVersionLabel">added in</span>
+      <span class="Documentation-sinceVersionVersion">v0.2.0</span>
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>func (c *<a href="#Client">Client</a>) ListModels(ctx <a href="/context">context</a>.<a href="/context#Context">Context</a>) *<a href="#ModelIterator">ModelIterator</a></pre>
+    </div>
+  
+<details tabindex="-1" id="example-Client.ListModels" class="Documentation-exampleDetails js-exampleContainer" open="">
+<summary class="Documentation-exampleDetailsHeader">Example <a href="#example-Client.ListModels" aria-label="Go to Example">¶</a></summary>
+<div class="Documentation-exampleDetailsBody">
+
+<textarea class="Documentation-exampleCode code" spellcheck="false" style="height: 43.375rem;"></textarea>
+
+<pre><span class="Documentation-exampleOutputLabel">Output:</span>
+
+<span class="Documentation-exampleOutput"></span></pre>
+</div>
+<div class="Documentation-exampleButtonsContainer">
+        <p class="Documentation-exampleError" role="alert" aria-atomic="true"></p>
+        <button class="Documentation-exampleShareButton" aria-label="Share Code">Share</button>
+        <button class="Documentation-exampleFormatButton" aria-label="Format Code">Format</button>
+        <button class="Documentation-exampleRunButton" aria-label="Run Code">Run</button>
+      </div></details>
+
+
+  
+
+  </div>
+  
+
+    </div><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="Content" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/generativelanguagepb_veneer.gen.go#L207">Content</a> <a class="Documentation-idLink" href="#Content" aria-label="Go to Content">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type Content struct {
+<span id="Content.Parts" data-kind="field">	<span class="comment">// Ordered `Parts` that constitute a single message. Parts may have different</span>
+</span>	<span class="comment">// MIME types.</span>
+	Parts []<a href="#Part">Part</a>
+<span id="Content.Role" data-kind="field">	<span class="comment">// Optional. The producer of the content. Must be either 'user' or 'model'.</span>
+</span>	<span class="comment">//</span>
+	<span class="comment">// Useful to set for multi-turn conversations, otherwise can be left blank</span>
+	<span class="comment">// or unset.</span>
+	Role <a href="/builtin#string">string</a>
+}</pre>
+    </div>
+  <p>Content is the base structured datatype containing multi-part content of a message.
+</p><p>A `Content` includes a `role` field designating the producer of the `Content`
+and a `parts` field containing multi-part data that contains the content of
+the message turn.
+</p>
+
+  
+
+    </div><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="ContentEmbedding" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/generativelanguagepb_veneer.gen.go#L239">ContentEmbedding</a> <a class="Documentation-idLink" href="#ContentEmbedding" aria-label="Go to ContentEmbedding">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+      <span class="Documentation-sinceVersionLabel">added in</span>
+      <span class="Documentation-sinceVersionVersion">v0.2.0</span>
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type ContentEmbedding struct {
+<span id="ContentEmbedding.Values" data-kind="field">	<span class="comment">// The embedding values.</span>
+</span>	Values []<a href="/builtin#float32">float32</a>
+}</pre>
+    </div>
+  <p>ContentEmbedding is a list of floats representing an embedding.
+</p>
+
+  
+
+    </div><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="CountTokensResponse" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/generativelanguagepb_veneer.gen.go#L265">CountTokensResponse</a> <a class="Documentation-idLink" href="#CountTokensResponse" aria-label="Go to CountTokensResponse">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type CountTokensResponse struct {
+<span id="CountTokensResponse.TotalTokens" data-kind="field">	<span class="comment">// The number of tokens that the `model` tokenizes the `prompt` into.</span>
+</span>	<span class="comment">//</span>
+	<span class="comment">// Always non-negative.</span>
+	TotalTokens <a href="/builtin#int32">int32</a>
+}</pre>
+    </div>
+  <p>CountTokensResponse is a response from `CountTokens`.
+</p><p>It returns the model's `token_count` for the `prompt`.
+</p>
+
+  
+
+    </div><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="EmbedContentResponse" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/generativelanguagepb_veneer.gen.go#L291">EmbedContentResponse</a> <a class="Documentation-idLink" href="#EmbedContentResponse" aria-label="Go to EmbedContentResponse">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+      <span class="Documentation-sinceVersionLabel">added in</span>
+      <span class="Documentation-sinceVersionVersion">v0.2.0</span>
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type EmbedContentResponse struct {
+<span id="EmbedContentResponse.Embedding" data-kind="field">	<span class="comment">// Output only. The embedding generated from the input content.</span>
+</span>	Embedding *<a href="#ContentEmbedding">ContentEmbedding</a>
+}</pre>
+    </div>
+  <p>EmbedContentResponse is the response to an `EmbedContentRequest`.
+</p>
+
+  
+
+    </div><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="EmbeddingModel" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/embed.go#L35">EmbeddingModel</a> <a class="Documentation-idLink" href="#EmbeddingModel" aria-label="Go to EmbeddingModel">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+      <span class="Documentation-sinceVersionLabel">added in</span>
+      <span class="Documentation-sinceVersionVersion">v0.2.0</span>
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type EmbeddingModel struct {
+
+<span id="EmbeddingModel.TaskType" data-kind="field">	<span class="comment">// TaskType describes how the embedding will be used.</span>
+</span>	TaskType <a href="#TaskType">TaskType</a>
+	<span class="comment">// contains filtered or unexported fields</span>
+}</pre>
+    </div>
+  <p>EmbeddingModel is a model that computes embeddings.
+Create one with <a href="#Client.EmbeddingModel">Client.EmbeddingModel</a>.
+</p>
+<div class="Documentation-typeMethod">
+    
+  
+  
+    <h4 tabindex="-1" id="EmbeddingModel.EmbedContent" data-kind="method" class="Documentation-typeMethodHeader">
+      <span>func (*EmbeddingModel) <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/embed.go#L44">EmbedContent</a> <a class="Documentation-idLink" href="#EmbeddingModel.EmbedContent" aria-label="Go to EmbeddingModel.EmbedContent">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+      <span class="Documentation-sinceVersionLabel">added in</span>
+      <span class="Documentation-sinceVersionVersion">v0.2.0</span>
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>func (m *<a href="#EmbeddingModel">EmbeddingModel</a>) EmbedContent(ctx <a href="/context">context</a>.<a href="/context#Context">Context</a>, parts ...<a href="#Part">Part</a>) (*<a href="#EmbedContentResponse">EmbedContentResponse</a>, <a href="/builtin#error">error</a>)</pre>
+    </div>
+  <p>EmbedContent returns an embedding for the list of parts.
+</p>
+<details tabindex="-1" id="example-EmbeddingModel.EmbedContent" class="Documentation-exampleDetails js-exampleContainer">
+<summary class="Documentation-exampleDetailsHeader">Example <a href="#example-EmbeddingModel.EmbedContent" aria-label="Go to Example">¶</a></summary>
+<div class="Documentation-exampleDetailsBody">
+
+<textarea class="Documentation-exampleCode code" spellcheck="false" style="height: 35.875rem;"></textarea>
+
+<pre><span class="Documentation-exampleOutputLabel">Output:</span>
+
+<span class="Documentation-exampleOutput"></span></pre>
+</div>
+<div class="Documentation-exampleButtonsContainer">
+        <p class="Documentation-exampleError" role="alert" aria-atomic="true"></p>
+        <button class="Documentation-exampleShareButton" aria-label="Share Code">Share</button>
+        <button class="Documentation-exampleFormatButton" aria-label="Format Code">Format</button>
+        <button class="Documentation-exampleRunButton" aria-label="Run Code">Run</button>
+      </div></details>
+
+
+  
+
+  </div><div class="Documentation-typeMethod">
+    
+  
+  
+    <h4 tabindex="-1" id="EmbeddingModel.EmbedContentWithTitle" data-kind="method" class="Documentation-typeMethodHeader">
+      <span>func (*EmbeddingModel) <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/embed.go#L51">EmbedContentWithTitle</a> <a class="Documentation-idLink" href="#EmbeddingModel.EmbedContentWithTitle" aria-label="Go to EmbeddingModel.EmbedContentWithTitle">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+      <span class="Documentation-sinceVersionLabel">added in</span>
+      <span class="Documentation-sinceVersionVersion">v0.2.0</span>
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>func (m *<a href="#EmbeddingModel">EmbeddingModel</a>) EmbedContentWithTitle(ctx <a href="/context">context</a>.<a href="/context#Context">Context</a>, title <a href="/builtin#string">string</a>, parts ...<a href="#Part">Part</a>) (*<a href="#EmbedContentResponse">EmbedContentResponse</a>, <a href="/builtin#error">error</a>)</pre>
+    </div>
+  <p>EmbedContentWithTitle returns an embedding for the list of parts.
+If the given title is non-empty, it is passed to the model and
+the task type is set to TaskTypeRetrievalDocument.
+</p>
+
+  
+
+  </div>
+  
+
+    </div><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="FinishReason" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/generativelanguagepb_veneer.gen.go#L315">FinishReason</a> <a class="Documentation-idLink" href="#FinishReason" aria-label="Go to FinishReason">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type FinishReason <a href="/builtin#int32">int32</a></pre>
+    </div>
+  <p>FinishReason is defines the reason why the model stopped generating tokens.
+</p>
+<div class="Documentation-typeConstant">
+    <div class="Documentation-declaration">
+      <pre>const (
+<span id="FinishReasonUnspecified" data-kind="constant">	<span class="comment">// FinishReasonUnspecified means default value. This value is unused.</span>
+</span>	FinishReasonUnspecified <a href="#FinishReason">FinishReason</a> = 0
+<span id="FinishReasonStop" data-kind="constant">	<span class="comment">// FinishReasonStop means natural stop point of the model or provided stop sequence.</span>
+</span>	FinishReasonStop <a href="#FinishReason">FinishReason</a> = 1
+<span id="FinishReasonMaxTokens" data-kind="constant">	<span class="comment">// FinishReasonMaxTokens means the maximum number of tokens as specified in the request was reached.</span>
+</span>	FinishReasonMaxTokens <a href="#FinishReason">FinishReason</a> = 2
+<span id="FinishReasonSafety" data-kind="constant">	<span class="comment">// FinishReasonSafety means the candidate content was flagged for safety reasons.</span>
+</span>	FinishReasonSafety <a href="#FinishReason">FinishReason</a> = 3
+<span id="FinishReasonRecitation" data-kind="constant">	<span class="comment">// FinishReasonRecitation means the candidate content was flagged for recitation reasons.</span>
+</span>	FinishReasonRecitation <a href="#FinishReason">FinishReason</a> = 4
+<span id="FinishReasonOther" data-kind="constant">	<span class="comment">// FinishReasonOther means unknown reason.</span>
+</span>	FinishReasonOther <a href="#FinishReason">FinishReason</a> = 5
+)</pre>
+    </div>
+  
+</div><div class="Documentation-typeMethod">
+    
+  
+  
+    <h4 tabindex="-1" id="FinishReason.String" data-kind="method" class="Documentation-typeMethodHeader">
+      <span>func (FinishReason) <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/generativelanguagepb_veneer.gen.go#L341">String</a> <a class="Documentation-idLink" href="#FinishReason.String" aria-label="Go to FinishReason.String">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>func (v <a href="#FinishReason">FinishReason</a>) String() <a href="/builtin#string">string</a></pre>
+    </div>
+  
+
+  
+
+  </div>
+  
+
+    </div><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="GenerateContentResponse" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/client.go#L184">GenerateContentResponse</a> <a class="Documentation-idLink" href="#GenerateContentResponse" aria-label="Go to GenerateContentResponse">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type GenerateContentResponse struct {
+<span id="GenerateContentResponse.Candidates" data-kind="field">	Candidates     []*<a href="#Candidate">Candidate</a>
+</span><span id="GenerateContentResponse.PromptFeedback" data-kind="field">	PromptFeedback *<a href="#PromptFeedback">PromptFeedback</a>
+</span>}</pre>
+    </div>
+  <p>GenerateContentResponse is the response from a GenerateContent or GenerateContentStream call.
+</p>
+
+  
+
+    </div><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="GenerateContentResponseIterator" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/client.go#L149">GenerateContentResponseIterator</a> <a class="Documentation-idLink" href="#GenerateContentResponseIterator" aria-label="Go to GenerateContentResponseIterator">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type GenerateContentResponseIterator struct {
+	<span class="comment">// contains filtered or unexported fields</span>
+}</pre>
+    </div>
+  <p>GenerateContentResponseIterator is an iterator over GnerateContentResponse.
+</p>
+<div class="Documentation-typeMethod">
+    
+  
+  
+    <h4 tabindex="-1" id="GenerateContentResponseIterator.Next" data-kind="method" class="Documentation-typeMethodHeader">
+      <span>func (*GenerateContentResponseIterator) <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/client.go#L157">Next</a> <a class="Documentation-idLink" href="#GenerateContentResponseIterator.Next" aria-label="Go to GenerateContentResponseIterator.Next">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>func (iter *<a href="#GenerateContentResponseIterator">GenerateContentResponseIterator</a>) Next() (*<a href="#GenerateContentResponse">GenerateContentResponse</a>, <a href="/builtin#error">error</a>)</pre>
+    </div>
+  <p>Next returns the next response.
+</p>
+
+  
+
+  </div>
+  
+
+    </div><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="GenerationConfig" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/generativelanguagepb_veneer.gen.go#L350">GenerationConfig</a> <a class="Documentation-idLink" href="#GenerationConfig" aria-label="Go to GenerationConfig">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type GenerationConfig struct {
+<span id="GenerationConfig.CandidateCount" data-kind="field">	<span class="comment">// Optional. Number of generated responses to return.</span>
+</span>	<span class="comment">//</span>
+	<span class="comment">// This value must be between [1, 8], inclusive. If unset, this will default</span>
+	<span class="comment">// to 1.</span>
+	CandidateCount <a href="/builtin#int32">int32</a>
+<span id="GenerationConfig.StopSequences" data-kind="field">	<span class="comment">// Optional. The set of character sequences (up to 5) that will stop output</span>
+</span>	<span class="comment">// generation. If specified, the API will stop at the first appearance of a</span>
+	<span class="comment">// stop sequence. The stop sequence will not be included as part of the</span>
+	<span class="comment">// response.</span>
+	StopSequences []<a href="/builtin#string">string</a>
+<span id="GenerationConfig.MaxOutputTokens" data-kind="field">	<span class="comment">// Optional. The maximum number of tokens to include in a candidate.</span>
+</span>	<span class="comment">//</span>
+	<span class="comment">// If unset, this will default to output_token_limit specified in the `Model`</span>
+	<span class="comment">// specification.</span>
+	MaxOutputTokens <a href="/builtin#int32">int32</a>
+<span id="GenerationConfig.Temperature" data-kind="field">	<span class="comment">// Optional. Controls the randomness of the output.</span>
+</span>	<span class="comment">// Note: The default value varies by model, see the `Model.temperature`</span>
+	<span class="comment">// attribute of the `Model` returned the `getModel` function.</span>
+	<span class="comment">//</span>
+	<span class="comment">// Values can range from [0.0,1.0],</span>
+	<span class="comment">// inclusive. A value closer to 1.0 will produce responses that are more</span>
+	<span class="comment">// varied and creative, while a value closer to 0.0 will typically result in</span>
+	<span class="comment">// more straightforward responses from the model.</span>
+	Temperature <a href="/builtin#float32">float32</a>
+<span id="GenerationConfig.TopP" data-kind="field">	<span class="comment">// Optional. The maximum cumulative probability of tokens to consider when</span>
+</span>	<span class="comment">// sampling.</span>
+	<span class="comment">//</span>
+	<span class="comment">// The model uses combined Top-k and nucleus sampling.</span>
+	<span class="comment">//</span>
+	<span class="comment">// Tokens are sorted based on their assigned probabilities so that only the</span>
+	<span class="comment">// most likely tokens are considered. Top-k sampling directly limits the</span>
+	<span class="comment">// maximum number of tokens to consider, while Nucleus sampling limits number</span>
+	<span class="comment">// of tokens based on the cumulative probability.</span>
+	<span class="comment">//</span>
+	<span class="comment">// Note: The default value varies by model, see the `Model.top_p`</span>
+	<span class="comment">// attribute of the `Model` returned the `getModel` function.</span>
+	TopP <a href="/builtin#float32">float32</a>
+<span id="GenerationConfig.TopK" data-kind="field">	<span class="comment">// Optional. The maximum number of tokens to consider when sampling.</span>
+</span>	<span class="comment">//</span>
+	<span class="comment">// The model uses combined Top-k and nucleus sampling.</span>
+	<span class="comment">//</span>
+	<span class="comment">// Top-k sampling considers the set of `top_k` most probable tokens.</span>
+	<span class="comment">// Defaults to 40.</span>
+	<span class="comment">//</span>
+	<span class="comment">// Note: The default value varies by model, see the `Model.top_k`</span>
+	<span class="comment">// attribute of the `Model` returned the `getModel` function.</span>
+	TopK <a href="/builtin#int32">int32</a>
+}</pre>
+    </div>
+  <p>GenerationConfig is configuration options for model generation and outputs. Not all parameters
+may be configurable for every model.
+</p>
+
+  
+
+    </div><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="GenerativeModel" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/client.go#L69">GenerativeModel</a> <a class="Documentation-idLink" href="#GenerativeModel" aria-label="Go to GenerativeModel">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type GenerativeModel struct {
+<span id="GenerativeModel.GenerationConfig" data-kind="field">	<a href="#GenerationConfig">GenerationConfig</a>
+</span><span id="GenerativeModel.SafetySettings" data-kind="field">	SafetySettings []*<a href="#SafetySetting">SafetySetting</a>
+</span>	<span class="comment">// contains filtered or unexported fields</span>
+}</pre>
+    </div>
+  <p>GenerativeModel is a model that can generate text.
+Create one with <a href="#Client.GenerativeModel">Client.GenerativeModel</a>, then configure
+it by setting the exported fields.
+</p>
+<div class="Documentation-typeMethod">
+    
+  
+  
+    <h4 tabindex="-1" id="GenerativeModel.CountTokens" data-kind="method" class="Documentation-typeMethodHeader">
+      <span>func (*GenerativeModel) <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/client.go#L208">CountTokens</a> <a class="Documentation-idLink" href="#GenerativeModel.CountTokens" aria-label="Go to GenerativeModel.CountTokens">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>func (m *<a href="#GenerativeModel">GenerativeModel</a>) CountTokens(ctx <a href="/context">context</a>.<a href="/context#Context">Context</a>, parts ...<a href="#Part">Part</a>) (*<a href="#CountTokensResponse">CountTokensResponse</a>, <a href="/builtin#error">error</a>)</pre>
+    </div>
+  <p>CountTokens counts the number of tokens in the content.
+</p>
+<details tabindex="-1" id="example-GenerativeModel.CountTokens" class="Documentation-exampleDetails js-exampleContainer">
+<summary class="Documentation-exampleDetailsHeader">Example <a href="#example-GenerativeModel.CountTokens" aria-label="Go to Example">¶</a></summary>
+<div class="Documentation-exampleDetailsBody">
+
+<textarea class="Documentation-exampleCode code" spellcheck="false" style="height: 38.375rem;"></textarea>
+
+<pre><span class="Documentation-exampleOutputLabel">Output:</span>
+
+<span class="Documentation-exampleOutput"></span></pre>
+</div>
+<div class="Documentation-exampleButtonsContainer">
+        <p class="Documentation-exampleError" role="alert" aria-atomic="true"></p>
+        <button class="Documentation-exampleShareButton" aria-label="Share Code">Share</button>
+        <button class="Documentation-exampleFormatButton" aria-label="Format Code">Format</button>
+        <button class="Documentation-exampleRunButton" aria-label="Run Code">Run</button>
+      </div></details>
+
+
+  
+
+  </div><div class="Documentation-typeMethod">
+    
+  
+  
+    <h4 tabindex="-1" id="GenerativeModel.GenerateContent" data-kind="method" class="Documentation-typeMethodHeader">
+      <span>func (*GenerativeModel) <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/client.go#L99">GenerateContent</a> <a class="Documentation-idLink" href="#GenerativeModel.GenerateContent" aria-label="Go to GenerativeModel.GenerateContent">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>func (m *<a href="#GenerativeModel">GenerativeModel</a>) GenerateContent(ctx <a href="/context">context</a>.<a href="/context#Context">Context</a>, parts ...<a href="#Part">Part</a>) (*<a href="#GenerateContentResponse">GenerateContentResponse</a>, <a href="/builtin#error">error</a>)</pre>
+    </div>
+  <p>GenerateContent produces a single request and response.
+</p>
+<details tabindex="-1" id="example-GenerativeModel.GenerateContent" class="Documentation-exampleDetails js-exampleContainer">
+<summary class="Documentation-exampleDetailsHeader">Example <a href="#example-GenerativeModel.GenerateContent" aria-label="Go to Example">¶</a></summary>
+<div class="Documentation-exampleDetailsBody">
+
+<textarea class="Documentation-exampleCode code" spellcheck="false" style="height: 48.375rem;"></textarea>
+
+<pre><span class="Documentation-exampleOutputLabel">Output:</span>
+
+<span class="Documentation-exampleOutput"></span></pre>
+</div>
+<div class="Documentation-exampleButtonsContainer">
+        <p class="Documentation-exampleError" role="alert" aria-atomic="true"></p>
+        <button class="Documentation-exampleShareButton" aria-label="Share Code">Share</button>
+        <button class="Documentation-exampleFormatButton" aria-label="Format Code">Format</button>
+        <button class="Documentation-exampleRunButton" aria-label="Run Code">Run</button>
+      </div></details>
+
+<details tabindex="-1" id="example-GenerativeModel.GenerateContent-Config" class="Documentation-exampleDetails js-exampleContainer">
+<summary class="Documentation-exampleDetailsHeader">Example (Config) <a href="#example-GenerativeModel.GenerateContent-Config" aria-label="Go to Example (Config)">¶</a></summary>
+<div class="Documentation-exampleDetailsBody">
+<p>This example shows how to a configure a model. See <a href="#GenerationConfig">GenerationConfig</a>
+for the complete set of configuration options.
+</p>
+
+<textarea class="Documentation-exampleCode code" spellcheck="false" style="height: 52.125rem;"></textarea>
+
+<pre><span class="Documentation-exampleOutputLabel">Output:</span>
+
+<span class="Documentation-exampleOutput"></span></pre>
+</div>
+<div class="Documentation-exampleButtonsContainer">
+        <p class="Documentation-exampleError" role="alert" aria-atomic="true"></p>
+        <button class="Documentation-exampleShareButton" aria-label="Share Code">Share</button>
+        <button class="Documentation-exampleFormatButton" aria-label="Format Code">Format</button>
+        <button class="Documentation-exampleRunButton" aria-label="Run Code">Run</button>
+      </div></details>
+
+<details tabindex="-1" id="example-GenerativeModel.GenerateContent-SafetySetting" class="Documentation-exampleDetails js-exampleContainer">
+<summary class="Documentation-exampleDetailsHeader">Example (SafetySetting) <a href="#example-GenerativeModel.GenerateContent-SafetySetting" aria-label="Go to Example (SafetySetting)">¶</a></summary>
+<div class="Documentation-exampleDetailsBody">
+<p>This example shows how to use SafetySettings to change the threshold
+for unsafe responses.
+</p>
+
+<textarea class="Documentation-exampleCode code" spellcheck="false" style="height: 59.625rem;"></textarea>
+
+<pre><span class="Documentation-exampleOutputLabel">Output:</span>
+
+<span class="Documentation-exampleOutput"></span></pre>
+</div>
+<div class="Documentation-exampleButtonsContainer">
+        <p class="Documentation-exampleError" role="alert" aria-atomic="true"></p>
+        <button class="Documentation-exampleShareButton" aria-label="Share Code">Share</button>
+        <button class="Documentation-exampleFormatButton" aria-label="Format Code">Format</button>
+        <button class="Documentation-exampleRunButton" aria-label="Run Code">Run</button>
+      </div></details>
+
+
+  
+
+  </div><div class="Documentation-typeMethod">
+    
+  
+  
+    <h4 tabindex="-1" id="GenerativeModel.GenerateContentStream" data-kind="method" class="Documentation-typeMethodHeader">
+      <span>func (*GenerativeModel) <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/client.go#L110">GenerateContentStream</a> <a class="Documentation-idLink" href="#GenerativeModel.GenerateContentStream" aria-label="Go to GenerativeModel.GenerateContentStream">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>func (m *<a href="#GenerativeModel">GenerativeModel</a>) GenerateContentStream(ctx <a href="/context">context</a>.<a href="/context#Context">Context</a>, parts ...<a href="#Part">Part</a>) *<a href="#GenerateContentResponseIterator">GenerateContentResponseIterator</a></pre>
+    </div>
+  <p>GenerateContentStream returns an iterator that enumerates responses.
+</p>
+<details tabindex="-1" id="example-GenerativeModel.GenerateContentStream" class="Documentation-exampleDetails js-exampleContainer">
+<summary class="Documentation-exampleDetailsHeader">Example <a href="#example-GenerativeModel.GenerateContentStream" aria-label="Go to Example">¶</a></summary>
+<div class="Documentation-exampleDetailsBody">
+
+<textarea class="Documentation-exampleCode code" spellcheck="false" style="height: 57.125rem;"></textarea>
+
+<pre><span class="Documentation-exampleOutputLabel">Output:</span>
+
+<span class="Documentation-exampleOutput"></span></pre>
+</div>
+<div class="Documentation-exampleButtonsContainer">
+        <p class="Documentation-exampleError" role="alert" aria-atomic="true"></p>
+        <button class="Documentation-exampleShareButton" aria-label="Share Code">Share</button>
+        <button class="Documentation-exampleFormatButton" aria-label="Format Code">Format</button>
+        <button class="Documentation-exampleRunButton" aria-label="Run Code">Run</button>
+      </div></details>
+
+
+  
+
+  </div><div class="Documentation-typeMethod">
+    
+  
+  
+    <h4 tabindex="-1" id="GenerativeModel.Name" data-kind="method" class="Documentation-typeMethodHeader">
+      <span>func (*GenerativeModel) <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/client.go#L94">Name</a> <a class="Documentation-idLink" href="#GenerativeModel.Name" aria-label="Go to GenerativeModel.Name">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>func (m *<a href="#GenerativeModel">GenerativeModel</a>) Name() <a href="/builtin#string">string</a></pre>
+    </div>
+  <p>Name returns the name of the model.
+</p>
+
+  
+
+  </div><div class="Documentation-typeMethod">
+    
+  
+  
+    <h4 tabindex="-1" id="GenerativeModel.StartChat" data-kind="method" class="Documentation-typeMethodHeader">
+      <span>func (*GenerativeModel) <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/chat.go#L28">StartChat</a> <a class="Documentation-idLink" href="#GenerativeModel.StartChat" aria-label="Go to GenerativeModel.StartChat">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>func (m *<a href="#GenerativeModel">GenerativeModel</a>) StartChat() *<a href="#ChatSession">ChatSession</a></pre>
+    </div>
+  <p>StartChat starts a chat session.
+</p>
+
+  
+
+  </div>
+  
+
+    </div><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="HarmBlockThreshold" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/generativelanguagepb_veneer.gen.go#L429">HarmBlockThreshold</a> <a class="Documentation-idLink" href="#HarmBlockThreshold" aria-label="Go to HarmBlockThreshold">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type HarmBlockThreshold <a href="/builtin#int32">int32</a></pre>
+    </div>
+  <p>HarmBlockThreshold specifies block at and beyond a specified harm probability.
+</p>
+<div class="Documentation-typeConstant">
+    <div class="Documentation-declaration">
+      <pre>const (
+<span id="HarmBlockUnspecified" data-kind="constant">	<span class="comment">// HarmBlockUnspecified means threshold is unspecified.</span>
+</span>	HarmBlockUnspecified <a href="#HarmBlockThreshold">HarmBlockThreshold</a> = 0
+<span id="HarmBlockLowAndAbove" data-kind="constant">	<span class="comment">// HarmBlockLowAndAbove means content with NEGLIGIBLE will be allowed.</span>
+</span>	HarmBlockLowAndAbove <a href="#HarmBlockThreshold">HarmBlockThreshold</a> = 1
+<span id="HarmBlockMediumAndAbove" data-kind="constant">	<span class="comment">// HarmBlockMediumAndAbove means content with NEGLIGIBLE and LOW will be allowed.</span>
+</span>	HarmBlockMediumAndAbove <a href="#HarmBlockThreshold">HarmBlockThreshold</a> = 2
+<span id="HarmBlockOnlyHigh" data-kind="constant">	<span class="comment">// HarmBlockOnlyHigh means content with NEGLIGIBLE, LOW, and MEDIUM will be allowed.</span>
+</span>	HarmBlockOnlyHigh <a href="#HarmBlockThreshold">HarmBlockThreshold</a> = 3
+<span id="HarmBlockNone" data-kind="constant">	<span class="comment">// HarmBlockNone means all content will be allowed.</span>
+</span>	HarmBlockNone <a href="#HarmBlockThreshold">HarmBlockThreshold</a> = 4
+)</pre>
+    </div>
+  
+</div><div class="Documentation-typeMethod">
+    
+  
+  
+    <h4 tabindex="-1" id="HarmBlockThreshold.String" data-kind="method" class="Documentation-typeMethodHeader">
+      <span>func (HarmBlockThreshold) <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/generativelanguagepb_veneer.gen.go#L452">String</a> <a class="Documentation-idLink" href="#HarmBlockThreshold.String" aria-label="Go to HarmBlockThreshold.String">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>func (v <a href="#HarmBlockThreshold">HarmBlockThreshold</a>) String() <a href="/builtin#string">string</a></pre>
+    </div>
+  
+
+  
+
+  </div>
+  
+
+    </div><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="HarmCategory" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/generativelanguagepb_veneer.gen.go#L463">HarmCategory</a> <a class="Documentation-idLink" href="#HarmCategory" aria-label="Go to HarmCategory">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type HarmCategory <a href="/builtin#int32">int32</a></pre>
+    </div>
+  <p>HarmCategory specifies the category of a rating.
+</p><p>These categories cover various kinds of harms that developers
+may wish to adjust.
+</p>
+<div class="Documentation-typeConstant">
+    <div class="Documentation-declaration">
+      <pre>const (
+<span id="HarmCategoryUnspecified" data-kind="constant">	<span class="comment">// HarmCategoryUnspecified means category is unspecified.</span>
+</span>	HarmCategoryUnspecified <a href="#HarmCategory">HarmCategory</a> = 0
+<span id="HarmCategoryDerogatory" data-kind="constant">	<span class="comment">// HarmCategoryDerogatory means negative or harmful comments targeting identity and/or protected attribute.</span>
+</span>	HarmCategoryDerogatory <a href="#HarmCategory">HarmCategory</a> = 1
+<span id="HarmCategoryToxicity" data-kind="constant">	<span class="comment">// HarmCategoryToxicity means content that is rude, disrepspectful, or profane.</span>
+</span>	HarmCategoryToxicity <a href="#HarmCategory">HarmCategory</a> = 2
+<span id="HarmCategoryViolence" data-kind="constant">	<span class="comment">// HarmCategoryViolence means describes scenarios depictng violence against an individual or group, or</span>
+</span>	<span class="comment">// general descriptions of gore.</span>
+	HarmCategoryViolence <a href="#HarmCategory">HarmCategory</a> = 3
+<span id="HarmCategorySexual" data-kind="constant">	<span class="comment">// HarmCategorySexual means contains references to sexual acts or other lewd content.</span>
+</span>	HarmCategorySexual <a href="#HarmCategory">HarmCategory</a> = 4
+<span id="HarmCategoryMedical" data-kind="constant">	<span class="comment">// HarmCategoryMedical means promotes unchecked medical advice.</span>
+</span>	HarmCategoryMedical <a href="#HarmCategory">HarmCategory</a> = 5
+<span id="HarmCategoryDangerous" data-kind="constant">	<span class="comment">// HarmCategoryDangerous means dangerous content that promotes, facilitates, or encourages harmful acts.</span>
+</span>	HarmCategoryDangerous <a href="#HarmCategory">HarmCategory</a> = 6
+<span id="HarmCategoryHarassment" data-kind="constant">	<span class="comment">// HarmCategoryHarassment means harasment content.</span>
+</span>	HarmCategoryHarassment <a href="#HarmCategory">HarmCategory</a> = 7
+<span id="HarmCategoryHateSpeech" data-kind="constant">	<span class="comment">// HarmCategoryHateSpeech means hate speech and content.</span>
+</span>	HarmCategoryHateSpeech <a href="#HarmCategory">HarmCategory</a> = 8
+<span id="HarmCategorySexuallyExplicit" data-kind="constant">	<span class="comment">// HarmCategorySexuallyExplicit means sexually explicit content.</span>
+</span>	HarmCategorySexuallyExplicit <a href="#HarmCategory">HarmCategory</a> = 9
+<span id="HarmCategoryDangerousContent" data-kind="constant">	<span class="comment">// HarmCategoryDangerousContent means dangerous content.</span>
+</span>	HarmCategoryDangerousContent <a href="#HarmCategory">HarmCategory</a> = 10
+)</pre>
+    </div>
+  
+</div><div class="Documentation-typeMethod">
+    
+  
+  
+    <h4 tabindex="-1" id="HarmCategory.String" data-kind="method" class="Documentation-typeMethodHeader">
+      <span>func (HarmCategory) <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/generativelanguagepb_veneer.gen.go#L505">String</a> <a class="Documentation-idLink" href="#HarmCategory.String" aria-label="Go to HarmCategory.String">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>func (v <a href="#HarmCategory">HarmCategory</a>) String() <a href="/builtin#string">string</a></pre>
+    </div>
+  
+
+  
+
+  </div>
+  
+
+    </div><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="HarmProbability" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/generativelanguagepb_veneer.gen.go#L516">HarmProbability</a> <a class="Documentation-idLink" href="#HarmProbability" aria-label="Go to HarmProbability">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type HarmProbability <a href="/builtin#int32">int32</a></pre>
+    </div>
+  <p>HarmProbability specifies the probability that a piece of content is harmful.
+</p><p>The classification system gives the probability of the content being
+unsafe. This does not indicate the severity of harm for a piece of content.
+</p>
+<div class="Documentation-typeConstant">
+    <div class="Documentation-declaration">
+      <pre>const (
+<span id="HarmProbabilityUnspecified" data-kind="constant">	<span class="comment">// HarmProbabilityUnspecified means probability is unspecified.</span>
+</span>	HarmProbabilityUnspecified <a href="#HarmProbability">HarmProbability</a> = 0
+<span id="HarmProbabilityNegligible" data-kind="constant">	<span class="comment">// HarmProbabilityNegligible means content has a negligible chance of being unsafe.</span>
+</span>	HarmProbabilityNegligible <a href="#HarmProbability">HarmProbability</a> = 1
+<span id="HarmProbabilityLow" data-kind="constant">	<span class="comment">// HarmProbabilityLow means content has a low chance of being unsafe.</span>
+</span>	HarmProbabilityLow <a href="#HarmProbability">HarmProbability</a> = 2
+<span id="HarmProbabilityMedium" data-kind="constant">	<span class="comment">// HarmProbabilityMedium means content has a medium chance of being unsafe.</span>
+</span>	HarmProbabilityMedium <a href="#HarmProbability">HarmProbability</a> = 3
+<span id="HarmProbabilityHigh" data-kind="constant">	<span class="comment">// HarmProbabilityHigh means content has a high chance of being unsafe.</span>
+</span>	HarmProbabilityHigh <a href="#HarmProbability">HarmProbability</a> = 4
+)</pre>
+    </div>
+  
+</div><div class="Documentation-typeMethod">
+    
+  
+  
+    <h4 tabindex="-1" id="HarmProbability.String" data-kind="method" class="Documentation-typeMethodHeader">
+      <span>func (HarmProbability) <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/generativelanguagepb_veneer.gen.go#L539">String</a> <a class="Documentation-idLink" href="#HarmProbability.String" aria-label="Go to HarmProbability.String">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>func (v <a href="#HarmProbability">HarmProbability</a>) String() <a href="/builtin#string">string</a></pre>
+    </div>
+  
+
+  
+
+  </div>
+  
+
+    </div><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="Model" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/generativelanguagepb_veneer.gen.go#L547">Model</a> <a class="Documentation-idLink" href="#Model" aria-label="Go to Model">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+      <span class="Documentation-sinceVersionLabel">added in</span>
+      <span class="Documentation-sinceVersionVersion">v0.2.0</span>
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type Model struct {
+<span id="Model.Name" data-kind="field">	<span class="comment">// Required. The resource name of the `Model`.</span>
+</span>	<span class="comment">//</span>
+	<span class="comment">// Format: `models/{model}` with a `{model}` naming convention of:</span>
+	<span class="comment">//</span>
+	<span class="comment">// * "{base_model_id}-{version}"</span>
+	<span class="comment">//</span>
+	<span class="comment">// Examples:</span>
+	<span class="comment">//</span>
+	<span class="comment">// * `models/chat-bison-001`</span>
+	Name <a href="/builtin#string">string</a>
+<span id="Model.BaseModeID" data-kind="field">	<span class="comment">// Required. The name of the base model, pass this to the generation request.</span>
+</span>	<span class="comment">//</span>
+	<span class="comment">// Examples:</span>
+	<span class="comment">//</span>
+	<span class="comment">// * `chat-bison`</span>
+	BaseModeID <a href="/builtin#string">string</a>
+<span id="Model.Version" data-kind="field">	<span class="comment">// Required. The version number of the model.</span>
+</span>	<span class="comment">//</span>
+	<span class="comment">// This represents the major version</span>
+	Version <a href="/builtin#string">string</a>
+<span id="Model.DisplayName" data-kind="field">	<span class="comment">// The human-readable name of the model. E.g. "Chat Bison".</span>
+</span>	<span class="comment">//</span>
+	<span class="comment">// The name can be up to 128 characters long and can consist of any UTF-8</span>
+	<span class="comment">// characters.</span>
+	DisplayName <a href="/builtin#string">string</a>
+<span id="Model.Description" data-kind="field">	<span class="comment">// A short description of the model.</span>
+</span>	Description <a href="/builtin#string">string</a>
+<span id="Model.InputTokenLimit" data-kind="field">	<span class="comment">// Maximum number of input tokens allowed for this model.</span>
+</span>	InputTokenLimit <a href="/builtin#int32">int32</a>
+<span id="Model.OutputTokenLimit" data-kind="field">	<span class="comment">// Maximum number of output tokens available for this model.</span>
+</span>	OutputTokenLimit <a href="/builtin#int32">int32</a>
+<span id="Model.SupportedGenerationMethods" data-kind="field">	<span class="comment">// The model's supported generation methods.</span>
+</span>	<span class="comment">//</span>
+	<span class="comment">// The method names are defined as Pascal case</span>
+	<span class="comment">// strings, such as `generateMessage` which correspond to API methods.</span>
+	SupportedGenerationMethods []<a href="/builtin#string">string</a>
+<span id="Model.Temperature" data-kind="field">	<span class="comment">// Controls the randomness of the output.</span>
+</span>	<span class="comment">//</span>
+	<span class="comment">// Values can range over `[0.0,1.0]`, inclusive. A value closer to `1.0` will</span>
+	<span class="comment">// produce responses that are more varied, while a value closer to `0.0` will</span>
+	<span class="comment">// typically result in less surprising responses from the model.</span>
+	<span class="comment">// This value specifies default to be used by the backend while making the</span>
+	<span class="comment">// call to the model.</span>
+	Temperature <a href="/builtin#float32">float32</a>
+<span id="Model.TopP" data-kind="field">	<span class="comment">// For Nucleus sampling.</span>
+</span>	<span class="comment">//</span>
+	<span class="comment">// Nucleus sampling considers the smallest set of tokens whose probability</span>
+	<span class="comment">// sum is at least `top_p`.</span>
+	<span class="comment">// This value specifies default to be used by the backend while making the</span>
+	<span class="comment">// call to the model.</span>
+	TopP <a href="/builtin#float32">float32</a>
+<span id="Model.TopK" data-kind="field">	<span class="comment">// For Top-k sampling.</span>
+</span>	<span class="comment">//</span>
+	<span class="comment">// Top-k sampling considers the set of `top_k` most probable tokens.</span>
+	<span class="comment">// This value specifies default to be used by the backend while making the</span>
+	<span class="comment">// call to the model.</span>
+	TopK <a href="/builtin#int32">int32</a>
+}</pre>
+    </div>
+  <p>Model is information about a Generative Language Model.
+</p>
+
+  
+
+    </div><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="ModelIterator" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/list_models.go#L33">ModelIterator</a> <a class="Documentation-idLink" href="#ModelIterator" aria-label="Go to ModelIterator">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+      <span class="Documentation-sinceVersionLabel">added in</span>
+      <span class="Documentation-sinceVersionVersion">v0.2.0</span>
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type ModelIterator struct {
+	<span class="comment">// contains filtered or unexported fields</span>
+}</pre>
+    </div>
+  <p>A ModelIterator iterates over Models.
+</p>
+<div class="Documentation-typeMethod">
+    
+  
+  
+    <h4 tabindex="-1" id="ModelIterator.Next" data-kind="method" class="Documentation-typeMethodHeader">
+      <span>func (*ModelIterator) <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/list_models.go#L39">Next</a> <a class="Documentation-idLink" href="#ModelIterator.Next" aria-label="Go to ModelIterator.Next">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+      <span class="Documentation-sinceVersionLabel">added in</span>
+      <span class="Documentation-sinceVersionVersion">v0.2.0</span>
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>func (it *<a href="#ModelIterator">ModelIterator</a>) Next() (*<a href="#Model">Model</a>, <a href="/builtin#error">error</a>)</pre>
+    </div>
+  <p>Next returns the next result. Its second return value is iterator.Done if there are no more
+results. Once Next returns Done, all subsequent calls will return Done.
+</p>
+
+  
+
+  </div><div class="Documentation-typeMethod">
+    
+  
+  
+    <h4 tabindex="-1" id="ModelIterator.PageInfo" data-kind="method" class="Documentation-typeMethodHeader">
+      <span>func (*ModelIterator) <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/list_models.go#L48">PageInfo</a> <a class="Documentation-idLink" href="#ModelIterator.PageInfo" aria-label="Go to ModelIterator.PageInfo">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+      <span class="Documentation-sinceVersionLabel">added in</span>
+      <span class="Documentation-sinceVersionVersion">v0.2.0</span>
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>func (it *<a href="#ModelIterator">ModelIterator</a>) PageInfo() *<a href="/google.golang.org/api/iterator">iterator</a>.<a href="/google.golang.org/api/iterator#PageInfo">PageInfo</a></pre>
+    </div>
+  <p>PageInfo supports pagination. See the google.golang.org/api/iterator package for details.
+</p>
+
+  
+
+  </div>
+  
+
+    </div><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="Part" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/content.go#L29">Part</a> <a class="Documentation-idLink" href="#Part" aria-label="Go to Part">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type Part interface {
+	<span class="comment">// contains filtered or unexported methods</span>
+}</pre>
+    </div>
+  <p>A Part is either a Text, a Blob, or a FileData.
+</p>
+
+  
+
+    </div><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="PromptFeedback" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/generativelanguagepb_veneer.gen.go#L647">PromptFeedback</a> <a class="Documentation-idLink" href="#PromptFeedback" aria-label="Go to PromptFeedback">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type PromptFeedback struct {
+<span id="PromptFeedback.BlockReason" data-kind="field">	<span class="comment">// Optional. If set, the prompt was blocked and no candidates are returned.</span>
+</span>	<span class="comment">// Rephrase your prompt.</span>
+	BlockReason <a href="#BlockReason">BlockReason</a>
+<span id="PromptFeedback.SafetyRatings" data-kind="field">	<span class="comment">// Ratings for safety of the prompt.</span>
+</span>	<span class="comment">// There is at most one rating per category.</span>
+	SafetyRatings []*<a href="#SafetyRating">SafetyRating</a>
+}</pre>
+    </div>
+  <p>PromptFeedback contains a set of the feedback metadata the prompt specified in
+`GenerateContentRequest.content`.
+</p>
+
+  
+
+    </div><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="SafetyRating" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/generativelanguagepb_veneer.gen.go#L683">SafetyRating</a> <a class="Documentation-idLink" href="#SafetyRating" aria-label="Go to SafetyRating">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type SafetyRating struct {
+<span id="SafetyRating.Category" data-kind="field">	<span class="comment">// Required. The category for this rating.</span>
+</span>	Category <a href="#HarmCategory">HarmCategory</a>
+<span id="SafetyRating.Probability" data-kind="field">	<span class="comment">// Required. The probability of harm for this content.</span>
+</span>	Probability <a href="#HarmProbability">HarmProbability</a>
+<span id="SafetyRating.Blocked" data-kind="field">	<span class="comment">// Was this content blocked because of this rating?</span>
+</span>	Blocked <a href="/builtin#bool">bool</a>
+}</pre>
+    </div>
+  <p>SafetyRating is the safety rating for a piece of content.
+</p><p>The safety rating contains the category of harm and the
+harm probability level in that category for a piece of content.
+Content is classified for safety across a number of
+harm categories and the probability of the harm classification is included
+here.
+</p>
+
+  
+
+    </div><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="SafetySetting" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/generativelanguagepb_veneer.gen.go#L718">SafetySetting</a> <a class="Documentation-idLink" href="#SafetySetting" aria-label="Go to SafetySetting">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type SafetySetting struct {
+<span id="SafetySetting.Category" data-kind="field">	<span class="comment">// Required. The category for this setting.</span>
+</span>	Category <a href="#HarmCategory">HarmCategory</a>
+<span id="SafetySetting.Threshold" data-kind="field">	<span class="comment">// Required. Controls the probability threshold at which harm is blocked.</span>
+</span>	Threshold <a href="#HarmBlockThreshold">HarmBlockThreshold</a>
+}</pre>
+    </div>
+  <p>SafetySetting is safety setting, affecting the safety-blocking behavior.
+</p><p>Passing a safety setting for a category changes the allowed proability that
+content is blocked.
+</p>
+
+  
+
+    </div><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="TaskType" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/generativelanguagepb_veneer.gen.go#L746">TaskType</a> <a class="Documentation-idLink" href="#TaskType" aria-label="Go to TaskType">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+      <span class="Documentation-sinceVersionLabel">added in</span>
+      <span class="Documentation-sinceVersionVersion">v0.2.0</span>
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type TaskType <a href="/builtin#int32">int32</a></pre>
+    </div>
+  <p>TaskType is type of task for which the embedding will be used.
+</p>
+<div class="Documentation-typeConstant">
+    <div class="Documentation-declaration">
+      <pre>const (
+<span id="TaskTypeUnspecified" data-kind="constant">	<span class="comment">// TaskTypeUnspecified means unset value, which will default to one of the other enum values.</span>
+</span>	TaskTypeUnspecified <a href="#TaskType">TaskType</a> = 0
+<span id="TaskTypeRetrievalQuery" data-kind="constant">	<span class="comment">// TaskTypeRetrievalQuery means specifies the given text is a query in a search/retrieval setting.</span>
+</span>	TaskTypeRetrievalQuery <a href="#TaskType">TaskType</a> = 1
+<span id="TaskTypeRetrievalDocument" data-kind="constant">	<span class="comment">// TaskTypeRetrievalDocument means specifies the given text is a document from the corpus being searched.</span>
+</span>	TaskTypeRetrievalDocument <a href="#TaskType">TaskType</a> = 2
+<span id="TaskTypeSemanticSimilarity" data-kind="constant">	<span class="comment">// TaskTypeSemanticSimilarity means specifies the given text will be used for STS.</span>
+</span>	TaskTypeSemanticSimilarity <a href="#TaskType">TaskType</a> = 3
+<span id="TaskTypeClassification" data-kind="constant">	<span class="comment">// TaskTypeClassification means specifies that the given text will be classified.</span>
+</span>	TaskTypeClassification <a href="#TaskType">TaskType</a> = 4
+<span id="TaskTypeClustering" data-kind="constant">	<span class="comment">// TaskTypeClustering means specifies that the embeddings will be used for clustering.</span>
+</span>	TaskTypeClustering <a href="#TaskType">TaskType</a> = 5
+)</pre>
+    </div>
+  
+</div><div class="Documentation-typeMethod">
+    
+  
+  
+    <h4 tabindex="-1" id="TaskType.String" data-kind="method" class="Documentation-typeMethodHeader">
+      <span>func (TaskType) <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/generativelanguagepb_veneer.gen.go#L772">String</a> <a class="Documentation-idLink" href="#TaskType.String" aria-label="Go to TaskType.String">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+      <span class="Documentation-sinceVersionLabel">added in</span>
+      <span class="Documentation-sinceVersionVersion">v0.2.0</span>
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>func (v <a href="#TaskType">TaskType</a>) String() <a href="/builtin#string">string</a></pre>
+    </div>
+  
+
+  
+
+  </div>
+  
+
+    </div><div class="Documentation-type">
+      
+  
+  
+    <h4 tabindex="-1" id="Text" data-kind="type" class="Documentation-typeHeader">
+      <span>type <a class="Documentation-source" href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/content.go#L55">Text</a> <a class="Documentation-idLink" href="#Text" aria-label="Go to Text">¶</a></span>
+  <span class="Documentation-sinceVersion">
+    
+  </span>
+</h4>
+
+    
+    <div class="Documentation-declaration">
+      <pre>type Text <a href="/builtin#string">string</a></pre>
+    </div>
+  <p>A Text is a piece of text, like a question or phrase.
+</p>
+
+  
+
+    </div></section></div> 
+
+
+
+
+
+
+      
+    </div>
+  </div>
+
+        
+      
+      
+        
+  <div class="UnitFiles js-unitFiles">
+    <h2 class="UnitFiles-title" id="section-sourcefiles">
+      <img class="go-Icon" height="24" width="24" src="/static/shared/icon/insert_drive_file_gm_grey_24dp.svg" alt="">
+      Source Files
+      <a class="UnitFiles-idLink" href="#section-sourcefiles" aria-label="Go to Source Files">¶</a>
+    </h2>
+    <div class="UnitFiles-titleLink">
+      <a href="https://github.com/google/generative-ai-go/tree/v0.4.0/genai" target="_blank" rel="noopener">View all Source files</a>
+    </div>
+    <div>
+      <ul class="UnitFiles-fileList"><li>
+            <a href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/chat.go" target="_blank" rel="noopener" title="chat.go">chat.go</a>
+          </li><li>
+            <a href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/client.go" target="_blank" rel="noopener" title="client.go">client.go</a>
+          </li><li>
+            <a href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/content.go" target="_blank" rel="noopener" title="content.go">content.go</a>
+          </li><li>
+            <a href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/embed.go" target="_blank" rel="noopener" title="embed.go">embed.go</a>
+          </li><li>
+            <a href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/generativelanguagepb_veneer.gen.go" target="_blank" rel="noopener" title="generativelanguagepb_veneer.gen.go">generativelanguagepb_veneer.gen.go</a>
+          </li><li>
+            <a href="https://github.com/google/generative-ai-go/blob/v0.4.0/genai/list_models.go" target="_blank" rel="noopener" title="list_models.go">list_models.go</a>
+          </li></ul>
+    </div>
+  </div>
+
+      
+      
+    </div>
+  </div>
+  <div id="showInternal-description" hidden=""> Click to show internal directories. </div>
+  <div id="hideInternal-description" hidden=""> Click to hide internal directories. </div>
+</article>
+    <footer class="go-Main-footer"></footer>
+  </main>
+  <footer class="go-Footer">
+    
+    <div class="go-Footer-links">
+      <div class="go-Footer-linkColumn">
+        <a href="https://go.dev/solutions" class="go-Footer-link go-Footer-link--primary" data-gtmc="footer link">
+          Why Go
+        </a>
+        <a href="https://go.dev/solutions#use-cases" class="go-Footer-link" data-gtmc="footer link">
+          Use Cases
+        </a>
+        <a href="https://go.dev/solutions#case-studies" class="go-Footer-link" data-gtmc="footer link">
+          Case Studies
+        </a>
+      </div>
+      <div class="go-Footer-linkColumn">
+        <a href="https://learn.go.dev/" class="go-Footer-link go-Footer-link--primary" data-gtmc="footer link">
+          Get Started
+        </a>
+        <a href="https://play.golang.org" class="go-Footer-link" data-gtmc="footer link">
+          Playground
+        </a>
+        <a href="https://tour.golang.org" class="go-Footer-link" data-gtmc="footer link">
+          Tour
+        </a>
+        <a href="https://stackoverflow.com/questions/tagged/go?tab=Newest" class="go-Footer-link" data-gtmc="footer link">
+          Stack Overflow
+        </a>
+        <a href="https://go.dev/help" class="go-Footer-link" data-gtmc="footer link">
+          Help
+        </a>
+      </div>
+      <div class="go-Footer-linkColumn">
+        <a href="https://pkg.go.dev" class="go-Footer-link go-Footer-link--primary" data-gtmc="footer link">
+          Packages
+        </a>
+        <a href="/std" class="go-Footer-link" data-gtmc="footer link">
+          Standard Library
+        </a>
+        <a href="/golang.org/x" class="go-Footer-link" data-gtmc="footer link">
+          Sub-repositories
+        </a>
+        <a href="https://pkg.go.dev/about" class="go-Footer-link" data-gtmc="footer link">
+          About Go Packages
+        </a>
+      </div>
+      <div class="go-Footer-linkColumn">
+        <a href="https://go.dev/project" class="go-Footer-link go-Footer-link--primary" data-gtmc="footer link">
+          About
+        </a>
+        <a href="https://go.dev/dl/" class="go-Footer-link" data-gtmc="footer link">Download</a>
+        <a href="https://go.dev/blog" class="go-Footer-link" data-gtmc="footer link">Blog</a>
+        <a href="https://github.com/golang/go/issues" class="go-Footer-link" data-gtmc="footer link">
+          Issue Tracker
+        </a>
+        <a href="https://go.dev/doc/devel/release.html" class="go-Footer-link" data-gtmc="footer link">
+          Release Notes
+        </a>
+        <a href="https://blog.golang.org/go-brand" class="go-Footer-link" data-gtmc="footer link">
+          Brand Guidelines
+        </a>
+        <a href="https://go.dev/conduct" class="go-Footer-link" data-gtmc="footer link">
+          Code of Conduct
+        </a>
+      </div>
+      <div class="go-Footer-linkColumn">
+        <a href="https://www.twitter.com/golang" class="go-Footer-link go-Footer-link--primary" data-gtmc="footer link">
+          Connect
+        </a>
+        <a href="https://www.twitter.com/golang" class="go-Footer-link" data-gtmc="footer link">
+          Twitter
+        </a>
+        <a href="https://github.com/golang" class="go-Footer-link" data-gtmc="footer link">GitHub</a>
+        <a href="https://invite.slack.golangbridge.org/" class="go-Footer-link" data-gtmc="footer link">
+          Slack
+        </a>
+        <a href="https://reddit.com/r/golang" class="go-Footer-link" data-gtmc="footer link">
+          r/golang
+        </a>
+        <a href="https://www.meetup.com/pro/go" class="go-Footer-link" data-gtmc="footer link">
+          Meetup
+        </a>
+        <a href="https://golangweekly.com/" class="go-Footer-link" data-gtmc="footer link">
+          Golang Weekly
+        </a>
+      </div>
+    </div>
+    <div class="go-Footer-bottom">
+      <img class="go-Footer-gopher" width="1431" height="901" src="/static/shared/gopher/pilot-bust-1431x901.svg" alt="Gopher in flight goggles">
+      <ul class="go-Footer-listRow">
+        <li class="go-Footer-listItem">
+          <a href="https://go.dev/copyright" data-gtmc="footer link">Copyright</a>
+        </li>
+        <li class="go-Footer-listItem">
+          <a href="https://go.dev/tos" data-gtmc="footer link">Terms of Service</a>
+        </li>
+        <li class="go-Footer-listItem">
+          <a href="http://www.google.com/intl/en/policies/privacy/" data-gtmc="footer link" target="_blank" rel="noopener">
+            Privacy Policy
+          </a>
+        </li>
+        <li class="go-Footer-listItem">
+          <a href="https://go.dev/s/pkgsite-feedback" target="_blank" rel="noopener" data-gtmc="footer link">
+            Report an Issue
+          </a>
+        </li>
+        <li class="go-Footer-listItem">
+          <button class="go-Button go-Button--text go-Footer-toggleTheme js-toggleTheme" aria-label="Theme Toggle">
+            <img data-value="auto" class="go-Icon go-Icon--inverted" height="24" width="24" src="/static/shared/icon/brightness_6_gm_grey_24dp.svg" alt="System theme">
+            <img data-value="dark" class="go-Icon go-Icon--inverted" height="24" width="24" src="/static/shared/icon/brightness_2_gm_grey_24dp.svg" alt="Dark theme">
+            <img data-value="light" class="go-Icon go-Icon--inverted" height="24" width="24" src="/static/shared/icon/light_mode_gm_grey_24dp.svg" alt="Light theme">
+            <p> Theme Toggle </p>
+          </button>
+        </li>
+        <li class="go-Footer-listItem">
+          <button class="go-Button go-Button--text go-Footer-keyboard js-openShortcuts" aria-label="Shorcuts Modal">
+            <img class="go-Icon go-Icon--inverted" height="24" width="24" src="/static/shared/icon/keyboard_grey_24dp.svg" alt="">
+            <p> Shortcuts Modal </p>
+          </button>
+        </li>
+      </ul>
+      <a class="go-Footer-googleLogo" href="https://google.com" target="_blank" rel="noopener" data-gtmc="footer link">
+        <img class="go-Footer-googleLogoImg" height="24" width="72" src="/static/shared/logo/google-white.svg" alt="Google logo">
+      </a>
+    </div>
+  </footer>
+
+    
+  <dialog id="jump-to-modal" class="JumpDialog go-Modal go-Modal--md js-modal">
+    <form method="dialog" data-gmtc="jump to form" aria-label="Jump to Identifier">
+      <div class="Dialog-title go-Modal-header">
+        <h2>Jump to</h2>
+        <button class="go-Button go-Button--inline" type="button" data-modal-close="" data-gtmc="modal button" aria-label="Close">
+          <img class="go-Icon" height="24" width="24" src="/static/shared/icon/close_gm_grey_24dp.svg" alt="">
+        </button>
+      </div>
+      <div class="JumpDialog-filter">
+        <input class="JumpDialog-input go-Input" autocomplete="off" type="text">
+      </div>
+      <div class="JumpDialog-body go-Modal-body">
+        <div class="JumpDialog-list"></div>
+      </div>
+      <div class="go-Modal-actions">
+        <button class="go-Button" data-test-id="close-dialog">Close</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="ShortcutsDialog go-Modal go-Modal--sm js-modal">
+    <form method="dialog">
+      <div class="go-Modal-header">
+        <h2>Keyboard shortcuts</h2>
+        <button class="go-Button go-Button--inline" type="button" data-modal-close="" data-gtmc="modal button" aria-label="Close">
+          <img class="go-Icon" height="24" width="24" src="/static/shared/icon/close_gm_grey_24dp.svg" alt="">
+        </button>
+      </div>
+      <div class="go-Modal-body">
+        <table>
+          <tbody>
+            <tr><td class="ShortcutsDialog-key">
+              <strong>?</strong></td><td> : This menu</td>
+            </tr>
+            <tr><td class="ShortcutsDialog-key">
+              <strong>/</strong></td><td> : Search site</td>
+            </tr>
+            <tr><td class="ShortcutsDialog-key">
+              <strong>f</strong> or <strong>F</strong></td><td> : Jump to</td>
+            </tr>
+            <tr>
+              <td class="ShortcutsDialog-key"><strong>y</strong> or <strong>Y</strong></td>
+              <td> : Canonical URL</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="go-Modal-actions">
+        <button class="go-Button" data-test-id="close-dialog">Close</button>
+      </div>
+    </form>
+  </dialog>
+
+    
+      <section class="Cookie-notice js-cookieNotice Cookie-notice--visible">
+        <div>go.dev uses cookies from Google to deliver and enhance the quality of its services and to
+        analyze traffic. <a target="_blank" href="https://policies.google.com/technologies/cookies">Learn more.</a></div>
+        <div><button class="go-Button">Okay</button></div>
+      </section>
+    
+    
+      <script>
+        // this will throw if the querySelector can’t find the element
+        const gtmId = document.querySelector('.js-gtmID').dataset.gtmid;
+        if (!gtmId) {
+          throw new Error('Google Tag Manager ID not found');
+        }
+        loadScript(`https://www.googletagmanager.com/gtm.js?id=${gtmId}`);
+      </script>
+      <noscript>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-W8MVQXG"
+                height="0" width="0" style="display:none;visibility:hidden">
+        </iframe>
+      </noscript>
+    
+    
+  
+  <div class="js-canonicalURLPath" data-canonical-url-path="/github.com/google/generative-ai-go@v0.4.0/genai" hidden=""></div>
+  <div class="js-playgroundVars" data-modulepath="github.com/google/generative-ai-go" data-version="v0.4.0" hidden=""></div>
+  <script>
+    loadScript('/static/frontend/unit/main/main.js')
+  </script>
+
+  <script>
+    loadScript('/static/frontend/unit/unit.js')
+  </script>
+</body></html>

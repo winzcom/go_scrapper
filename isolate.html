@@ -1,0 +1,205 @@
+<html>
+    <body>
+        <script data-binary-transparency-hash-key="inline-js-211d10561e6a11339f7cac83496bbc8fd465404520409169a7296c10e895364c" id="dump">
+            (self.webpackChunkwhatsapp_web_client = self.webpackChunkwhatsapp_web_client || []).push([
+                [5617],
+                {
+                    307914: (e) => {
+                        e.exports = function (e) {
+                            return e && e.__esModule ? e : { default: e };
+                        };
+                    },
+                    595318: (e) => {
+                        (e.exports = function (e) {
+                            return e && e.__esModule ? e : { default: e };
+                        }),
+                            (e.exports.default = e.exports),
+                            (e.exports.__esModule = !0);
+                    },
+                    415227: (e, t) => {
+                        "use strict";
+                        Object.defineProperty(t, "__esModule", { value: !0 }),
+                            (t.default = function (e) {
+                                const t = new Error(e);
+                                if (void 0 === t.stack)
+                                    try {
+                                        throw t;
+                                    } catch (e) {}
+                                return t;
+                            });
+                    },
+                    670983: (e, t, r) => {
+                        "use strict";
+                        var n = r(307914);
+                        Object.defineProperty(t, "__esModule", { value: !0 }),
+                            (t.default = function (e) {
+                                let t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : "?";
+                                if (null == e) throw (0, o.default)("Unexpected null or undefined: " + t);
+                                return e;
+                            });
+                        var o = n(r(415227));
+                    },
+                    801506: (e, t, r) => {
+                        "use strict";
+                        Object.defineProperty(t, "__esModule", { value: !0 }), (t.UNIQUE_UPLOADS_ALLOWED_BEFORE_THROTTLE = t.TICKET_URL = t.CLB_URL = t.CLB_TOKEN = t.CLB_CHECK_URL = void 0);
+                        var n = r(508247);
+                        (t.CLB_CHECK_URL = "https://crashlogs.whatsapp.net/wa_fls_upload_check"), (t.CLB_TOKEN = "1063127757113399|745146ffa34413f9dbb5469f5370b7af"), (t.CLB_URL = "https://crashlogs.whatsapp.net/wa_clb_data");
+                        const o = n.DYN_ORIGIN + "web-contact-us";
+                        (t.TICKET_URL = o), (t.UNIQUE_UPLOADS_ALLOWED_BEFORE_THROTTLE = 0);
+                    },
+                    207024: (e, t, r) => {
+                        "use strict";
+                        var n = r(595318);
+                        Object.defineProperty(t, "__esModule", { value: !0 }),
+                            (t.getDistribution = function () {
+                                let e = "unknown";
+                                return (e = "prod"), "web_prod";
+                            }),
+                            (t.getLogUserAgent = function (e) {
+                                let t,
+                                    { appVersion: r, browser: n, device: o } = e;
+                                return (t = "Web/" + n), `WhatsApp/${r} ${t} Device/${o}`;
+                            }),
+                            n(r(97359)),
+                            n(r(556869));
+                    },
+                    794858: (e, t, r) => {
+                        "use strict";
+                        var n = r(595318),
+                            o = n(r(670983)),
+                            a = r(508247),
+                            s = r(801506),
+                            c = r(207024),
+                            _ = n(r(174285)),
+                            u = r(425017);
+                        function i(e) {
+                            !(function (e, t) {
+                                const r = window.navigator.userAgent;
+                                if (r === p && e.includes("getElementsByTagName")) return;
+                                const n = new FormData(),
+                                    i = new Blob([e], { type: "text/plain" });
+                                n.append(
+                                    "from_jid",
+                                    (function () {
+                                        if (f) return f;
+                                        try {
+                                            (f = JSON.parse((0, o.default)(_.default, "localStorage").getItem(d.UNKNOWN_ID))), f && (f = f.replace("-", ""));
+                                        } catch (e) {}
+                                        if (!f) {
+                                            f = "unknown" + Math.floor(1e10 * Math.random());
+                                            const e = f;
+                                            try {
+                                                (0, o.default)(_.default, "localStorage").setItem(d.UNKNOWN_ID, JSON.stringify(e));
+                                            } catch (e) {}
+                                        }
+                                        return (0, o.default)(f, "id");
+                                    })()
+                                ),
+                                    n.append("agent", (0, c.getLogUserAgent)((0, u.parseUASimple)(r, a.VERSION_BASE))),
+                                    n.append("file", i, "logs.txt"),
+                                    n.append("tags", "load");
+                                const l = new XMLHttpRequest(),
+                                    I = s.CLB_URL + "?access_token=" + encodeURIComponent(s.CLB_TOKEN);
+                                l.open("POST", I, !0), l.send(n);
+                            })(e);
+                        }
+                        function l(e) {
+                            let { error: t, reason: r, stack: n } = e;
+                            const o = new Date().toISOString();
+                            return `${o}: error: ${t}\n${o}: reason for logs: ${r}\n${o}: userAgent: ${window.navigator.userAgent}\n${n}`;
+                        }
+                        null == window.onerror &&
+                            (window.onerror = function (e, t, r) {
+                                const n = t.split("?")[0];
+                                var freeformUrl = "/personalization/cl2/freeform/DebugEvent?source=www&type=ServiceWorkerFailure";
+                                return "Uncaught SyntaxError: Unexpected token ''" === e
+                                    ? ((function (e) {
+                                          i(l({ error: "failed to load a js or css bundle", reason: `failed to load [${e.split("/")[3].replace(/^\//, "")}]`, stack: "" }));
+                                      })(n),
+                                      !0)
+                                    : (i(l({ error: e, reason: `Error at [${n}:${r}]`, stack: "" })), !1);
+                            });
+                        const d = { UNKNOWN_ID: a.UNKNOWN_ID },
+                            p = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36";
+                        let f;
+                    },
+                    425017: (e, t) => {
+                        "use strict";
+                        function r(e) {
+                            return e.includes("windows") ? "Windows" : e.includes("mac") ? "Mac OS" : e.includes("linux") ? "Linux" : "Unparsed";
+                        }
+                        Object.defineProperty(t, "__esModule", { value: !0 }),
+                            (t.parseUASimple = function (e, t) {
+                                const n = e.toLowerCase();
+                                return { browser: s(n), device: r(n), appVersion: t };
+                            });
+                        const n = /(chrome|firefox)\/([\w\.]+)/i,
+                            o = /(edge|opr)\/([\w\.]+)/i,
+                            a = { chrome: "Chrome", edge: "Edge", opr: "Opera", firefox: "Firefox" };
+                        function s(e) {
+                            const t = e.match(o) || e.match(n);
+                            return null == t ? "Unparsed" : `${a[t[1]]} ${t[2]}`;
+                        }
+                    },
+                    174285: (e, t) => {
+                        "use strict";
+                        let r;
+                        Object.defineProperty(t, "__esModule", { value: !0 }), (t.default = void 0);
+                        try {
+                            r = window.localStorage;
+                        } catch (e) {}
+                        var n = r;
+                        t.default = n;
+                    },
+                    508247: (e, t) => {
+                        "use strict";
+                        Object.defineProperty(t, "__esModule", { value: !0 }),
+                            (t.WS_ORIGIN = t.WEB_PUBLIC_PATH = t.VERSION_TERTIARY = t.VERSION_STR = t.VERSION_SECONDARY = t.VERSION_PRIMARY = t.VERSION_BASE = t.USER_TIMINGS = t.UNKNOWN_ID = t.LOCALHOST_ENV_CONFIG = t.HASH_PLACEHOLDER = t.FLB_PLATFORM = t.FB_APP_ID = t.DYN_ORIGIN = t.DIFF_VERSION = t.DIFF_ID = t.BUILD_URL = t.BUILD_TIMESTAMP = t.BUILD_ID = void 0),
+                            (t.DIFF_ID = ""),
+                            (t.DIFF_VERSION = ""),
+                            (t.LOCALHOST_ENV_CONFIG = !1),
+                            (t.HASH_PLACEHOLDER = "7fd2a9982b9ebd03017312cde6757775bd0d967b"),
+                            (t.VERSION_PRIMARY = "2"),
+                            (t.VERSION_SECONDARY = "2353"),
+                            (t.VERSION_TERTIARY = "59"),
+                            (t.VERSION_BASE = "2.2353.59"),
+                            (t.VERSION_STR = "2.2353.59"),
+                            (t.DYN_ORIGIN = "https://web.whatsapp.com/"),
+                            (t.WS_ORIGIN = ""),
+                            (t.FLB_PLATFORM = "web"),
+                            (t.FB_APP_ID = ""),
+                            (t.UNKNOWN_ID = "WAUnknownID"),
+                            (t.BUILD_ID = "546943534"),
+                            (t.BUILD_TIMESTAMP = "December 14, 2023"),
+                            (t.WEB_PUBLIC_PATH = "/"),
+                            (t.BUILD_URL = "https://web.whatsapp.com/"),
+                            (t.USER_TIMINGS = !1);
+                    },
+                    97359: (e, t) => {
+                        "use strict";
+                        Object.defineProperty(t, "__esModule", { value: !0 }),
+                            (t.default = function (e) {
+                                return e.default;
+                            });
+                    },
+                    556869: (e, t) => {
+                        "use strict";
+                        Object.defineProperty(t, "__esModule", { value: !0 }),
+                            (t.default = function e(t) {
+                                const r = new Error(t);
+                                if (void 0 === r.stack)
+                                    try {
+                                        throw e;
+                                    } catch (e) {}
+                                return r;
+                            });
+                    },
+                },
+                (e) => {
+                    "use strict";
+                    e((e.s = 794858));
+                },
+            ]);
+        </script>
+    </body>
+</html>
