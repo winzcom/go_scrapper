@@ -1,0 +1,223 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HTML Formatter</title>
+      <meta  name="description"  content="Online formatter and beautifier for an ugly HTML code." />
+
+
+   <meta  property="og:url"  content="https://webformatter.com/html" />
+
+
+   <meta  property="og:type"  content="website" />
+
+
+   <meta  property="og:title"  content="HTML Formatter" />
+
+
+   <meta  property="og:description"  content="Online formatter and beautifier for an ugly HTML code." />
+
+
+ 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0 maximum-scale=1.0, user-scalable=0">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="image/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="image/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="image/icons/favicon-16x16.png">
+
+    <script src="js/lib/polyfill.min.js" defer></script>
+    <script src="js/lib/filesaver.min.js" defer></script>
+    <script src="js/lib/jquery.min.js"></script>
+
+    <script src="js/lib/highlight.pack.min.js" defer></script>
+
+    <link rel="stylesheet" href="css/lib/codemirror/codemirror.css">
+    <script src="js/lib/codemirror/codemirror.min.js"></script>
+    <script src="js/lib/codemirror/addon/display/placeholder.min.js" async></script>
+
+    <script src="js/lib/codemirror/mode/css/css.min.js" async></script>
+    <script src="js/lib/codemirror/mode/javascript/javascript.min.js" async></script>
+    <script src="js/lib/codemirror/mode/htmlmixed/htmlmixed.min.js" async></script>
+    <script src="js/lib/codemirror/mode/xml/xml.min.js" async></script>
+    <script src="js/lib/codemirror/mode/clike/clike.min.js" async></script>
+    <script src="js/lib/codemirror/mode/php/php.min.js" async></script>
+
+    <script src="js/lib/codemirror/cm-resize.min.js" defer></script>
+    <script src="js/lib/clipboard.min.js" defer></script>
+    <script src="js/web-formatter.js?_v=1" defer></script>
+
+    <link rel="stylesheet" href="css/pre.css">
+    <link rel="stylesheet" href="css/site.css">
+
+    <link rel="preload" href="font/nunito.woff2" as="font">
+    <link rel="preload" href="font/ptmono.woff2" as="font">
+</head>
+<body>
+
+<header class="header">
+    <div class="container">
+        <h1 class="header-title"><img src="image/logo.svg"><span>HTML </span>Formatter</h1>
+        <p class="header-subtitle">Free online tool to format an ugly HTML code, making it readable and pretty, with the proper indentation.</p>
+    </div>
+</header>
+
+<div class="container">
+    <div class="main">
+        <div class="main-header">
+              <a class="main-button__auto " lang="/" href="/">Autodetect </a>
+   <a class="main-button__lang main-button__active" lang="html" href="html">HTML </a>
+   <a class="main-button__lang " lang="xml" href="xml">XML </a>
+   <a class="main-button__lang " lang="css" href="css">CSS </a>
+   <a class="main-button__lang " lang="javascript" href="javascript">JavaScript </a>
+   <a class="main-button__lang " lang="php" href="php">PHP </a>
+   <a class="main-button__lang " lang="json" href="json">JSON </a>
+ 
+        </div>
+        <div class="main-content">
+            <textarea id="code" name="code" placeholder="Paste your code or drag a file here" autocomplete="off"  autocapitalize="off" spellcheck="false" style="display: none;"></textarea>
+            <div id="preload" class="CodeMirror cm-s-default CodeMirror-empty CodeMirror-focused">
+                <div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 12px; left: 36px;">
+                    <textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea>
+                </div>
+                <div class="CodeMirror-vscrollbar" tabindex="-1" cm-not-content="true" style="bottom: 18px;">
+                    <div style="min-width: 1px; height: 0px;"></div>
+                </div>
+                <div class="CodeMirror-hscrollbar" tabindex="-1" cm-not-content="true" style="right: 18px;">
+                    <div style="height: 100%; min-height: 1px; width: 0px;"></div>
+                </div>
+                <div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div>
+                <div class="CodeMirror-gutter-filler" cm-not-content="true"></div>
+                <div class="CodeMirror-scroll" tabindex="-1">
+                    <div class="CodeMirror-sizer" style="margin-left: 30px; margin-bottom: -17px; border-right-width: 13px; min-height: 32px; min-width: 7px; padding-right: 0px; padding-bottom: 0px;">
+                        <div style="position: relative; top: 0px;">
+                            <div class="CodeMirror-lines" role="presentation">
+                                <div role="presentation" style="position: relative; outline: none;">
+                                    <pre class="CodeMirror-placeholder CodeMirror-line-like" style="height: 0px; overflow: visible; direction: ltr;">Paste your code or drag a file here</pre>
+                                    <div class="CodeMirror-measure">
+                                        <pre class="CodeMirror-line-like"><span>xxxxxxxxxx</span></pre>
+                                    </div>
+                                    <div class="CodeMirror-measure"></div>
+                                    <div style="position: relative; z-index: 1;"></div>
+                                    <div class="CodeMirror-cursors" style="">
+                                        <div class="CodeMirror-cursor" style="left: 4px; top: 0px; height: 18px;">&nbsp;</div>
+                                    </div>
+                                    <div class="CodeMirror-code" role="presentation">
+                                        <div style="position: relative;">
+                                            <div class="CodeMirror-gutter-wrapper" style="left: -30px;">
+                                                <div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 21px;">1</div>
+                                            </div>
+                                            <pre class=" CodeMirror-line " role="presentation">
+                                                <span role="presentation" style="padding-right: 0.1px;">
+                                                    <span cm-text="">​</span>
+                                                </span>
+                                            </pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="position: absolute; height: 13px; width: 1px; border-bottom: 0px solid transparent; top: 32px;"></div>
+                    <div class="CodeMirror-gutters" style="height: 45px;">
+                        <div class="CodeMirror-gutter CodeMirror-linenumbers" style="width: 29px;"></div>
+                    </div>
+                </div>
+                <div class="CodeMirror-Resizer"></div>
+            </div>
+        </div>
+        <div class="footer">
+            <div class="footer-item_btn">
+                <button class="primary-button">
+                    <span>Format</span>
+                    <div class="spinner" style="display: none">
+                        <div class="bounce1"></div>
+                        <div class="bounce2"></div>
+                        <div class="bounce3"></div>
+                    </div>
+                </button>
+            </div>
+            <div class="footer-input-item" tabindex="0">
+                <span>Tab size</span>
+                <input id="tabSize" class="input" value="4" maxlength="1" />
+            </div>
+            <div class="footer-item" tabindex="0">
+                <a class="footer-item__download">Download</a>
+            </div>
+            <div class="footer-item" tabindex="0">
+                <a class="footer-item__url">Load URL</a>
+            </div>
+            <input type="file" id="inFile" style="display: none;"/>
+            <div class="footer-item" tabindex="0">
+                <a class="footer-item__browse">Browse</a>
+            </div>
+            <div class="footer-item clipboard-anchor" tabindex="0">
+                <a class="footer-item__copy">Copy</a>
+            </div>
+            <div class="footer-item" tabindex="0">
+                <a class="footer-item__clear">Clear</a>
+            </div>
+        </div>
+
+        <div class="container" style="font-size: 18px; margin-top: 60px; margin-bottom: 30px;">
+            
+        </div>
+
+        <div class="footer-text extra">The formatter works locally in your browser, no data is uploaded to the server.</div>
+    </div>
+</div>
+
+<a class="prototype" ></a>
+
+<div class="modal show" id="modalWindow" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog " role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="h5 modal-title w-100"></div>
+                <button type="button" class="close " data-dismiss="modal" aria-label="Close" style="outline: none">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input class="input input-modal" autocomplete="off"  autocapitalize="off" spellcheck="false"/>
+                <div class="modal-error" hidden>Wrong URL or the server does not allow cross-origin requests.</div>
+            </div>
+            <div class="modal-footer justify-content-center mt-3">
+                <button type="button" class="modal-footer-button"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-backdrop show" style="display: none;"></div>
+
+<script>
+    $(document).ready(function() {
+        var text = {"load":{"error":"Wrong URL or the server does not allow cross-origin requests.","header":"Enter URL","button":"Load"},"download":{"header":"Enter file name","button":"Download"}};
+        var menuId = "html";
+        var menu = [{"menuName":"Autodetect","name":"/"},{"menuName":"HTML","parser":"html","mime":"text/html","extension":"html","mode":"htmlmixed","name":"html","language":"html","isAutoDetect":true},{"menuName":"XML","parser":"html","mime":"text/xml","extension":"xml","mode":"xml","name":"xml","language":"xml","isAutoDetect":true},{"menuName":"CSS","parser":"css","mime":"text/css","extension":"css","mode":"css","name":"css","language":"css","isAutoDetect":true},{"menuName":"JavaScript","parser":"babel","mime":"text/javascript","extension":"js","mode":"text/javascript","name":"javascript","language":"javascript","isAutoDetect":true},{"menuName":"PHP","parser":"php","mime":"application/php","extension":"php","mode":"application/x-httpd-php","name":"php","language":"php","isAutoDetect":true},{"menuName":"JSON","parser":"json","mime":"text/json","extension":"json","mode":"application/ld+json","name":"json","language":"json","isAutoDetect":true}];
+
+        new WebFormatter({menuId : menuId, text: text, menu: menu });
+    });
+
+</script>
+
+<!-- Matomo -->
+<script type="text/javascript" id="last_script">
+  var _paq = _paq || [];
+  /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="https://stats.monohost.com/";
+    _paq.push(['setTrackerUrl', u+'piwik.php']);
+    _paq.push(['setSiteId', '55']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+<!-- End Matomo Code -->
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8288203502063695"
+     crossorigin="anonymous"></script>
+
+</body>
+</html>
