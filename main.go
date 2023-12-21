@@ -213,8 +213,15 @@ func readDoc(parent *tags) (*tags, bool) {
 				}
 				new_child, _ := readDoc(tag)
 
+				if new_child.name == "" && new_child.content == "" && new_child.element_type != CLOSING_TAG {
+					log.Fatal("Invalid Document ", new_child)
+				}
+
 				for new_child != nil && new_child.element_type != CLOSING_TAG {
 					//fmt.Println("new child ", new_child, bts, tag.name)
+					if new_child.name == "" && new_child.content == "" {
+						log.Fatal("Invalid Document ", new_child)
+					}
 					if new_child.element_type == TEXT {
 						stripped := strings.TrimSpace(new_child.content)
 						if len(stripped) > 0 {
@@ -306,7 +313,7 @@ func main() {
 	}
 	//fmt.Println("root ", root)
 	//fmt.Println("find by attribute ", FindByKey(root, "disable-upgrade", "true")[0].parent)
-	fmt.Println("find by tags ", FindByTag(root, "style")[0].children[0].content)
+	fmt.Println("find by tags ", FindByTag(root, "style"))
 	//fmt.Println("root ", root.children[0].children[1])
 	//fmt.Println("find by tags ", FindByTag(root, "footer")[0].parent)
 }
