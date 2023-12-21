@@ -32,14 +32,14 @@ var ALLOWED_TAGS_NO_CLOSE map[string]bool = map[string]bool{
 	"source":   true,
 	"area":     true,
 	"circle":   true,
-	//"option":   true,
-	"link":   true,
-	"base":   true,
-	"col":    true,
-	"keygen": true,
-	"embed":  true,
-	"param":  true,
-	"wbr":    true,
+	"xml":      true,
+	"link":     true,
+	"base":     true,
+	"col":      true,
+	"keygen":   true,
+	"embed":    true,
+	"param":    true,
+	"wbr":      true,
 }
 
 var NOCHILD_ALLOWED map[string]bool = map[string]bool{
@@ -93,9 +93,10 @@ func readDoc(parent *tags) (*tags, bool) {
 	var letter_count int
 	var is_comment bool
 	var drop bool
+	var possible_comment bool
 
 	var is_quoted bool
-
+	//var closing_contents string
 	//var stack []string
 
 	for {
@@ -114,7 +115,18 @@ func readDoc(parent *tags) (*tags, bool) {
 			p, _ := reader.Peek(2)
 			p1, _ := reader.Peek(1)
 
-			if string(p) == "</" {
+			if bts == "<" && string(p1) == "/" && !is_quoted {
+				closing = true
+				tag.element_type = CLOSING_TAG
+			} else if bts == ">" && closing && !is_quoted {
+				return tag, true
+			} else if bts == "\"" {
+				if is_quoted {
+					is_quoted = false
+				} else {
+					is_quoted = true
+				}
+			} else if string(p) == "</" {
 				if letter_count > 0 {
 					tag.content = tag_name
 					tag.element_type = TEXT
@@ -123,24 +135,13 @@ func readDoc(parent *tags) (*tags, bool) {
 				}
 				tag.element_type = CLOSING_TAG
 				return tag, true
-			} else if bts == "<" && string(p1) == "/" {
-				closing = true
-				tag.element_type = CLOSING_TAG
-				continue
 			}
-			if bts == ">" && closing {
-				return tag, true
-			}
-			if closing {
-				continue
-			}
-
 			tag_name += bts
 			letter_count += 1
 			previous = bts
 			continue
 		}
-		if bts == "<" {
+		if bts == "<" && !is_comment {
 			if !is_tag_opened {
 				if !isNewLineOrReturn(tag_name) && letter_count > 1 {
 					reader.UnreadByte()
@@ -151,14 +152,11 @@ func readDoc(parent *tags) (*tags, bool) {
 				is_tag_opened = true
 			}
 		} else if bts == ">" {
-			// if previous == "/" && (ALLOWED_TAGS_NO_CLOSE[strings.ToLower(tag.name)]) {
-			// 	// this is the self closing tags
-			// 	tag.element_type = TAG
-			// 	//fmt.Println("printing it all ", is_tag_opened, tag.name, tag)
-			// 	return tag, false
-			// }
 			if is_tag_opened || is_comment {
 				if is_comment {
+					if previous != "-" {
+						continue
+					}
 					tag.element_type = COMMENT
 					tag.name = strings.ToLower(COMMENT)
 					tag.text = tag_name
@@ -181,8 +179,12 @@ func readDoc(parent *tags) (*tags, bool) {
 					tag.element_type = CLOSING_TAG
 					return tag, true
 				}
-				if ALLOWED_TAGS_NO_CLOSE[strings.ToLower(strings.TrimSpace(tag.name))] {
+				str_low := strings.ToLower(strings.TrimSpace(tag.name))
+				if ALLOWED_TAGS_NO_CLOSE[str_low] {
 					tag.element_type = TAG
+					if str_low == "doctype" {
+						return readDoc(nil)
+					}
 					return tag, false
 				}
 				if tag.name == "" {
@@ -212,7 +214,7 @@ func readDoc(parent *tags) (*tags, bool) {
 				new_child, _ := readDoc(tag)
 
 				for new_child != nil && new_child.element_type != CLOSING_TAG {
-					//fmt.Println("new child ", new_child.parent.name, bts, previous)
+					//fmt.Println("new child ", new_child, bts, tag.name)
 					if new_child.element_type == TEXT {
 						stripped := strings.TrimSpace(new_child.content)
 						if len(stripped) > 0 {
@@ -260,18 +262,24 @@ func readDoc(parent *tags) (*tags, bool) {
 			}
 		}
 		if bts == "-" && is_comment {
+			previous = bts
 			continue
 		}
 		if !is_tag_opened && !isNewLineOrReturn(bts) {
 			letter_count += 1
 			tag_name += bts
+		} else if (bts == "!" || bts == "?") && previous == "<" {
+			possible_comment = true
+			continue
 		} else if noTagAllowed(bts) {
 			tag_name += bts
 		}
-		if strings.Contains(tag_name, "!") && bts == "-" && previous == "-" && !is_comment {
-			is_comment = true
-			is_tag_opened = false
-			tag_name = ""
+		if possible_comment {
+			if bts == "-" && previous == "-" && !is_comment {
+				is_comment = true
+				is_tag_opened = false
+				tag_name = ""
+			}
 		}
 		previous = bts
 	}
@@ -284,7 +292,7 @@ func rootPoint() *tags {
 }
 
 func main() {
-	b, _ := os.Open("./html/yts.html")
+	b, _ := os.Open("./html/paystack.html")
 
 	reader = bufio.NewReader(b)
 	root := rootPoint()
@@ -296,9 +304,9 @@ func main() {
 	for _, v := range anchors {
 		fmt.Println("a ", v.attributes["href"])
 	}
-	fmt.Println("root ", root.children[1])
-	//fmt.Println("find by attribute ", FindByKey(root, "id", "fills"))
-	//fmt.Println("find by tags ", FindByTag(root, "comment"))
+	//fmt.Println("root ", root)
+	//fmt.Println("find by attribute ", FindByKey(root, "disable-upgrade", "true")[0].parent)
+	fmt.Println("find by tags ", FindByTag(root, "style")[0].children[0].content)
 	//fmt.Println("root ", root.children[0].children[1])
 	//fmt.Println("find by tags ", FindByTag(root, "footer")[0].parent)
 }
