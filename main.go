@@ -31,7 +31,6 @@ var ALLOWED_TAGS_NO_CLOSE map[string]bool = map[string]bool{
 	"iostream": true,
 	"source":   true,
 	"area":     true,
-	"circle":   true,
 	"xml":      true,
 	"link":     true,
 	"base":     true,
@@ -220,7 +219,7 @@ func readDoc(parent *tags) (*tags, bool) {
 				for new_child != nil && new_child.element_type != CLOSING_TAG {
 					//fmt.Println("new child ", new_child, bts, tag.name)
 					if new_child.name == "" && new_child.content == "" {
-						log.Fatal("Invalid Document ", new_child)
+						log.Fatal("Cannot read document ", new_child)
 					}
 					if new_child.element_type == TEXT {
 						stripped := strings.TrimSpace(new_child.content)
@@ -299,7 +298,7 @@ func rootPoint() *tags {
 }
 
 func main() {
-	b, _ := os.Open("./html/paystack.html")
+	b, _ := os.Open("./html/youtube.html")
 
 	reader = bufio.NewReader(b)
 	root := rootPoint()
@@ -311,9 +310,9 @@ func main() {
 	for _, v := range anchors {
 		fmt.Println("a ", v.attributes["href"])
 	}
-	//fmt.Println("root ", root)
+	fmt.Println("root ", root)
 	//fmt.Println("find by attribute ", FindByKey(root, "disable-upgrade", "true")[0].parent)
-	fmt.Println("find by tags ", FindByTag(root, "style"))
+	//fmt.Println("find by tags ", FindByTag(root, "body"))
 	//fmt.Println("root ", root.children[0].children[1])
 	//fmt.Println("find by tags ", FindByTag(root, "footer")[0].parent)
 }
