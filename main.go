@@ -293,11 +293,15 @@ func readDoc(parent *tags) (*tags, bool) {
 
 func rootPoint() *tags {
 	tag, _ := readDoc(nil)
+	if tag.element_type != COMMENT {
+		return tag
+	}
+	tag, _ = readDoc(nil)
 	return tag
 }
 
 func main() {
-	b, _ := os.Open("./html/showmax.html")
+	b, _ := os.Open("./html/sporty.html")
 
 	reader = bufio.NewReader(b)
 	root := rootPoint()
@@ -306,14 +310,10 @@ func main() {
 
 	fmt.Println("anchild len ", len(anchors))
 
-	for _, v := range anchors {
-		fmt.Println("a ", v.attributes["href"])
-	}
+	// for _, v := range anchors {
+	// 	fmt.Println("a ", v.attributes["href"])
+	// }
 	fmt.Println("root ", root)
-	fmt.Println("find by attribute ", FindByKey(root, "id", "swimmer"))
-	//fmt.Println("find by tags ", FindByTag(root, "style"))
-	//fmt.Println("find by tags ", FindByTag(root, "style")[1].children[0])
-	//fmt.Println("looking for a text ", LookForText(root, "computers")[0].parent)
-	//fmt.Println("root ", root.children[0].children[1])
-	//fmt.Println("find by tags ", FindByTag(root, "footer")[0].parent)
+	fmt.Println("find by attribute ", FindByKey(root, "id", "army"))
+	fmt.Println("find by tags ", len(FindByTag(root, "script")))
 }
