@@ -1,0 +1,3444 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+   <HEAD>
+      <TITLE>14.2 B-Trees</TITLE>
+      <META NAME="description" CONTENT="14.2 B-Trees">
+      <META NAME="keywords" CONTENT="ods-python-html">
+      <META NAME="resource-type" CONTENT="document">
+      <META NAME="distribution" CONTENT="global">
+      <META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+      <META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+      <LINK REL="STYLESHEET" HREF="../ods-book.css">
+      <LINK REL="next" HREF="14_3_Discussion_Exercises.html">
+      <LINK REL="previous" HREF="14_1_Block_Store.html">
+      <LINK REL="up" HREF="14_External_Memory_Searchin.html">
+      <LINK REL="next" HREF="14_3_Discussion_Exercises.html">
+   </HEAD>
+   <BODY text="#000000" bgcolor="#FFFFFF">
+      <DIV CLASS="navigation">
+         <!--Navigation Panel-->
+         <A NAME="tex2html1298"
+            HREF="14_3_Discussion_Exercises.html">
+         <IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+         <A NAME="tex2html1292"
+            HREF="14_External_Memory_Searchin.html">
+         <IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+         <A NAME="tex2html1286"
+            HREF="14_1_Block_Store.html">
+         <IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+         <A NAME="tex2html1294"
+            HREF="Contents.html">
+         <IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+         <A NAME="tex2html1296"
+            HREF="Index.html">
+         <IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+         <BR>
+         <B> Next:</B> <A NAME="tex2html1299"
+            HREF="14_3_Discussion_Exercises.html">14.3 Discussion and Exercises</A>
+         <B> Up:</B> <A NAME="tex2html1293"
+            HREF="14_External_Memory_Searchin.html">14. External Memory Searching</A>
+         <B> Previous:</B> <A NAME="tex2html1287"
+            HREF="14_1_Block_Store.html">14.1 The Block Store</A>
+         &nbsp; <B>  <A NAME="tex2html1295"
+            HREF="Contents.html">Contents</A></B> 
+         &nbsp; <B>  <A NAME="tex2html1297"
+            HREF="Index.html">Index</A></B> 
+         <BR>
+         <BR>
+      </DIV>
+      <!--End of Navigation Panel-->
+      <!--Table of Child-Links-->
+      <A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+      <UL CLASS="ChildLinks">
+         <LI><A NAME="tex2html1300"
+            HREF="14_2_B_Trees.html#SECTION001721000000000000000"><SPAN CLASS="arabic">14</SPAN>.<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">1</SPAN> Searching</A>
+         <LI><A NAME="tex2html1301"
+            HREF="14_2_B_Trees.html#SECTION001722000000000000000"><SPAN CLASS="arabic">14</SPAN>.<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">2</SPAN> Addition</A>
+         <LI><A NAME="tex2html1302"
+            HREF="14_2_B_Trees.html#SECTION001723000000000000000"><SPAN CLASS="arabic">14</SPAN>.<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">3</SPAN> Removal</A>
+         <LI><A NAME="tex2html1303"
+            HREF="14_2_B_Trees.html#SECTION001724000000000000000"><SPAN CLASS="arabic">14</SPAN>.<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">4</SPAN> Amortized Analysis of <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5734.png"
+            ALT="$ B$"></SPAN>-Trees</A>
+      </UL>
+      <!--End of Table of Child-Links-->
+      <HR>
+      <H1><A NAME="SECTION001720000000000000000"></A>
+         <A NAME="sec:btree"></A>
+         <BR>
+         <SPAN CLASS="arabic">14</SPAN>.<SPAN CLASS="arabic">2</SPAN> B-Trees
+      </H1>
+      <P>
+         In this section, we discuss a generalization of binary trees,
+         called <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5353.png"
+            ALT="$ B$"></SPAN>-trees, which is efficient in the external memory model.
+         Alternatively, <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5354.png"
+            ALT="$ B$"></SPAN>-trees can be viewed as the natural generalization of
+         2-4 trees described in Section&nbsp;<A HREF="9_1_2_4_Trees.html#sec:twofour">9.1</A>. (A 2-4 tree is a special case
+         of a <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5355.png"
+            ALT="$ B$"></SPAN>-tree that we get by setting <SPAN CLASS="MATH"><IMG
+            WIDTH="40" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5356.png"
+            ALT="$ B=2$"></SPAN>.)
+      </P>
+      <P>
+         <A NAME="63807"></A>For any integer <SPAN CLASS="MATH"><IMG
+            WIDTH="41" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5358.png"
+            ALT="$ B\ge 2$"></SPAN>, a <SPAN  CLASS="textit"><SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5359.png"
+            ALT="$ B$"></SPAN>-tree</SPAN> is a tree in which all of
+         the leaves have the same depth and every non-root internal node, <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5360.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>,
+         has at least <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5361.png"
+            ALT="$ B$"></SPAN> children and at most <SPAN CLASS="MATH"><IMG
+            WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5362.png"
+            ALT="$ 2B$"></SPAN> children.  The children of <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5363.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>
+         are stored in an array, <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{children}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="71" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5364.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{children}}}$"></SPAN>.  The required number of children is
+         relaxed at the root, which can have anywhere between 2 and <SPAN CLASS="MATH"><IMG
+            WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5365.png"
+            ALT="$ 2B$"></SPAN> children.
+      </P>
+      <P>
+         If the height of a <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5366.png"
+            ALT="$ B$"></SPAN>-tree is <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5367.png"
+            ALT="$ h$"></SPAN>, then it follows that the number,
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="12" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5368.png"
+            ALT="$ \ell$"></SPAN>, of leaves in the <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5369.png"
+            ALT="$ B$"></SPAN>-tree satisfies
+        </P>
+      <P>
+         <!-- MATH
+            \begin{displaymath}
+            2B^{h-1} \le \ell \le 2(2B)^{h-1} \enspace .
+            \end{displaymath}
+            -->
+      </P>
+      <DIV ALIGN="CENTER" CLASS="mathdisplay">
+         <IMG
+            WIDTH="158" HEIGHT="38" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5370.png"
+            ALT="$\displaystyle 2B^{h-1} \le \ell \le 2(2B)^{h-1} \enspace .
+            $">
+      </DIV>
+      <P></P>
+      Taking the logarithm of the first inequality and rearranging terms yields:
+      <P></P>
+      <DIV ALIGN="CENTER" CLASS="mathdisplay">
+         <TABLE CELLPADDING="0" WIDTH="100%" ALIGN="CENTER">
+            <TR VALIGN="MIDDLE">
+               <TD NOWRAP ALIGN="RIGHT"><SPAN CLASS="MATH"><IMG
+                  WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+                  SRC="img5371.png"
+                  ALT="$\displaystyle h$"></SPAN></TD>
+               <TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+                  WIDTH="101" HEIGHT="52" ALIGN="MIDDLE" BORDER="0"
+                  SRC="img5372.png"
+                  ALT="$\displaystyle \le \frac{\log \ell-1}{\log B} + 1$"></SPAN></TD>
+               <TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+                  &nbsp;&nbsp;&nbsp;
+               </TD>
+            </TR>
+            <TR VALIGN="MIDDLE">
+               <TD>&nbsp;</TD>
+               <TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+                  WIDTH="79" HEIGHT="52" ALIGN="MIDDLE" BORDER="0"
+                  SRC="img5373.png"
+                  ALT="$\displaystyle \le \frac{\log \ell}{\log B} + 1$"></SPAN></TD>
+               <TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+                  &nbsp;&nbsp;&nbsp;
+               </TD>
+            </TR>
+            <TR VALIGN="MIDDLE">
+               <TD>&nbsp;</TD>
+               <TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+                  WIDTH="93" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+                  SRC="img5374.png"
+                  ALT="$\displaystyle = \log_B \ell + 1 \enspace .$"></SPAN></TD>
+               <TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+                  &nbsp;&nbsp;&nbsp;
+               </TD>
+            </TR>
+         </TABLE>
+      </DIV>
+      <BR CLEAR="ALL">
+      <P></P>
+      That is, the height of a <SPAN CLASS="MATH"><IMG
+         WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5375.png"
+         ALT="$ B$"></SPAN>-tree is proportional to the base-<SPAN CLASS="MATH"><IMG
+         WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5376.png"
+         ALT="$ B$"></SPAN>
+      logarithm of the number of leaves.
+      <P>
+         Each node, <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5377.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>, in <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5378.png"
+            ALT="$ B$"></SPAN>-tree stores an array of keys
+         <!-- MATH
+            $\ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}}}[0],\ldots,\ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}}}[2B-1]$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="186" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5379.png"
+            ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}}}[0...
+            ...suremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}}}[2B-1]$"></SPAN>.  If <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5380.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN> is an internal node with <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5381.png"
+            ALT="$ k$"></SPAN>
+         children, then the number of keys stored at <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5382.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN> is exactly <SPAN CLASS="MATH"><IMG
+            WIDTH="36" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5383.png"
+            ALT="$ k-1$"></SPAN> and these
+         are stored in <!-- MATH
+            $\ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}}}[0],\ldots,\ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}}}[k-2]$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="175" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5384.png"
+            ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}}}[0...
+            ...nsuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}}}[k-2]$"></SPAN>.  The remaining <SPAN CLASS="MATH"><IMG
+            WIDTH="70" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5385.png"
+            ALT="$ 2B-k+1$"></SPAN>
+         array entries in <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="45" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5386.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}}$"></SPAN> are set to <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{nil}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="22" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5387.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{nil}}}$"></SPAN>.  If <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5388.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN> is a non-root leaf
+         node, then <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5389.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN> contains between <SPAN CLASS="MATH"><IMG
+            WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5390.png"
+            ALT="$ B-1$"></SPAN> and <SPAN CLASS="MATH"><IMG
+            WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5391.png"
+            ALT="$ 2B-1$"></SPAN> keys. The keys in a
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5392.png"
+            ALT="$ B$"></SPAN>-tree respect an order similar to the keys in a binary search tree.
+         For any node, <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5393.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>, that stores <SPAN CLASS="MATH"><IMG
+            WIDTH="36" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5394.png"
+            ALT="$ k-1$"></SPAN> keys,
+        </P>
+      <P>
+         <!-- MATH
+            \begin{displaymath}
+            \ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}[0]}} < \ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}[1]}} < \cdots < \ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}}}[k-2] \enspace .
+            \end{displaymath}
+            -->
+      </P>
+      <DIV ALIGN="CENTER" CLASS="mathdisplay">
+         <IMG
+            WIDTH="285" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5395.png"
+            ALT="$\displaystyle \ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\math...
+            ...nsuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}}}[k-2] \enspace .
+            $">
+      </DIV>
+      <P></P>
+      If <!-- MATH
+         $\ensuremath{\ensuremath{\mathit{u}}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5396.png"
+         ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN> is an internal node, then for every <!-- MATH
+         $\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}}\in\{0,\ldots,k-2\}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="105" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5397.png"
+         ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{i}}}}\in\{0,\ldots,k-2\}$"></SPAN>,
+      <!-- MATH
+         $\ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}[\ensuremath{\mathit{i}}]}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="60" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5398.png"
+         ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}[\ensuremath{\mathit{i}}]}}$"></SPAN> is larger than every key stored in the subtree rooted at
+      <!-- MATH
+         $\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{children}}[\ensuremath{\mathit{i}}]}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="86" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5399.png"
+         ALT="$ \ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{children}}[\ensuremath{\mathit{i}}]}$"></SPAN> but smaller than every key stored in the subtree rooted
+      at <!-- MATH
+         $\ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{children}}[\ensuremath{\mathit{i}}+1]}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="110" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5400.png"
+         ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{children}}[\ensuremath{\mathit{i}}+1]}}$"></SPAN>.  Informally,
+      <P>
+         <!-- MATH
+            \begin{displaymath}
+            \ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{children}}[\ensuremath{\mathit{i}}]}} \prec \ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}[\ensuremath{\mathit{i}}]}} \prec \ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{children}}[\ensuremath{\mathit{i}}+1]}} \enspace .
+            \end{displaymath}
+            -->
+      </P>
+      <DIV ALIGN="CENTER" CLASS="mathdisplay">
+         <IMG
+            WIDTH="296" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5401.png"
+            ALT="$\displaystyle \ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\math...
+            ...hit{u}}.\ensuremath{\mathit{children}}[\ensuremath{\mathit{i}}+1]}} \enspace .
+            $">
+      </DIV>
+      <P></P>
+      An example of a <SPAN CLASS="MATH"><IMG
+         WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5402.png"
+         ALT="$ B$"></SPAN>-tree with <SPAN CLASS="MATH"><IMG
+         WIDTH="40" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5403.png"
+         ALT="$ B=2$"></SPAN> is shown in Figure&nbsp;<A HREF="#fig:btree">14.2</A>.
+      <P>
+      <DIV ALIGN="CENTER">
+         <A NAME="fig:btree"></A><A NAME="63867"></A>
+         <TABLE>
+            <CAPTION ALIGN="BOTTOM"><STRONG>Figure 14.2:</STRONG>
+               A <SPAN CLASS="MATH"><IMG
+                  WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+                  SRC="img5405.png"
+                  ALT="$ B$"></SPAN>-tree with <SPAN CLASS="MATH"><IMG
+                  WIDTH="40" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+                  SRC="img5406.png"
+                  ALT="$ B=2$"></SPAN>.
+            </CAPTION>
+            <TR>
+               <TD>
+                  <DIV ALIGN="CENTER">
+                  </DIV>
+                  <IMG
+                     WIDTH="555" HEIGHT="125" ALIGN="BOTTOM" BORDER="0"
+                     SRC="img5404.png"
+                     ALT="\includegraphics[width=\textwidth ]{figs-python/btree-1}">
+               </TD>
+            </TR>
+         </TABLE>
+      </DIV>
+      </P>
+      <P>
+         Note that the data stored in a <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5409.png"
+            ALT="$ B$"></SPAN>-tree node has size <SPAN CLASS="MATH"><IMG
+            WIDTH="37" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5410.png"
+            ALT="$ O(B)$"></SPAN>.  Therefore,
+         in an external memory setting, the value of <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5411.png"
+            ALT="$ B$"></SPAN> in a <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5412.png"
+            ALT="$ B$"></SPAN>-tree is chosen
+         so that  a node fits into a single external memory block.  In this way,
+         the time it takes to perform a <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5413.png"
+            ALT="$ B$"></SPAN>-tree operation in the external memory
+         model is proportional to the number of nodes that are accessed (read or
+         written) by the operation
+         </P>
+      <P>
+         For example, if the keys are 4 byte integers and the node indices are
+         also 4 bytes, then setting <SPAN CLASS="MATH"><IMG
+            WIDTH="58" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5414.png"
+            ALT="$ B=256$"></SPAN> means that each node stores
+        </P>
+      <P>
+         <!-- MATH
+            \begin{displaymath}
+            (4+4)\times 2B
+            = 8\times512=4096
+            \end{displaymath}
+            -->
+      </P>
+      <DIV ALIGN="CENTER" CLASS="mathdisplay">
+         <IMG
+            WIDTH="200" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5415.png"
+            ALT="$\displaystyle (4+4)\times 2B
+            = 8\times512=4096
+            $">
+      </DIV>
+      <P></P>
+      bytes of data.  This would be a perfect value of <SPAN CLASS="MATH"><IMG
+         WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5416.png"
+         ALT="$ B$"></SPAN> for the hard disk
+      or solid state drive discussed in the introduction to this chaper,
+      which have a block size of <SPAN CLASS="MATH"><IMG
+         WIDTH="39" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5417.png"
+         ALT="$ 4096$"></SPAN> bytes.
+      <P>
+         The BTree class, which implements a <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5418.png"
+            ALT="$ B$"></SPAN>-tree, stores a BlockStore,
+         <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{bs}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="18" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5419.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{bs}}}$"></SPAN>, that stores BTree nodes as well as the index, <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{ri}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="15" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5420.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{ri}}}$"></SPAN>, of the
+         root node.  As usual, an integer, <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{n}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5421.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{n}}}$"></SPAN>, is used to keep track of the number
+         of items in the data structure:
+         <BR>
+         <IMG
+            WIDTH="194" HEIGHT="140" ALIGN="BOTTOM" BORDER="0"
+            SRC="img5422.png"
+            ALT="\begin{leftbar}
+            \begin{flushleft}
+            \hspace*{1em} \ensuremath{\mathrm{initialize}(...
+            ...th{\ensuremath{\mathit{n}} \gets \ensuremath{0}}\\
+            \end{flushleft}\end{leftbar}">
+         <BR>
+      <P>
+      <H2><A NAME="SECTION001721000000000000000">
+         <SPAN CLASS="arabic">14</SPAN>.<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">1</SPAN> Searching</A>
+      </H2>
+      <P>
+         The implementation of the <!-- MATH
+            $\ensuremath{\mathrm{find}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="52" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5423.png"
+            ALT="$ \ensuremath{\mathrm{find}(\ensuremath{\mathit{x}})}$"></SPAN> operation, which is illustrated in
+         Figure&nbsp;<A HREF="#fig:btree-find">14.3</A>, generalizes the <!-- MATH
+            $\ensuremath{\mathrm{find}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="52" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5424.png"
+            ALT="$ \ensuremath{\mathrm{find}(\ensuremath{\mathit{x}})}$"></SPAN> operation in a binary
+         search tree.  The search for <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{x}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5425.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{x}}}$"></SPAN> starts at the root and uses the keys
+         stored at a node, <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5426.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>, to determine in which of <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5427.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>'s children the search
+         should continue.
+      <P>
+      <DIV ALIGN="CENTER">
+         <A NAME="fig:btree-find"></A><A NAME="66900"></A>
+         <TABLE>
+            <CAPTION ALIGN="BOTTOM">
+               <STRONG>Figure 14.3:</STRONG>
+               A successful search (for the value 4)
+               and an unsuccessful search (for the value 16.5) in a <SPAN CLASS="MATH"><IMG
+                  WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+                  SRC="img5429.png"
+                  ALT="$ B$"></SPAN>-tree. Shaded nodes show where the value of <!-- MATH
+                  $\ensuremath{\ensuremath{\mathit{z}}}$
+                  -->
+               <SPAN CLASS="MATH"><IMG
+                  WIDTH="11" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+                  SRC="img5430.png"
+                  ALT="$ \ensuremath{\ensuremath{\mathit{z}}}$"></SPAN> is updated during the searches.
+            </CAPTION>
+            <TR>
+               <TD>
+                  <DIV ALIGN="CENTER">
+                  </DIV>
+                  <IMG
+                     WIDTH="555" HEIGHT="155" ALIGN="BOTTOM" BORDER="0"
+                     SRC="img5428.png"
+                     ALT="\includegraphics[width=\textwidth ]{figs-python/btree-2}">
+               </TD>
+            </TR>
+         </TABLE>
+      </DIV>
+      More specifically, at a node <!-- MATH
+         $\ensuremath{\ensuremath{\mathit{u}}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5432.png"
+         ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>, the search checks if <!-- MATH
+         $\ensuremath{\ensuremath{\mathit{x}}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5433.png"
+         ALT="$ \ensuremath{\ensuremath{\mathit{x}}}$"></SPAN> is stored
+      in <!-- MATH
+         $\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="45" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5434.png"
+         ALT="$ \ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}}$"></SPAN>.  If so, <!-- MATH
+         $\ensuremath{\ensuremath{\mathit{x}}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5435.png"
+         ALT="$ \ensuremath{\ensuremath{\mathit{x}}}$"></SPAN> has been found and the search is complete.
+      Otherwise, the search finds the smallest integer, <!-- MATH
+         $\ensuremath{\ensuremath{\mathit{i}}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="9" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5436.png"
+         ALT="$ \ensuremath{\ensuremath{\mathit{i}}}$"></SPAN>, such that
+      <!-- MATH
+         $\ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}[\ensuremath{\mathit{i}}]}} > \ensuremath{\ensuremath{\ensuremath{\mathit{x}}}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="85" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5437.png"
+         ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}[\ensuremath{\mathit{i}}]}} &gt; \ensuremath{\ensuremath{\ensuremath{\mathit{x}}}}$"></SPAN> and continues the search in the subtree rooted at
+      <!-- MATH
+         $\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{children}}[\ensuremath{\mathit{i}}]}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="86" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5438.png"
+         ALT="$ \ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{children}}[\ensuremath{\mathit{i}}]}$"></SPAN>.  If no key in <!-- MATH
+         $\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="45" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5439.png"
+         ALT="$ \ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}}$"></SPAN> is greater than <!-- MATH
+         $\ensuremath{\ensuremath{\mathit{x}}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5440.png"
+         ALT="$ \ensuremath{\ensuremath{\mathit{x}}}$"></SPAN>, then the
+      search continues in <!-- MATH
+         $\ensuremath{\ensuremath{\mathit{u}}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5441.png"
+         ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>'s rightmost child.  Just like binary search
+      trees, the algorithm keeps track of the most recently seen key, <!-- MATH
+         $\ensuremath{\ensuremath{\mathit{z}}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="11" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5442.png"
+         ALT="$ \ensuremath{\ensuremath{\mathit{z}}}$"></SPAN>,
+      that is larger than <!-- MATH
+         $\ensuremath{\ensuremath{\mathit{x}}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5443.png"
+         ALT="$ \ensuremath{\ensuremath{\mathit{x}}}$"></SPAN>.  In case <!-- MATH
+         $\ensuremath{\ensuremath{\mathit{x}}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5444.png"
+         ALT="$ \ensuremath{\ensuremath{\mathit{x}}}$"></SPAN> is not found, <!-- MATH
+         $\ensuremath{\ensuremath{\mathit{z}}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="11" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5445.png"
+         ALT="$ \ensuremath{\ensuremath{\mathit{z}}}$"></SPAN> is returned as
+      the smallest value that is greater or equal to <!-- MATH
+         $\ensuremath{\ensuremath{\mathit{x}}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5446.png"
+         ALT="$ \ensuremath{\ensuremath{\mathit{x}}}$"></SPAN>.
+      <BR>
+      <IMG
+         WIDTH="325" HEIGHT="254" ALIGN="BOTTOM" BORDER="0"
+         SRC="img5447.png"
+         ALT="\begin{leftbar}
+         \begin{flushleft}
+         \hspace*{1em} \ensuremath{\mathrm{find}(\ensur...
+         ...bf{return}} \ensuremath{\ensuremath{\mathit{z}}}\\
+         \end{flushleft}\end{leftbar}">
+      <BR>
+      Central to the <!-- MATH
+         $\ensuremath{\mathrm{find}(\ensuremath{\mathit{x}})}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="52" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5448.png"
+         ALT="$ \ensuremath{\mathrm{find}(\ensuremath{\mathit{x}})}$"></SPAN> method is the <!-- MATH
+         $\ensuremath{\mathrm{find\_it}(\ensuremath{\mathit{a}},\ensuremath{\mathit{x}})}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="81" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5449.png"
+         ALT="$ \ensuremath{\mathrm{find\_it}(\ensuremath{\mathit{a}},\ensuremath{\mathit{x}})}$"></SPAN> method that
+      searches in a <!-- MATH
+         $\ensuremath{\ensuremath{\mathit{nil}}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="22" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5450.png"
+         ALT="$ \ensuremath{\ensuremath{\mathit{nil}}}$"></SPAN>-padded sorted array, <!-- MATH
+         $\ensuremath{\ensuremath{\mathit{a}}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5451.png"
+         ALT="$ \ensuremath{\ensuremath{\mathit{a}}}$"></SPAN>, for the value <!-- MATH
+         $\ensuremath{\ensuremath{\mathit{x}}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5452.png"
+         ALT="$ \ensuremath{\ensuremath{\mathit{x}}}$"></SPAN>.
+      This method, illustrated in Figure&nbsp;<A HREF="#fig:findit">14.4</A>, works for any array,
+      <!-- MATH
+         $\ensuremath{\ensuremath{\mathit{a}}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5453.png"
+         ALT="$ \ensuremath{\ensuremath{\mathit{a}}}$"></SPAN>, where <!-- MATH
+         $\ensuremath{\ensuremath{\ensuremath{\mathit{a}}}}[0],\ldots,\ensuremath{\ensuremath{\ensuremath{\mathit{a}}}}[k-1]$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="109" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5454.png"
+         ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{a}}}}[0],\ldots,\ensuremath{\ensuremath{\ensuremath{\mathit{a}}}}[k-1]$"></SPAN> is a sequence of keys in sorted
+      order and <!-- MATH
+         $\ensuremath{\ensuremath{\ensuremath{\mathit{a}}}}[k],\ldots,\ensuremath{\ensuremath{\ensuremath{\mathit{a}}}}[\ensuremath{\ensuremath{\mathrm{length}(\ensuremath{\mathit{a}})}}-1]$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="164" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5455.png"
+         ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{a}}}}[k],\ldots,\ensuremath{\ensur...
+         ...hit{a}}}}[\ensuremath{\ensuremath{\mathrm{length}(\ensuremath{\mathit{a}})}}-1]$"></SPAN> are all set to <!-- MATH
+         $\ensuremath{\ensuremath{\mathit{nil}}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="22" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5456.png"
+         ALT="$ \ensuremath{\ensuremath{\mathit{nil}}}$"></SPAN>.
+      If <!-- MATH
+         $\ensuremath{\ensuremath{\mathit{x}}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5457.png"
+         ALT="$ \ensuremath{\ensuremath{\mathit{x}}}$"></SPAN> is in the array at position <!-- MATH
+         $\ensuremath{\ensuremath{\mathit{i}}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="9" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5458.png"
+         ALT="$ \ensuremath{\ensuremath{\mathit{i}}}$"></SPAN>, then <!-- MATH
+         $\ensuremath{\mathrm{find\_it}(\ensuremath{\mathit{a}},\ensuremath{\mathit{x}})}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="81" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5459.png"
+         ALT="$ \ensuremath{\mathrm{find\_it}(\ensuremath{\mathit{a}},\ensuremath{\mathit{x}})}$"></SPAN> returns
+      <!-- MATH
+         $-\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}}-1$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="42" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5460.png"
+         ALT="$ -\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}}-1$"></SPAN>. Otherwise, it returns the smallest index, <!-- MATH
+         $\ensuremath{\ensuremath{\mathit{i}}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="9" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5461.png"
+         ALT="$ \ensuremath{\ensuremath{\mathit{i}}}$"></SPAN>, such that
+      <!-- MATH
+         $\ensuremath{\ensuremath{\ensuremath{\mathit{a}}[\ensuremath{\mathit{i}}]}}>\ensuremath{\ensuremath{\ensuremath{\mathit{x}}}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="52" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5462.png"
+         ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{a}}[\ensuremath{\mathit{i}}]}}&gt;\ensuremath{\ensuremath{\ensuremath{\mathit{x}}}}$"></SPAN> or <!-- MATH
+         $\ensuremath{\ensuremath{\ensuremath{\mathit{a}}[\ensuremath{\mathit{i}}]}}=\ensuremath{\ensuremath{\ensuremath{\mathit{nil}}}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5463.png"
+         ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{a}}[\ensuremath{\mathit{i}}]}}=\ensuremath{\ensuremath{\ensuremath{\mathit{nil}}}}$"></SPAN>.
+      <DIV ALIGN="CENTER">
+         <A NAME="fig:findit"></A><A NAME="66901"></A>
+         <TABLE>
+            <CAPTION ALIGN="BOTTOM">
+               <STRONG>Figure 14.4:</STRONG>
+               The execution of <!-- MATH
+                  $\ensuremath{\mathrm{find\_it}(\ensuremath{\mathit{a}},27)}$
+                  -->
+               <SPAN CLASS="MATH"><IMG
+                  WIDTH="90" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+                  SRC="img5465.png"
+                  ALT="$ \ensuremath{\mathrm{find\_it}(\ensuremath{\mathit{a}},27)}$"></SPAN>.
+            </CAPTION>
+            <TR>
+               <TD>
+                  <DIV ALIGN="CENTER">
+                  </DIV>
+                  <IMG
+                     WIDTH="388" HEIGHT="152" ALIGN="BOTTOM" BORDER="0"
+                     SRC="img5464.png"
+                     ALT="\includegraphics[scale=0.90909]{figs-python/findit}">
+               </TD>
+            </TR>
+         </TABLE>
+      </DIV>
+      <BR>
+      <IMG
+         WIDTH="323" HEIGHT="235" ALIGN="BOTTOM" BORDER="0"
+         SRC="img5466.png"
+         ALT="\begin{leftbar}
+         \begin{flushleft}
+         \hspace*{1em} \ensuremath{\mathrm{find\_it}(\e...
+         ...f{return}} \ensuremath{\ensuremath{\mathit{lo}}}\\
+         \end{flushleft}\end{leftbar}">
+      <BR>
+      The <!-- MATH
+         $\ensuremath{\mathrm{find\_it}(\ensuremath{\mathit{a}},\ensuremath{\mathit{x}})}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="81" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5467.png"
+         ALT="$ \ensuremath{\mathrm{find\_it}(\ensuremath{\mathit{a}},\ensuremath{\mathit{x}})}$"></SPAN> method uses a binary search 
+      <A NAME="64143"></A>that halves the search
+      space at each step, so it runs in <!-- MATH
+         $O(\log(\ensuremath{\ensuremath{\mathrm{length}(\ensuremath{\mathit{a}})}}))$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="123" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5468.png"
+         ALT="$ O(\log(\ensuremath{\ensuremath{\mathrm{length}(\ensuremath{\mathit{a}})}}))$"></SPAN> time.  In our setting, <!-- MATH
+         $\ensuremath{\ensuremath{\mathrm{length}(\ensuremath{\mathit{a}})}}=2B$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="104" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5469.png"
+         ALT="$ \ensuremath{\ensuremath{\mathrm{length}(\ensuremath{\mathit{a}})}}=2B$"></SPAN>, so <!-- MATH
+         $\ensuremath{\mathrm{find\_it}(\ensuremath{\mathit{a}},\ensuremath{\mathit{x}})}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="81" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5470.png"
+         ALT="$ \ensuremath{\mathrm{find\_it}(\ensuremath{\mathit{a}},\ensuremath{\mathit{x}})}$"></SPAN> runs in <SPAN CLASS="MATH"><IMG
+         WIDTH="61" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5471.png"
+         ALT="$ O(\log B)$"></SPAN> time.
+      <P>
+         We can analyze the running time of a <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5472.png"
+            ALT="$ B$"></SPAN>-tree <!-- MATH
+            $\ensuremath{\mathrm{find}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="52" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5473.png"
+            ALT="$ \ensuremath{\mathrm{find}(\ensuremath{\mathit{x}})}$"></SPAN> operation both
+         in the usual word-RAM model (where every instruction counts) and in the
+         external memory model (where we only count the number of nodes accessed).
+         Since each leaf in a <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5474.png"
+            ALT="$ B$"></SPAN>-tree stores at least one key and the height
+         of a <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5475.png"
+            ALT="$ B$"></SPAN>-Tree with <SPAN CLASS="MATH"><IMG
+            WIDTH="12" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5476.png"
+            ALT="$ \ell$"></SPAN> leaves is <!-- MATH
+            $O(\log_B\ell)$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="67" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5477.png"
+            ALT="$ O(\log_B\ell)$"></SPAN>, the height of a
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5478.png"
+            ALT="$ B$"></SPAN>-tree that stores <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{n}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5479.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{n}}}$"></SPAN> keys is <!-- MATH
+            $O(\log_B \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="68" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5480.png"
+            ALT="$ O(\log_B \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$"></SPAN>.  Therefore, in the
+         external memory model, the time taken by the <!-- MATH
+            $\ensuremath{\mathrm{find}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="52" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5481.png"
+            ALT="$ \ensuremath{\mathrm{find}(\ensuremath{\mathit{x}})}$"></SPAN> operation is
+         <!-- MATH
+            $O(\log_B \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="68" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5482.png"
+            ALT="$ O(\log_B \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$"></SPAN>.  To determine the running time in the word-RAM model,
+         we have to account for the cost of calling <!-- MATH
+            $\ensuremath{\mathrm{find\_it}(\ensuremath{\mathit{a}},\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="81" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5483.png"
+            ALT="$ \ensuremath{\mathrm{find\_it}(\ensuremath{\mathit{a}},\ensuremath{\mathit{x}})}$"></SPAN> for each node
+         we access, so the running time of <!-- MATH
+            $\ensuremath{\mathrm{find}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="52" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5484.png"
+            ALT="$ \ensuremath{\mathrm{find}(\ensuremath{\mathit{x}})}$"></SPAN> in the word-RAM model is
+      <P>
+         <!-- MATH
+            \begin{displaymath}
+            O(\log_B \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})\times O(\log B) = O(\log \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}}) \enspace .
+            \end{displaymath}
+            -->
+      </P>
+      <DIV ALIGN="CENTER" CLASS="mathdisplay">
+         <IMG
+            WIDTH="225" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5485.png"
+            ALT="$\displaystyle O(\log_B \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})\times O(\log B) = O(\log \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}}) \enspace .
+            $">
+      </DIV>
+      <P></P>
+      <P>
+      <H2><A NAME="SECTION001722000000000000000">
+         <SPAN CLASS="arabic">14</SPAN>.<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">2</SPAN> Addition</A>
+      </H2>
+      <P>
+         One important difference between <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5486.png"
+            ALT="$ B$"></SPAN>-trees and the BinarySearchTree
+         data structure from Section&nbsp;<A HREF="6_2_BinarySearchTree_Unbala.html#sec:binarysearchtree">6.2</A> is that the nodes of a
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5487.png"
+            ALT="$ B$"></SPAN>-tree do not store pointers to their parents.  The reason for this
+         will be explained shortly.  The lack of parent pointers means that
+         the <!-- MATH
+            $\ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5488.png"
+            ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$"></SPAN> and <!-- MATH
+            $\ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="75" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5489.png"
+            ALT="$ \ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$"></SPAN> operations on <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5490.png"
+            ALT="$ B$"></SPAN>-trees are most easily
+         implemented using recursion.
+      <P>
+         Like all balanced search trees, some form of rebalancing is required
+         during an <!-- MATH
+            $\ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5491.png"
+            ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$"></SPAN> operation.  In a <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5492.png"
+            ALT="$ B$"></SPAN>-tree, this is done by
+         <SPAN  CLASS="textit">splitting</SPAN> nodes.
+         <A NAME="64174"></A>Refer to Figure&nbsp;<A HREF="#fig:btree-split">14.5</A> for what follows.
+         Although splitting takes place across two levels of recursion, it is
+         best understood as an operation that takes a node <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5493.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN> containing <SPAN CLASS="MATH"><IMG
+            WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5494.png"
+            ALT="$ 2B$"></SPAN>
+         keys and having <SPAN CLASS="MATH"><IMG
+            WIDTH="47" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5495.png"
+            ALT="$ 2B+1$"></SPAN> children.  It creates a new node, <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{w}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5496.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN>, that
+         adopts <!-- MATH
+            $\ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{children}}}}[B],\ldots,\ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{children}}}}[2B]$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="216" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5497.png"
+            ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{children}}...
+            ...remath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{children}}}}[2B]$"></SPAN>.  The new node <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{w}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5498.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN>
+         also takes <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5499.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>'s <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5500.png"
+            ALT="$ B$"></SPAN> largest keys, <!-- MATH
+            $\ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}}}[B],\ldots,\ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}}}[2B-1]$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="187" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5501.png"
+            ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}}}[B...
+            ...suremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}}}[2B-1]$"></SPAN>.
+         At this point, <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5502.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN> has <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5503.png"
+            ALT="$ B$"></SPAN> children and <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5504.png"
+            ALT="$ B$"></SPAN> keys.  The extra key,
+         <!-- MATH
+            $\ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}}}[B-1]$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="89" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5505.png"
+            ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}}}[B-1]$"></SPAN>, is passed up to the parent of <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5506.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>, which also adopts <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{w}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5507.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN>.
+      <P>
+         Notice that the splitting operation modifies three nodes: <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5508.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>, <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5509.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>'s
+         parent, and the new node, <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{w}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5510.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN>.   This is why it is important that the
+         nodes of a <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5511.png"
+            ALT="$ B$"></SPAN>-tree do not maintain parent pointers.  If they did, then
+         the <SPAN CLASS="MATH"><IMG
+            WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5512.png"
+            ALT="$ B+1$"></SPAN> children adopted by <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{w}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5513.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN> would all need to have their parent
+         pointers modified. This would increase the number of external memory
+         accesses from 3 to <SPAN CLASS="MATH"><IMG
+            WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5514.png"
+            ALT="$ B+4$"></SPAN> and would make <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5515.png"
+            ALT="$ B$"></SPAN>-trees much less efficient for
+         large values of <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5516.png"
+            ALT="$ B$"></SPAN>.
+      <P>
+      <DIV ALIGN="CENTER">
+         <A NAME="fig:btree-split"></A><A NAME="66903"></A>
+         <TABLE>
+            <CAPTION ALIGN="BOTTOM">
+               <STRONG>Figure 14.5:</STRONG>
+               Splitting the node <!-- MATH
+                  $\ensuremath{\ensuremath{\mathit{u}}}$
+                  -->
+               <SPAN CLASS="MATH"><IMG
+                  WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+                  SRC="img5521.png"
+                  ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN> in a
+               <SPAN CLASS="MATH"><IMG
+                  WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+                  SRC="img5522.png"
+                  ALT="$ B$"></SPAN>-tree (<SPAN CLASS="MATH"><IMG
+                  WIDTH="40" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+                  SRC="img5523.png"
+                  ALT="$ B=3$"></SPAN>). Notice that the key <!-- MATH
+                  $\ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}}}[2]=\mathrm{m}$
+                  -->
+               <SPAN CLASS="MATH"><IMG
+                  WIDTH="96" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+                  SRC="img5524.png"
+                  ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}}}[2]=\mathrm{m}$"></SPAN>
+               passes from <!-- MATH
+                  $\ensuremath{\ensuremath{\mathit{u}}}$
+                  -->
+               <SPAN CLASS="MATH"><IMG
+                  WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+                  SRC="img5525.png"
+                  ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN> to its parent.
+            </CAPTION>
+            <TR>
+               <TD>
+                  <DIV ALIGN="CENTER">
+                  </DIV>
+                  <TABLE CELLPADDING=3 ALIGN="CENTER">
+                     <TR>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                        <TD ALIGN="LEFT"><IMG
+                           WIDTH="418" HEIGHT="191" ALIGN="BOTTOM" BORDER="0"
+                           SRC="img5519.png"
+                           ALT="\includegraphics[width=\textwidth ]{figs-python/btree-split-1}"></TD>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                     </TR>
+                     <TR>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                        <TD ALIGN="CENTER" COLSPAN=1>
+                           <SPAN>
+                              <!-- MATH
+                                 $\ensuremath{\ensuremath{\mathit{u}}.\mathrm{split}()}$
+                                 -->
+                              <SPAN CLASS="MATH"><IMG
+                                 WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+                                 SRC="img5517.png"
+                                 ALT="$ \ensuremath{\ensuremath{\mathit{u}}.\mathrm{split}()}$"></SPAN>
+                           </SPAN>
+                        </TD>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                     </TR>
+                     <TR>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                        <TD ALIGN="CENTER" COLSPAN=1>
+                           <SPAN>
+                              <!-- MATH
+                                 $\Downarrow$
+                                 -->
+                              <SPAN CLASS="MATH"><IMG
+                                 WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+                                 SRC="img5518.png"
+                                 ALT="$ \Downarrow$"></SPAN>
+                           </SPAN>
+                        </TD>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                     </TR>
+                     <TR>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                        <TD ALIGN="LEFT"><IMG
+                           WIDTH="554" HEIGHT="191" ALIGN="BOTTOM" BORDER="0"
+                           SRC="img5520.png"
+                           ALT="\includegraphics[width=\textwidth ]{figs-python/btree-split-2}"></TD>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                     </TR>
+                  </TABLE>
+               </TD>
+            </TR>
+         </TABLE>
+      </DIV>
+      <P>
+         The <!-- MATH
+            $\ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5527.png"
+            ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$"></SPAN> method in a <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5528.png"
+            ALT="$ B$"></SPAN>-tree is illustrated in Figure&nbsp;<A HREF="#fig:btree-add">14.6</A>.
+         At a high level, this method finds a leaf, <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5529.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>, at which to add the
+         value <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{x}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5530.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{x}}}$"></SPAN>.  If this causes <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5531.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN> to become overfull (because it already
+         contained <SPAN CLASS="MATH"><IMG
+            WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5532.png"
+            ALT="$ B-1$"></SPAN> keys), then <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5533.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN> is split.  If this causes <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5534.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>'s parent to
+         become overfull, then <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5535.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>'s parent is also split, which may cause <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5536.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>'s
+         grandparent to become overfull, and so on. This process continues,
+         moving up the tree one level at a time until reaching a node that
+         is not overfull or until the root is split. In the former case, the
+         process stops.  In the latter case, a new root is created whose two
+         children become the nodes obtained when the original root was split.
+      <P>
+      <DIV ALIGN="CENTER">
+         <A NAME="fig:btree-add"></A><A NAME="66904"></A>
+         <TABLE>
+            <CAPTION ALIGN="BOTTOM">
+               <STRONG>Figure 14.6:</STRONG>
+               The <!-- MATH
+                  $\ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$
+                  -->
+               <SPAN CLASS="MATH"><IMG
+                  WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+                  SRC="img5542.png"
+                  ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$"></SPAN> operation in a
+               BTree. Adding the value 21 results in two nodes being split.
+            </CAPTION>
+            <TR>
+               <TD>
+                  <DIV ALIGN="CENTER">
+                  </DIV>
+                  <TABLE CELLPADDING=3 ALIGN="CENTER">
+                     <TR>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                        <TD ALIGN="LEFT"><IMG
+                           WIDTH="517" HEIGHT="111" ALIGN="BOTTOM" BORDER="0"
+                           SRC="img5539.png"
+                           ALT="\includegraphics[width=\textwidth ]{figs-python/btree-add-1}"></TD>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                     </TR>
+                     <TR>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                        <TD ALIGN="CENTER" COLSPAN=1>
+                           <SPAN>
+                              <!-- MATH
+                                 $\Downarrow$
+                                 -->
+                              <SPAN CLASS="MATH"><IMG
+                                 WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+                                 SRC="img5537.png"
+                                 ALT="$ \Downarrow$"></SPAN>
+                           </SPAN>
+                        </TD>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                     </TR>
+                     <TR>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                        <TD ALIGN="LEFT"><IMG
+                           WIDTH="554" HEIGHT="111" ALIGN="BOTTOM" BORDER="0"
+                           SRC="img5540.png"
+                           ALT="\includegraphics[width=\textwidth ]{figs-python/btree-add-2}"></TD>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                     </TR>
+                     <TR>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                        <TD ALIGN="CENTER" COLSPAN=1>
+                           <SPAN>
+                              <!-- MATH
+                                 $\Downarrow$
+                                 -->
+                              <SPAN CLASS="MATH"><IMG
+                                 WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+                                 SRC="img5538.png"
+                                 ALT="$ \Downarrow$"></SPAN>
+                           </SPAN>
+                        </TD>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                     </TR>
+                     <TR>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                        <TD ALIGN="LEFT"><IMG
+                           WIDTH="554" HEIGHT="111" ALIGN="BOTTOM" BORDER="0"
+                           SRC="img5541.png"
+                           ALT="\includegraphics[width=\textwidth ]{figs-python/btree-add-3}"></TD>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                     </TR>
+                  </TABLE>
+               </TD>
+            </TR>
+         </TABLE>
+      </DIV>
+      <P>
+         The executive summary of the <!-- MATH
+            $\ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5544.png"
+            ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$"></SPAN> method is that it walks
+         from the root to a leaf searching for <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{x}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5545.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{x}}}$"></SPAN>, adds <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{x}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5546.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{x}}}$"></SPAN> to this leaf, and
+         then walks back up to the root, splitting any overfull nodes it encounters
+         along the way.  With this high level view in mind, we can now delve into
+         the details of how this method can be implemented recursively.
+      <P>
+         The real work of <!-- MATH
+            $\ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5547.png"
+            ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$"></SPAN> is done by the <!-- MATH
+            $\ensuremath{\mathrm{add\_recursive}(\ensuremath{\mathit{x}},\ensuremath{\mathit{ui}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="139" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5548.png"
+            ALT="$ \ensuremath{\mathrm{add\_recursive}(\ensuremath{\mathit{x}},\ensuremath{\mathit{ui}})}$"></SPAN> method,
+         which adds the value <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{x}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5549.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{x}}}$"></SPAN> to the subtree whose root, <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5550.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>, has the
+         identifier <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{ui}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="18" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5551.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{ui}}}$"></SPAN>.  If <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5552.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN> is a leaf, then <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{x}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5553.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{x}}}$"></SPAN> is simply inserted into
+         <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="45" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5554.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}}$"></SPAN>.  Otherwise, <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{x}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5555.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{x}}}$"></SPAN> is added recursively into the appropriate
+         child, <!-- MATH
+            $\ensuremath{\ensuremath{\ensuremath{\mathit{u}}}}'$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="18" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5556.png"
+            ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{u}}}}'$"></SPAN>, of <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5557.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>.  The result of this recursive call is normally
+         <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{nil}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="22" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5558.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{nil}}}$"></SPAN> but may also be a reference to a newly-created node, <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{w}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5559.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN>, that
+         was created because <!-- MATH
+            $\ensuremath{\ensuremath{\ensuremath{\mathit{u}}}}'$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="18" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5560.png"
+            ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{u}}}}'$"></SPAN> was split.  In this case, <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5561.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN> adopts <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{w}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5562.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN>
+         and takes its first key, completing the splitting operation on <!-- MATH
+            $\ensuremath{\ensuremath{\ensuremath{\mathit{u}}}}'$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="18" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5563.png"
+            ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{u}}}}'$"></SPAN>.
+      <P>
+         After the value <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{x}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5564.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{x}}}$"></SPAN> has been added (either to <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5565.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN> or to a descendant of <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5566.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>),
+         the <!-- MATH
+            $\ensuremath{\mathrm{add\_recursive}(\ensuremath{\mathit{x}},\ensuremath{\mathit{ui}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="139" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5567.png"
+            ALT="$ \ensuremath{\mathrm{add\_recursive}(\ensuremath{\mathit{x}},\ensuremath{\mathit{ui}})}$"></SPAN> method checks to see if <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5568.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN> is storing too many
+         (more than <SPAN CLASS="MATH"><IMG
+            WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5569.png"
+            ALT="$ 2B-1$"></SPAN>) keys.  If so, then <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5570.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN> needs to be <SPAN  CLASS="textit">split</SPAN>
+         with a call to the <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}.\mathrm{split}()}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5571.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}.\mathrm{split}()}$"></SPAN> method.  The result of calling <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}.\mathrm{split}()}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5572.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}.\mathrm{split}()}$"></SPAN>
+         is a new node that is used as the return value for <!-- MATH
+            $\ensuremath{\mathrm{add\_recursive}(\ensuremath{\mathit{x}},\ensuremath{\mathit{ui}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="139" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5573.png"
+            ALT="$ \ensuremath{\mathrm{add\_recursive}(\ensuremath{\mathit{x}},\ensuremath{\mathit{ui}})}$"></SPAN>.
+         <BR>
+         <IMG
+            WIDTH="318" HEIGHT="312" ALIGN="BOTTOM" BORDER="0"
+            SRC="img5574.png"
+            ALT="\begin{leftbar}
+            \begin{flushleft}
+            \hspace*{1em} \ensuremath{\mathrm{add\_recursi...
+            ...{return}} \ensuremath{\ensuremath{\mathit{nil}}}\\
+            \end{flushleft}\end{leftbar}">
+         <BR>
+      <P>
+         The <!-- MATH
+            $\ensuremath{\mathrm{add\_recursive}(\ensuremath{\mathit{x}},\ensuremath{\mathit{ui}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="139" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5575.png"
+            ALT="$ \ensuremath{\mathrm{add\_recursive}(\ensuremath{\mathit{x}},\ensuremath{\mathit{ui}})}$"></SPAN> method is a helper for the <!-- MATH
+            $\ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5576.png"
+            ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$"></SPAN> method, which
+         calls <!-- MATH
+            $\ensuremath{\mathrm{add\_recursive}(\ensuremath{\mathit{x}},\ensuremath{\mathit{ri}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="136" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5577.png"
+            ALT="$ \ensuremath{\mathrm{add\_recursive}(\ensuremath{\mathit{x}},\ensuremath{\mathit{ri}})}$"></SPAN> to insert <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{x}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5578.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{x}}}$"></SPAN> into the root of the <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5579.png"
+            ALT="$ B$"></SPAN>-tree.
+         If <!-- MATH
+            $\ensuremath{\mathrm{add\_recursive}(\ensuremath{\mathit{x}},\ensuremath{\mathit{ri}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="136" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5580.png"
+            ALT="$ \ensuremath{\mathrm{add\_recursive}(\ensuremath{\mathit{x}},\ensuremath{\mathit{ri}})}$"></SPAN> causes the root to split, then a new root is
+         created that takes as its children both the old root and the new node
+         created by the splitting of the old root.
+         <BR>
+         <IMG
+            WIDTH="265" HEIGHT="350" ALIGN="BOTTOM" BORDER="0"
+            SRC="img5581.png"
+            ALT="\begin{leftbar}
+            % latex2html id marker 64415\begin{flushleft}
+            \hspace*{1em} \e...
+            ...return}} \ensuremath{\ensuremath{\mathit{true}}}\\
+            \end{flushleft}\end{leftbar}">
+         <BR>
+      <P>
+         The <!-- MATH
+            $\ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5582.png"
+            ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$"></SPAN> method and its helper, <!-- MATH
+            $\ensuremath{\mathrm{add\_recursive}(\ensuremath{\mathit{x}},\ensuremath{\mathit{ui}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="139" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5583.png"
+            ALT="$ \ensuremath{\mathrm{add\_recursive}(\ensuremath{\mathit{x}},\ensuremath{\mathit{ui}})}$"></SPAN>, can be analyzed
+         in two phases:
+      <P>
+      <DL>
+         <DT><STRONG>Downward phase:</STRONG></DT>
+         <DD>
+            During the downward phase of the recursion, before <!-- MATH
+               $\ensuremath{\ensuremath{\mathit{x}}}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5584.png"
+               ALT="$ \ensuremath{\ensuremath{\mathit{x}}}$"></SPAN> has been added,
+            they access a sequence of BTree nodes and call <!-- MATH
+               $\ensuremath{\mathrm{find\_it}(\ensuremath{\mathit{a}},\ensuremath{\mathit{x}})}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="81" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5585.png"
+               ALT="$ \ensuremath{\mathrm{find\_it}(\ensuremath{\mathit{a}},\ensuremath{\mathit{x}})}$"></SPAN> on each node.
+            As with the <!-- MATH
+               $\ensuremath{\mathrm{find}(\ensuremath{\mathit{x}})}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="52" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5586.png"
+               ALT="$ \ensuremath{\mathrm{find}(\ensuremath{\mathit{x}})}$"></SPAN> method, this takes <!-- MATH
+               $O(\log_B \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="68" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5587.png"
+               ALT="$ O(\log_B \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$"></SPAN> time in the
+            external memory model and <!-- MATH
+               $O(\log \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="60" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5588.png"
+               ALT="$ O(\log \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$"></SPAN> time in the word-RAM model.
+            <P>
+         </DD>
+         <DT><STRONG>Upward phase:</STRONG></DT>
+         <DD>
+            During the upward phase of the recursion, after <!-- MATH
+               $\ensuremath{\ensuremath{\mathit{x}}}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5589.png"
+               ALT="$ \ensuremath{\ensuremath{\mathit{x}}}$"></SPAN> has been added,
+            these methods perform a sequence of at most <!-- MATH
+               $O(\log_B \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="68" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5590.png"
+               ALT="$ O(\log_B \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$"></SPAN> splits.
+            Each split involves only three nodes, so this phase takes <!-- MATH
+               $O(\log_B
+                  \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="68" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5591.png"
+               ALT="$ O(\log_B
+               \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$"></SPAN> time in the external memory model.  However, each split
+            involves moving <SPAN CLASS="MATH"><IMG
+               WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5592.png"
+               ALT="$ B$"></SPAN> keys and children from one node to another, so
+            in the word-RAM model, this takes <!-- MATH
+               $O(B\log \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="72" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5593.png"
+               ALT="$ O(B\log \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$"></SPAN> time.
+         </DD>
+      </DL>
+      <P>
+         Recall that the value of <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5594.png"
+            ALT="$ B$"></SPAN> can be quite large, much larger
+         than even <!-- MATH
+            $\log \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="37" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5595.png"
+            ALT="$ \log \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}}$"></SPAN>.  Therefore, in the word-RAM model, adding a value
+         to a <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5596.png"
+            ALT="$ B$"></SPAN>-tree can be much slower than adding into a balanced binary
+         search tree.  Later, in Section&nbsp;<A HREF="#sec:btree-amortized">14.2.4</A>, we will show that the
+         situation is not quite so bad; the amortized number of split operations
+         done during an <!-- MATH
+            $\ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5597.png"
+            ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$"></SPAN> operation is constant.  This shows that the
+         (amortized) running time of the <!-- MATH
+            $\ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5598.png"
+            ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$"></SPAN> operation in the word-RAM model
+         is <!-- MATH
+            $O(B+\log \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="85" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5599.png"
+            ALT="$ O(B+\log \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$"></SPAN>.
+      <P>
+      <H2><A NAME="SECTION001723000000000000000">
+         <SPAN CLASS="arabic">14</SPAN>.<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">3</SPAN> Removal</A>
+      </H2>
+      <P>
+         The <!-- MATH
+            $\ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="75" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5600.png"
+            ALT="$ \ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$"></SPAN> operation in a BTree is, again, most easily implemented
+         as a recursive method.  Although the recursive implementation of
+         <!-- MATH
+            $\ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="75" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5601.png"
+            ALT="$ \ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$"></SPAN> spreads the complexity across several methods, the overall
+         process, which is illustrated in Figure&nbsp;<A HREF="#fig:btree-remove-full">14.7</A>, is fairly
+         straightforward.  By shuffling keys around, removal is reduced to the
+         problem of removing a value, <!-- MATH
+            $\ensuremath{\ensuremath{\ensuremath{\mathit{x}}}}'$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="17" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5602.png"
+            ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{x}}}}'$"></SPAN>, from some leaf, <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5603.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>.  Removing <!-- MATH
+            $\ensuremath{\ensuremath{\ensuremath{\mathit{x}}}}'$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="17" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5604.png"
+            ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{x}}}}'$"></SPAN>
+         may leave <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5605.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN> with less than <SPAN CLASS="MATH"><IMG
+            WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5606.png"
+            ALT="$ B-1$"></SPAN> keys;  this situation is called
+         an <SPAN  CLASS="textit">underflow</SPAN>.
+         <A NAME="64549"></A>
+      <P>
+      <DIV ALIGN="CENTER">
+         <A NAME="fig:btree-remove-full"></A><A NAME="64578"></A>
+         <TABLE>
+            <CAPTION ALIGN="BOTTOM"><STRONG>Figure 14.7:</STRONG>
+               Removing the value 4 from a <SPAN CLASS="MATH"><IMG
+                  WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+                  SRC="img5616.png"
+                  ALT="$ B$"></SPAN>-tree
+               results in one merge and one borrowing operation.
+            </CAPTION>
+            <TR>
+               <TD>
+                  <DIV ALIGN="CENTER">
+                  </DIV>
+                  <TABLE CELLPADDING=3 ALIGN="CENTER">
+                     <TR>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                        <TD ALIGN="LEFT"><IMG
+                           WIDTH="547" HEIGHT="123" ALIGN="BOTTOM" BORDER="0"
+                           SRC="img5612.png"
+                           ALT="\includegraphics[width=\textwidth ]{figs-python/btree-remove-full-1}"></TD>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                     </TR>
+                     <TR>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                        <TD ALIGN="CENTER" COLSPAN=1>
+                           <SPAN>
+                              <!-- MATH
+                                 $\Downarrow$
+                                 -->
+                              <SPAN CLASS="MATH"><IMG
+                                 WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+                                 SRC="img5607.png"
+                                 ALT="$ \Downarrow$"></SPAN>
+                           </SPAN>
+                        </TD>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                     </TR>
+                     <TR>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                        <TD ALIGN="LEFT"><IMG
+                           WIDTH="554" HEIGHT="123" ALIGN="BOTTOM" BORDER="0"
+                           SRC="img5613.png"
+                           ALT="\includegraphics[width=\textwidth ]{figs-python/btree-remove-full-2}"></TD>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                     </TR>
+                     <TR>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                        <TD ALIGN="CENTER" COLSPAN=1>
+                           <SPAN>
+                              <!-- MATH
+                                 $\ensuremath{\mathrm{merge}(\ensuremath{\mathit{v}},\ensuremath{\mathit{w}})}$
+                                 -->
+                              <SPAN CLASS="MATH"><IMG
+                                 WIDTH="84" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+                                 SRC="img5608.png"
+                                 ALT="$ \ensuremath{\mathrm{merge}(\ensuremath{\mathit{v}},\ensuremath{\mathit{w}})}$"></SPAN>
+                           </SPAN>
+                        </TD>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                     </TR>
+                     <TR>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                        <TD ALIGN="CENTER" COLSPAN=1>
+                           <SPAN>
+                              <!-- MATH
+                                 $\Downarrow$
+                                 -->
+                              <SPAN CLASS="MATH"><IMG
+                                 WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+                                 SRC="img5609.png"
+                                 ALT="$ \Downarrow$"></SPAN>
+                           </SPAN>
+                        </TD>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                     </TR>
+                     <TR>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                        <TD ALIGN="LEFT"><IMG
+                           WIDTH="507" HEIGHT="123" ALIGN="BOTTOM" BORDER="0"
+                           SRC="img5614.png"
+                           ALT="\includegraphics[width=\textwidth ]{figs-python/btree-remove-full-3}"></TD>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                     </TR>
+                     <TR>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                        <TD ALIGN="CENTER" COLSPAN=1>
+                           <SPAN>
+                              <!-- MATH
+                                 $\ensuremath{\mathrm{shift\_lR}(\ensuremath{\mathit{w}},\ensuremath{\mathit{v}})}$
+                                 -->
+                              <SPAN CLASS="MATH"><IMG
+                                 WIDTH="93" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+                                 SRC="img5610.png"
+                                 ALT="$ \ensuremath{\mathrm{shift\_lR}(\ensuremath{\mathit{w}},\ensuremath{\mathit{v}})}$"></SPAN>
+                           </SPAN>
+                        </TD>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                     </TR>
+                     <TR>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                        <TD ALIGN="CENTER" COLSPAN=1>
+                           <SPAN>
+                              <!-- MATH
+                                 $\Downarrow$
+                                 -->
+                              <SPAN CLASS="MATH"><IMG
+                                 WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+                                 SRC="img5611.png"
+                                 ALT="$ \Downarrow$"></SPAN>
+                           </SPAN>
+                        </TD>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                     </TR>
+                     <TR>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                        <TD ALIGN="LEFT"><IMG
+                           WIDTH="507" HEIGHT="123" ALIGN="BOTTOM" BORDER="0"
+                           SRC="img5615.png"
+                           ALT="\includegraphics[width=\textwidth ]{figs-python/btree-remove-full-4}"></TD>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                     </TR>
+                  </TABLE>
+               </TD>
+            </TR>
+         </TABLE>
+      </DIV>
+      <P>
+         When an underflow occurs, <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5618.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN> either borrows keys from, or is merged with,
+         one of its siblings.  If <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5619.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN> is merged with a sibling, then <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5620.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>'s parent
+         will now have one less child and one less key, which can cause <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5621.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>'s
+         parent to underflow; this is again corrected by borrowing or merging,
+         but merging may cause <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5622.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>'s grandparent to underflow.  This process
+         works its way back up to the root until there is no more underflow or
+         until the root has its last two children merged into a single child.
+         When the latter case occurs, the root is removed and its lone child
+         becomes the new root.
+      <P>
+         Next we delve into the details of how each of these steps is implemented.
+         The first job of the <!-- MATH
+            $\ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="75" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5623.png"
+            ALT="$ \ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$"></SPAN> method is to find the element <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{x}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5624.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{x}}}$"></SPAN> that
+         should be removed.  If <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{x}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5625.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{x}}}$"></SPAN> is found in a leaf, then <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{x}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5626.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{x}}}$"></SPAN> is removed from
+         this leaf.  Otherwise, if <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{x}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5627.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{x}}}$"></SPAN> is found at <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}[\ensuremath{\mathit{i}}]}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="60" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5628.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}[\ensuremath{\mathit{i}}]}$"></SPAN> for some internal
+         node, <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5629.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>, then the algorithm removes the smallest value, <!-- MATH
+            $\ensuremath{x}'$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="17" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5630.png"
+            ALT="$ \ensuremath{x}'$"></SPAN>, in the
+         subtree rooted at <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{children}}[\ensuremath{\mathit{i}}+1]}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="110" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5631.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{children}}[\ensuremath{\mathit{i}}+1]}$"></SPAN>.  The value <!-- MATH
+            $\ensuremath{x}'$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="17" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5632.png"
+            ALT="$ \ensuremath{x}'$"></SPAN> is the smallest
+         value stored in the BTree that is greater than <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{x}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5633.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{x}}}$"></SPAN>.  The value of <!-- MATH
+            $\ensuremath{x}'$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="17" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5634.png"
+            ALT="$ \ensuremath{x}'$"></SPAN>
+         is then used to replace <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{x}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5635.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{x}}}$"></SPAN> in <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}[\ensuremath{\mathit{i}}]}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="60" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5636.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}.\ensuremath{\mathit{keys}}[\ensuremath{\mathit{i}}]}$"></SPAN>.  This process is illustrated
+         in Figure&nbsp;<A HREF="#fig:btree-remove">14.8</A>.
+      <P>
+      <DIV ALIGN="CENTER">
+         <A NAME="fig:btree-remove"></A><A NAME="66907"></A>
+         <TABLE>
+            <CAPTION ALIGN="BOTTOM">
+               <STRONG>Figure 14.8:</STRONG>
+               The <!-- MATH
+                  $\ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$
+                  -->
+               <SPAN CLASS="MATH"><IMG
+                  WIDTH="75" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+                  SRC="img5640.png"
+                  ALT="$ \ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$"></SPAN> operation
+               in a BTree. To remove the value <!-- MATH
+                  $\ensuremath{\ensuremath{\ensuremath{\mathit{x}}}}=10$
+                  -->
+               <SPAN CLASS="MATH"><IMG
+                  WIDTH="47" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+                  SRC="img5641.png"
+                  ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{x}}}}=10$"></SPAN> we replace it with the
+               the value <!-- MATH
+                  $\ensuremath{\ensuremath{x}'}=11$
+                  -->
+               <SPAN CLASS="MATH"><IMG
+                  WIDTH="52" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+                  SRC="img5642.png"
+                  ALT="$ \ensuremath{\ensuremath{x}'}=11$"></SPAN> and remove 11 from the leaf that contains it.
+            </CAPTION>
+            <TR>
+               <TD>
+                  <DIV ALIGN="CENTER">
+                  </DIV>
+                  <TABLE CELLPADDING=3 ALIGN="CENTER">
+                     <TR>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                        <TD ALIGN="LEFT"><IMG
+                           WIDTH="555" HEIGHT="125" ALIGN="BOTTOM" BORDER="0"
+                           SRC="img5638.png"
+                           ALT="\includegraphics[width=\textwidth ]{figs-python/btree-remove-1}"></TD>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                     </TR>
+                     <TR>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                        <TD ALIGN="CENTER" COLSPAN=1>
+                           <SPAN>
+                              <!-- MATH
+                                 $\Downarrow$
+                                 -->
+                              <SPAN CLASS="MATH"><IMG
+                                 WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+                                 SRC="img5637.png"
+                                 ALT="$ \Downarrow$"></SPAN>
+                           </SPAN>
+                        </TD>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                     </TR>
+                     <TR>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                        <TD ALIGN="LEFT"><IMG
+                           WIDTH="555" HEIGHT="125" ALIGN="BOTTOM" BORDER="0"
+                           SRC="img5639.png"
+                           ALT="\includegraphics[width=\textwidth ]{figs-python/btree-remove-2}"></TD>
+                        <TD ALIGN="LEFT">&nbsp;</TD>
+                     </TR>
+                  </TABLE>
+               </TD>
+            </TR>
+         </TABLE>
+      </DIV>
+      <P>
+         The <!-- MATH
+            $\ensuremath{\mathrm{remove\_recursive}(\ensuremath{\mathit{x}},\ensuremath{\mathit{ui}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="165" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5644.png"
+            ALT="$ \ensuremath{\mathrm{remove\_recursive}(\ensuremath{\mathit{x}},\ensuremath{\mathit{ui}})}$"></SPAN> method is a recursive implementation of the
+         preceding algorithm:
+         <BR>
+         <IMG
+            WIDTH="411" HEIGHT="488" ALIGN="BOTTOM" BORDER="0"
+            SRC="img5645.png"
+            ALT="\begin{leftbar}
+            \begin{flushleft}
+            \hspace*{1em} \ensuremath{\mathrm{remove\_recu...
+            ...bf{return}} \ensuremath{\ensuremath{\mathit{y}}}\\
+            \end{flushleft}\end{leftbar}">
+         <BR>
+      <P>
+         Note that, after recursively removing the value <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{x}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5646.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{x}}}$"></SPAN> from the <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{i}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="9" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5647.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{i}}}$"></SPAN>th child of <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5648.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>,
+         <!-- MATH
+            $\ensuremath{\mathrm{remove\_recursive}(\ensuremath{\mathit{x}},\ensuremath{\mathit{ui}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="165" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5649.png"
+            ALT="$ \ensuremath{\mathrm{remove\_recursive}(\ensuremath{\mathit{x}},\ensuremath{\mathit{ui}})}$"></SPAN> needs to ensure that this child still has at
+         least <SPAN CLASS="MATH"><IMG
+            WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5650.png"
+            ALT="$ B-1$"></SPAN> keys.  In the preceding code, this is done using a
+         method called <!-- MATH
+            $\ensuremath{\mathrm{check\_underflow}(\ensuremath{\mathit{x}},\ensuremath{\mathit{i}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="152" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5651.png"
+            ALT="$ \ensuremath{\mathrm{check\_underflow}(\ensuremath{\mathit{x}},\ensuremath{\mathit{i}})}$"></SPAN>, which checks for and corrects an
+         underflow in the <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{i}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="9" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5652.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{i}}}$"></SPAN>th child of <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5653.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>.  Let <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{w}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5654.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN> be the <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{i}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="9" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5655.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{i}}}$"></SPAN>th child of <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5656.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>.
+         If <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{w}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5657.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN> has only <SPAN CLASS="MATH"><IMG
+            WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5658.png"
+            ALT="$ B-2$"></SPAN> keys, then this needs to be fixed.  The fix
+         requires using a sibling of <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{w}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5659.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN>.  This can be either child <!-- MATH
+            $\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}}+1$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="33" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5660.png"
+            ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{i}}}}+1$"></SPAN> of
+         <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5661.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN> or child <!-- MATH
+            $\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}}-1$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="33" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5662.png"
+            ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{i}}}}-1$"></SPAN> of <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5663.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>.  We will usually use child <!-- MATH
+            $\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}}-1$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="33" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5664.png"
+            ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{i}}}}-1$"></SPAN> of <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5665.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>,
+         which is the sibling, <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{v}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5666.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{v}}}$"></SPAN>, of <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{w}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5667.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN> directly to its left.  The only time
+         this doesn't work is when <!-- MATH
+            $\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}}=0$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="35" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5668.png"
+            ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{i}}}}=0$"></SPAN>, in which case we use the sibling
+         directly to <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{w}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5669.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN>'s right.
+         <BR>
+         <IMG
+            WIDTH="291" HEIGHT="143" ALIGN="BOTTOM" BORDER="0"
+            SRC="img5670.png"
+            ALT="\begin{leftbar}
+            \begin{flushleft}
+            \hspace*{1em} \ensuremath{\mathrm{check\_under...
+            ...nsuremath{\mathit{u}}, \ensuremath{\mathit{i}})}\\
+            \end{flushleft}\end{leftbar}">
+         <BR>
+         In the following, we focus on the case when <!-- MATH
+            $\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}}\neq 0$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="34" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5671.png"
+            ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{i}}}}\neq 0$"></SPAN> so that any
+         underflow at the <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{i}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="9" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5672.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{i}}}$"></SPAN>th child of <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5673.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN> will be corrected with the help
+         of the <!-- MATH
+            $(\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}}-1)$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="43" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5674.png"
+            ALT="$ (\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}}-1)$"></SPAN>st child of <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5675.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>.  The case <!-- MATH
+            $\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}}=0$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="35" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5676.png"
+            ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{i}}}}=0$"></SPAN> is similar and the
+         details can be found in the accompanying source code.
+      <P>
+         To fix an underflow at node <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{w}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5677.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN>, we need to find more keys (and possibly
+         also children), for <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{w}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5678.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN>.  There are two ways to do this:
+      <P>
+      <DL>
+         <DT><STRONG>Borrowing:</STRONG></DT>
+         <DD>
+            <A NAME="64861"></A>If <!-- MATH
+               $\ensuremath{\ensuremath{\mathit{w}}}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5679.png"
+               ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN> has a sibling, <!-- MATH
+               $\ensuremath{\ensuremath{\mathit{v}}}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5680.png"
+               ALT="$ \ensuremath{\ensuremath{\mathit{v}}}$"></SPAN>, with more than <SPAN CLASS="MATH"><IMG
+               WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5681.png"
+               ALT="$ B-1$"></SPAN> keys,
+            then <!-- MATH
+               $\ensuremath{\ensuremath{\mathit{w}}}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5682.png"
+               ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN> can borrow some keys (and possibly also children) from <!-- MATH
+               $\ensuremath{\ensuremath{\mathit{v}}}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5683.png"
+               ALT="$ \ensuremath{\ensuremath{\mathit{v}}}$"></SPAN>.
+            More specifically, if <!-- MATH
+               $\ensuremath{\ensuremath{\mathit{v}}}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5684.png"
+               ALT="$ \ensuremath{\ensuremath{\mathit{v}}}$"></SPAN> stores <!-- MATH
+               $\ensuremath{\mathrm{size}(\ensuremath{\mathit{v}})}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5685.png"
+               ALT="$ \ensuremath{\mathrm{size}(\ensuremath{\mathit{v}})}$"></SPAN> keys, then between them,
+            <!-- MATH
+               $\ensuremath{\ensuremath{\mathit{v}}}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5686.png"
+               ALT="$ \ensuremath{\ensuremath{\mathit{v}}}$"></SPAN> and <!-- MATH
+               $\ensuremath{\ensuremath{\mathit{w}}}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5687.png"
+               ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN> have a total of
+            <P>
+               <!-- MATH
+                  \begin{displaymath}
+                  B-2 + \ensuremath{\ensuremath{\mathrm{size}(\ensuremath{\mathit{w}})}} \ge 2B-2
+                  \end{displaymath}
+                  -->
+            </P>
+            <DIV ALIGN="CENTER" CLASS="mathdisplay">
+               <IMG
+                  WIDTH="162" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+                  SRC="img5688.png"
+                  ALT="$\displaystyle B-2 + \ensuremath{\ensuremath{\mathrm{size}(\ensuremath{\mathit{w}})}} \ge 2B-2
+                  $">
+            </DIV>
+            <P></P>
+            keys.  We can therefore shift keys from <!-- MATH
+               $\ensuremath{\ensuremath{\mathit{v}}}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5689.png"
+               ALT="$ \ensuremath{\ensuremath{\mathit{v}}}$"></SPAN> to <!-- MATH
+               $\ensuremath{\ensuremath{\mathit{w}}}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5690.png"
+               ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN> so that each of
+            <!-- MATH
+               $\ensuremath{\ensuremath{\mathit{v}}}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5691.png"
+               ALT="$ \ensuremath{\ensuremath{\mathit{v}}}$"></SPAN> and <!-- MATH
+               $\ensuremath{\ensuremath{\mathit{w}}}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5692.png"
+               ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN> has at least <SPAN CLASS="MATH"><IMG
+               WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5693.png"
+               ALT="$ B-1$"></SPAN> keys.  This process is illustrated in
+            Figure&nbsp;<A HREF="#fig:btree-borrow">14.9</A>.
+            <P>
+            <DIV ALIGN="CENTER">
+               <A NAME="fig:btree-borrow"></A><A NAME="66909"></A>
+               <TABLE>
+                  <CAPTION ALIGN="BOTTOM">
+                     <STRONG>Figure 14.9:</STRONG>
+                     If <!-- MATH
+                        $\ensuremath{\ensuremath{\mathit{v}}}$
+                        -->
+                     <SPAN CLASS="MATH"><IMG
+                        WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+                        SRC="img5698.png"
+                        ALT="$ \ensuremath{\ensuremath{\mathit{v}}}$"></SPAN> has more than <SPAN CLASS="MATH"><IMG
+                        WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+                        SRC="img5699.png"
+                        ALT="$ B-1$"></SPAN> keys,
+                     then <!-- MATH
+                        $\ensuremath{\ensuremath{\mathit{w}}}$
+                        -->
+                     <SPAN CLASS="MATH"><IMG
+                        WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+                        SRC="img5700.png"
+                        ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN> can borrow keys from <!-- MATH
+                        $\ensuremath{\ensuremath{\mathit{v}}}$
+                        -->
+                     <SPAN CLASS="MATH"><IMG
+                        WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+                        SRC="img5701.png"
+                        ALT="$ \ensuremath{\ensuremath{\mathit{v}}}$"></SPAN>.
+                  </CAPTION>
+                  <TR>
+                     <TD>
+                        <DIV ALIGN="CENTER">
+                        </DIV>
+                        <TABLE CELLPADDING=3 ALIGN="CENTER">
+                           <TR>
+                              <TD ALIGN="LEFT">&nbsp;</TD>
+                              <TD ALIGN="LEFT"><IMG
+                                 WIDTH="554" HEIGHT="191" ALIGN="BOTTOM" BORDER="0"
+                                 SRC="img5696.png"
+                                 ALT="\includegraphics[width=\textwidth ]{figs-python/btree-borrow-1}"></TD>
+                              <TD ALIGN="LEFT">&nbsp;</TD>
+                           </TR>
+                           <TR>
+                              <TD ALIGN="LEFT">&nbsp;</TD>
+                              <TD ALIGN="CENTER" COLSPAN=1>
+                                 <SPAN>
+                                    <!-- MATH
+                                       $\ensuremath{\mathrm{shift\_rL}(\ensuremath{\mathit{v}},\ensuremath{\mathit{w}})}$
+                                       -->
+                                    <SPAN CLASS="MATH"><IMG
+                                       WIDTH="94" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+                                       SRC="img5694.png"
+                                       ALT="$ \ensuremath{\mathrm{shift\_rL}(\ensuremath{\mathit{v}},\ensuremath{\mathit{w}})}$"></SPAN>
+                                 </SPAN>
+                              </TD>
+                              <TD ALIGN="LEFT">&nbsp;</TD>
+                           </TR>
+                           <TR>
+                              <TD ALIGN="LEFT">&nbsp;</TD>
+                              <TD ALIGN="CENTER" COLSPAN=1>
+                                 <SPAN>
+                                    <!-- MATH
+                                       $\Downarrow$
+                                       -->
+                                    <SPAN CLASS="MATH"><IMG
+                                       WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+                                       SRC="img5695.png"
+                                       ALT="$ \Downarrow$"></SPAN>
+                                 </SPAN>
+                              </TD>
+                              <TD ALIGN="LEFT">&nbsp;</TD>
+                           </TR>
+                           <TR>
+                              <TD ALIGN="LEFT">&nbsp;</TD>
+                              <TD ALIGN="LEFT"><IMG
+                                 WIDTH="554" HEIGHT="191" ALIGN="BOTTOM" BORDER="0"
+                                 SRC="img5697.png"
+                                 ALT="\includegraphics[width=\textwidth ]{figs-python/btree-borrow-2}"></TD>
+                              <TD ALIGN="LEFT">&nbsp;</TD>
+                           </TR>
+                        </TABLE>
+                     </TD>
+                  </TR>
+               </TABLE>
+            </DIV>
+            <P>
+         </DD>
+         <DT><STRONG>Merging:</STRONG></DT>
+         <DD>
+            <A NAME="64898"></A>If <!-- MATH
+               $\ensuremath{\ensuremath{\mathit{v}}}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5703.png"
+               ALT="$ \ensuremath{\ensuremath{\mathit{v}}}$"></SPAN> has only <SPAN CLASS="MATH"><IMG
+               WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5704.png"
+               ALT="$ B-1$"></SPAN> keys, we must do something more
+            drastic, since <!-- MATH
+               $\ensuremath{\ensuremath{\mathit{v}}}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5705.png"
+               ALT="$ \ensuremath{\ensuremath{\mathit{v}}}$"></SPAN> cannot afford to give any keys to <!-- MATH
+               $\ensuremath{\ensuremath{\mathit{w}}}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5706.png"
+               ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN>.  Therefore,
+            we <SPAN  CLASS="textit">merge</SPAN> <!-- MATH
+               $\ensuremath{\ensuremath{\mathit{v}}}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5707.png"
+               ALT="$ \ensuremath{\ensuremath{\mathit{v}}}$"></SPAN> and <!-- MATH
+               $\ensuremath{\ensuremath{\mathit{w}}}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5708.png"
+               ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN> as shown in Figure&nbsp;<A HREF="#fig:btree-merge">14.10</A>.  The merge
+            operation is the opposite of the split operation.  It takes two nodes
+            that contain a total of <SPAN CLASS="MATH"><IMG
+               WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5709.png"
+               ALT="$ 2B-3$"></SPAN> keys and merges them into a single
+            node that contains <SPAN CLASS="MATH"><IMG
+               WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5710.png"
+               ALT="$ 2B-2$"></SPAN> keys.  (The additional key comes from the
+            fact that, when we merge <!-- MATH
+               $\ensuremath{\ensuremath{\mathit{v}}}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5711.png"
+               ALT="$ \ensuremath{\ensuremath{\mathit{v}}}$"></SPAN> and <!-- MATH
+               $\ensuremath{\ensuremath{\mathit{w}}}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5712.png"
+               ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN>, their common parent, <!-- MATH
+               $\ensuremath{\ensuremath{\mathit{u}}}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5713.png"
+               ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>, now
+            has one less child and therefore needs to give up one of its keys.)
+            <P>
+            <DIV ALIGN="CENTER">
+               <A NAME="fig:btree-merge"></A><A NAME="66911"></A>
+               <TABLE>
+                  <CAPTION ALIGN="BOTTOM">
+                     <STRONG>Figure 14.10:</STRONG>
+                     Merging two siblings <!-- MATH
+                        $\ensuremath{\ensuremath{\mathit{v}}}$
+                        -->
+                     <SPAN CLASS="MATH"><IMG
+                        WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+                        SRC="img5718.png"
+                        ALT="$ \ensuremath{\ensuremath{\mathit{v}}}$"></SPAN> and <!-- MATH
+                        $\ensuremath{\ensuremath{\mathit{w}}}$
+                        -->
+                     <SPAN CLASS="MATH"><IMG
+                        WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+                        SRC="img5719.png"
+                        ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN>
+                     in a <SPAN CLASS="MATH"><IMG
+                        WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+                        SRC="img5720.png"
+                        ALT="$ B$"></SPAN>-tree (<SPAN CLASS="MATH"><IMG
+                        WIDTH="40" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+                        SRC="img5721.png"
+                        ALT="$ B=3$"></SPAN>).
+                  </CAPTION>
+                  <TR>
+                     <TD>
+                        <DIV ALIGN="CENTER">
+                        </DIV>
+                        <TABLE CELLPADDING=3 ALIGN="CENTER">
+                           <TR>
+                              <TD ALIGN="LEFT">&nbsp;</TD>
+                              <TD ALIGN="LEFT"><IMG
+                                 WIDTH="554" HEIGHT="191" ALIGN="BOTTOM" BORDER="0"
+                                 SRC="img5716.png"
+                                 ALT="\includegraphics[width=\textwidth ]{figs-python/btree-merge-1}"></TD>
+                              <TD ALIGN="LEFT">&nbsp;</TD>
+                           </TR>
+                           <TR>
+                              <TD ALIGN="LEFT">&nbsp;</TD>
+                              <TD ALIGN="CENTER" COLSPAN=1>
+                                 <SPAN>
+                                    <!-- MATH
+                                       $\ensuremath{\mathrm{merge}(\ensuremath{\mathit{v}},\ensuremath{\mathit{w}})}$
+                                       -->
+                                    <SPAN CLASS="MATH"><IMG
+                                       WIDTH="84" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+                                       SRC="img5714.png"
+                                       ALT="$ \ensuremath{\mathrm{merge}(\ensuremath{\mathit{v}},\ensuremath{\mathit{w}})}$"></SPAN>
+                                 </SPAN>
+                              </TD>
+                              <TD ALIGN="LEFT">&nbsp;</TD>
+                           </TR>
+                           <TR>
+                              <TD ALIGN="LEFT">&nbsp;</TD>
+                              <TD ALIGN="CENTER" COLSPAN=1>
+                                 <SPAN>
+                                    <!-- MATH
+                                       $\Downarrow$
+                                       -->
+                                    <SPAN CLASS="MATH"><IMG
+                                       WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+                                       SRC="img5715.png"
+                                       ALT="$ \Downarrow$"></SPAN>
+                                 </SPAN>
+                              </TD>
+                              <TD ALIGN="LEFT">&nbsp;</TD>
+                           </TR>
+                           <TR>
+                              <TD ALIGN="LEFT">&nbsp;</TD>
+                              <TD ALIGN="LEFT"><IMG
+                                 WIDTH="391" HEIGHT="191" ALIGN="BOTTOM" BORDER="0"
+                                 SRC="img5717.png"
+                                 ALT="\includegraphics[width=\textwidth ]{figs-python/btree-merge-2}"></TD>
+                              <TD ALIGN="LEFT">&nbsp;</TD>
+                           </TR>
+                        </TABLE>
+                     </TD>
+                  </TR>
+               </TABLE>
+            </DIV>
+         </DD>
+      </DL>
+      <P>
+         <BR>
+         <IMG
+            WIDTH="420" HEIGHT="200" ALIGN="BOTTOM" BORDER="0"
+            SRC="img5723.png"
+            ALT="\begin{leftbar}
+            \begin{flushleft}
+            \hspace*{1em} \ensuremath{\mathrm{check\_under...
+            ...} \gets \ensuremath{\ensuremath{\mathit{w}}.id}}\\
+            \end{flushleft}\end{leftbar}">
+         <BR>
+      <P>
+         To summarize, the <!-- MATH
+            $\ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="75" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5724.png"
+            ALT="$ \ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$"></SPAN> method in a <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5725.png"
+            ALT="$ B$"></SPAN>-tree follows a root to
+         leaf path, removes a key <!-- MATH
+            $\ensuremath{x}'$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="17" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5726.png"
+            ALT="$ \ensuremath{x}'$"></SPAN> from a leaf, <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5727.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>, and then performs zero
+         or more merge operations involving <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5728.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN> and its ancestors, and performs
+         at most one borrowing operation.  Since each merge and borrow operation
+         involves modifying only three nodes, and only <!-- MATH
+            $O(\log_B \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="68" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5729.png"
+            ALT="$ O(\log_B \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$"></SPAN> of these
+         operations occur, the entire process takes <!-- MATH
+            $O(\log_B \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="68" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5730.png"
+            ALT="$ O(\log_B \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$"></SPAN> time in the
+         external memory model.  Again, however, each merge and borrow operation
+         takes <SPAN CLASS="MATH"><IMG
+            WIDTH="37" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5731.png"
+            ALT="$ O(B)$"></SPAN> time in the word-RAM model, so (for now) the most we can
+         say about the running time required by <!-- MATH
+            $\ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="75" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5732.png"
+            ALT="$ \ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$"></SPAN> in the word-RAM model
+         is that it is <!-- MATH
+            $O(B\log_B \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="80" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5733.png"
+            ALT="$ O(B\log_B \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$"></SPAN>.
+      <P>
+      <H2><A NAME="SECTION001724000000000000000"></A>
+         <A NAME="sec:btree-amortized"></A>
+         <BR>
+         <SPAN CLASS="arabic">14</SPAN>.<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">4</SPAN> Amortized Analysis of <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5734.png"
+            ALT="$ B$"></SPAN>-Trees
+      </H2>
+      <P>
+         Thus far, we have shown that
+      <OL>
+         <LI>
+            In the external memory model, the running time of <!-- MATH
+               $\ensuremath{\mathrm{find}(\ensuremath{\mathit{x}})}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="52" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5735.png"
+               ALT="$ \ensuremath{\mathrm{find}(\ensuremath{\mathit{x}})}$"></SPAN>,
+            <!-- MATH
+               $\ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5736.png"
+               ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$"></SPAN>, and <!-- MATH
+               $\ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="75" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5737.png"
+               ALT="$ \ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$"></SPAN> in a <SPAN CLASS="MATH"><IMG
+               WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5738.png"
+               ALT="$ B$"></SPAN>-tree is <!-- MATH
+               $O(\log_B \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="68" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5739.png"
+               ALT="$ O(\log_B \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$"></SPAN>.
+         </LI>
+         <LI>
+            In the word-RAM model, the running time of <!-- MATH
+               $\ensuremath{\mathrm{find}(\ensuremath{\mathit{x}})}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="52" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5740.png"
+               ALT="$ \ensuremath{\mathrm{find}(\ensuremath{\mathit{x}})}$"></SPAN> is <!-- MATH
+               $O(\log \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="60" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5741.png"
+               ALT="$ O(\log \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$"></SPAN>
+            and the running time of <!-- MATH
+               $\ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5742.png"
+               ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$"></SPAN> and <!-- MATH
+               $\ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="75" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5743.png"
+               ALT="$ \ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$"></SPAN> is <!-- MATH
+               $O(B\log \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="72" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5744.png"
+               ALT="$ O(B\log \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$"></SPAN>.
+         </LI>
+      </OL>
+      <P>
+         The following lemma shows that, so far, we have overestimated the number of merge and split operations performed by <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5745.png"
+            ALT="$ B$"></SPAN>-trees.
+      <P>
+      <P>
+      <DIV>
+         <A NAME="lem:btree-split"><B>Lemma  <SPAN CLASS="arabic">14</SPAN>..<SPAN CLASS="arabic">1</SPAN></B></A> &nbsp; 
+         <I>
+            Starting with an empty <SPAN CLASS="MATH"><IMG
+               WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5746.png"
+               ALT="$ B$"></SPAN>-tree and performing any sequence of
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5747.png"
+               ALT="$ m$"></SPAN> <!-- MATH
+               $\ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5748.png"
+               ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$"></SPAN> and <!-- MATH
+               $\ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="75" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5749.png"
+               ALT="$ \ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$"></SPAN> operations results in at most <SPAN CLASS="MATH"><IMG
+               WIDTH="41" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5750.png"
+               ALT="$ 3m/2$"></SPAN> splits,
+            merges, and borrows being performed.
+         </I>
+      </DIV>
+      <P></P>
+      <P>
+      <P></P>
+      <DIV>
+         <I>Proof</I>.
+         The proof of this has already been sketched in
+         Section&nbsp;<A HREF="9_3_Summary.html#sec:redblack-summary">9.3</A> for the special case in which <SPAN CLASS="MATH"><IMG
+            WIDTH="40" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5752.png"
+            ALT="$ B=2$"></SPAN>.
+         The lemma can be proven using a credit scheme,
+         <A NAME="65042"></A>in which
+         <OL>
+            <LI>each split, merge, or borrow operation is paid for with two
+               credits, i.e., a credit is removed each time one of these operations
+               occurs; and
+            </LI>
+            <LI>
+               at most three credits are created during any <!-- MATH
+                  $\ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$
+                  -->
+               <SPAN CLASS="MATH"><IMG
+                  WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+                  SRC="img5753.png"
+                  ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$"></SPAN> or
+               <!-- MATH
+                  $\ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$
+                  -->
+               <SPAN CLASS="MATH"><IMG
+                  WIDTH="75" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+                  SRC="img5754.png"
+                  ALT="$ \ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$"></SPAN> operation.
+            </LI>
+         </OL>
+         Since at most <SPAN CLASS="MATH"><IMG
+            WIDTH="26" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5755.png"
+            ALT="$ 3m$"></SPAN> credits are ever created and each split,
+         merge, and borrow is paid for with with two credits, it follows
+         that at most <SPAN CLASS="MATH"><IMG
+            WIDTH="41" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5756.png"
+            ALT="$ 3m/2$"></SPAN> splits, merges, and borrows are performed.
+         These credits are illustrated using the  symbol in
+         Figures&nbsp;<A HREF="#fig:btree-split">14.5</A>, <A HREF="#fig:btree-borrow">14.9</A>, and
+         <A HREF="#fig:btree-merge">14.10</A>.
+         <P>
+            To keep track of these credits the proof maintains the following
+            <SPAN  CLASS="textit">credit invariant</SPAN>:
+            <A NAME="65053"></A>Any non-root node with <SPAN CLASS="MATH"><IMG
+               WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5757.png"
+               ALT="$ B-1$"></SPAN> keys stores one
+            credit and any node with <SPAN CLASS="MATH"><IMG
+               WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5758.png"
+               ALT="$ 2B-1$"></SPAN> keys stores three credits.  A node
+            that stores at least <SPAN CLASS="MATH"><IMG
+               WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5759.png"
+               ALT="$ B$"></SPAN> keys and most <SPAN CLASS="MATH"><IMG
+               WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5760.png"
+               ALT="$ 2B-2$"></SPAN> keys need not store
+            any credits.  What remains is to show that we can maintain the credit
+            invariant and satisfy properties 1 and 2, above, during each <!-- MATH
+               $\ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5761.png"
+               ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$"></SPAN>
+            and <!-- MATH
+               $\ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="75" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5762.png"
+               ALT="$ \ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$"></SPAN> operation.
+         <P>
+            <IMG
+               WIDTH="17" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+               SRC="img5751.png"
+               ALT="$ \qedsymbol$">
+      </DIV>
+      <P></P>
+      <H4><A NAME="SECTION001724010000000000000">
+         <SPAN CLASS="arabic">14</SPAN>.<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">4</SPAN>.<SPAN CLASS="arabic">0</SPAN>.<SPAN CLASS="arabic">1</SPAN> Adding:</A>
+      </H4>
+      The <!-- MATH
+         $\ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5763.png"
+         ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$"></SPAN> method does not perform any merges or borrows, so we
+      need only consider split operations that occur as a result of calls
+      to <!-- MATH
+         $\ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5764.png"
+         ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$"></SPAN>.
+      <P>
+         Each split operation occurs because a key is added to a node, <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5765.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>, that
+         already contains <SPAN CLASS="MATH"><IMG
+            WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5766.png"
+            ALT="$ 2B-1$"></SPAN> keys.  When this happens, <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5767.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN> is split into two
+         nodes, <!-- MATH
+            $\ensuremath{u}'$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="19" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5768.png"
+            ALT="$ \ensuremath{u}'$"></SPAN> and <!-- MATH
+            $\ensuremath{u}''$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="22" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5769.png"
+            ALT="$ \ensuremath{u}''$"></SPAN> having <SPAN CLASS="MATH"><IMG
+            WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5770.png"
+            ALT="$ B-1$"></SPAN> and <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5771.png"
+            ALT="$ B$"></SPAN> keys, respectively.  Prior to
+         this operation, <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{u}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5772.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN> was storing <SPAN CLASS="MATH"><IMG
+            WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5773.png"
+            ALT="$ 2B-1$"></SPAN> keys, and hence three credits.
+         Two of these credits can be used to pay for the split and the other
+         credit can be given to <!-- MATH
+            $\ensuremath{u}'$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="19" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5774.png"
+            ALT="$ \ensuremath{u}'$"></SPAN> (which has <SPAN CLASS="MATH"><IMG
+            WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5775.png"
+            ALT="$ B-1$"></SPAN> keys) to maintain the
+         credit invariant.  Therefore, we can pay for the split and maintain
+         the credit invariant during any split.
+      <P>
+         The only other modification to nodes that occur during an <!-- MATH
+            $\ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5776.png"
+            ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$"></SPAN>
+         operation happens after all splits, if any, are complete.  This
+         modification involves adding a new key to some node <!-- MATH
+            $\ensuremath{u}'$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="19" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5777.png"
+            ALT="$ \ensuremath{u}'$"></SPAN>.  If, prior
+         to this, <!-- MATH
+            $\ensuremath{u}'$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="19" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5778.png"
+            ALT="$ \ensuremath{u}'$"></SPAN> had <SPAN CLASS="MATH"><IMG
+            WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5779.png"
+            ALT="$ 2B-2$"></SPAN> children, then it now has <SPAN CLASS="MATH"><IMG
+            WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5780.png"
+            ALT="$ 2B-1$"></SPAN> children and
+         must therefore receive three credits.  These are the only credits given
+         out by the <!-- MATH
+            $\ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5781.png"
+            ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$"></SPAN> method.
+      <P>
+      <H4><A NAME="SECTION001724020000000000000">
+         <SPAN CLASS="arabic">14</SPAN>.<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">4</SPAN>.<SPAN CLASS="arabic">0</SPAN>.<SPAN CLASS="arabic">2</SPAN> Removing:</A>
+      </H4>
+      During a call to <!-- MATH
+         $\ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="75" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5782.png"
+         ALT="$ \ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$"></SPAN>, zero or more merges occur and are possibly
+      followed by a single borrow.  Each merge occurs because two nodes,
+      <!-- MATH
+         $\ensuremath{\ensuremath{\mathit{v}}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5783.png"
+         ALT="$ \ensuremath{\ensuremath{\mathit{v}}}$"></SPAN> and <!-- MATH
+         $\ensuremath{\ensuremath{\mathit{w}}}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5784.png"
+         ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN>, each of which had exactly <SPAN CLASS="MATH"><IMG
+         WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5785.png"
+         ALT="$ B-1$"></SPAN> keys prior to calling
+      <!-- MATH
+         $\ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$
+         -->
+      <SPAN CLASS="MATH"><IMG
+         WIDTH="75" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5786.png"
+         ALT="$ \ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$"></SPAN> were merged into a single node with exactly <SPAN CLASS="MATH"><IMG
+         WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+         SRC="img5787.png"
+         ALT="$ 2B-2$"></SPAN> keys.
+      Each such merge therefore frees up two credits that can be used to
+      pay for the merge.
+      <P>
+         After any merges are performed, at most one borrow operation occurs,
+         after which no further merges or borrows occur.  This borrow operation
+         only occurs if we remove a key from a leaf, <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{v}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5788.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{v}}}$"></SPAN>, that has <SPAN CLASS="MATH"><IMG
+            WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5789.png"
+            ALT="$ B-1$"></SPAN> keys.
+         The node <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{v}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5790.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{v}}}$"></SPAN> therefore has one credit, and this credit goes towards
+         the cost of the borrow.  This single credit is not enough to pay for
+         the borrow, so we create one credit to complete the payment.
+      <P>
+         At this point, we have created one credit and we still need to show
+         that the credit invariant can be maintained.  In the worst case,
+         <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{v}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5791.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{v}}}$"></SPAN>'s sibling, <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{w}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5792.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN>, has exactly <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5793.png"
+            ALT="$ B$"></SPAN> keys before the borrow so that,
+         afterwards, both <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{v}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5794.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{v}}}$"></SPAN> and <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{w}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5795.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN> have <SPAN CLASS="MATH"><IMG
+            WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5796.png"
+            ALT="$ B-1$"></SPAN> keys.  This means that <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{v}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5797.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{v}}}$"></SPAN> and
+         <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{w}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5798.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN> each should be storing a credit when the operation is complete.
+         Therefore, in this case, we create an additional two credits to give to
+         <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{v}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5799.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{v}}}$"></SPAN> and <!-- MATH
+            $\ensuremath{\ensuremath{\mathit{w}}}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5800.png"
+            ALT="$ \ensuremath{\ensuremath{\mathit{w}}}$"></SPAN>.  Since a borrow happens at most once during a <!-- MATH
+            $\ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="75" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5801.png"
+            ALT="$ \ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$"></SPAN>
+         operation, this means that we create at most three credits, as required.
+      <P>
+         If the <!-- MATH
+            $\ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="75" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5802.png"
+            ALT="$ \ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$"></SPAN> operation does not include a borrow operation, this
+         is because it finishes by removing a key from some node that, prior
+         to the operation, had <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5803.png"
+            ALT="$ B$"></SPAN> or more keys.  In the worst case, this node
+         had exactly <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5804.png"
+            ALT="$ B$"></SPAN> keys, so that it now has <SPAN CLASS="MATH"><IMG
+            WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5805.png"
+            ALT="$ B-1$"></SPAN> keys and must be given
+         one credit, which we create.
+      <P>
+         In either case--whether the removal finishes with a borrow
+         operation or not--at most three credits need to be created during a
+         call to <!-- MATH
+            $\ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="75" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5806.png"
+            ALT="$ \ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$"></SPAN> to maintain the credit invariant and pay for all
+         borrows and merges that occur. This completes the proof of the lemma.
+      <P>
+         The purpose of Lemma&nbsp;<A HREF="#lem:btree-split">14.1</A> is to show that, in the word-RAM
+         model the cost of splits, merges and joins during a sequence of <SPAN CLASS="MATH"><IMG
+            WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5807.png"
+            ALT="$ m$"></SPAN>
+         <!-- MATH
+            $\ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5808.png"
+            ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$"></SPAN> and <!-- MATH
+            $\ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="75" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5809.png"
+            ALT="$ \ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$"></SPAN> operations is only <SPAN CLASS="MATH"><IMG
+            WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5810.png"
+            ALT="$ O(Bm)$"></SPAN>.  That is, the
+         amortized cost per operation is only <SPAN CLASS="MATH"><IMG
+            WIDTH="37" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5811.png"
+            ALT="$ O(B)$"></SPAN>, so the amortized cost
+         of <!-- MATH
+            $\ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5812.png"
+            ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$"></SPAN> and <!-- MATH
+            $\ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="75" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5813.png"
+            ALT="$ \ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$"></SPAN> in the word-RAM model is <!-- MATH
+            $O(B+\log \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$
+            -->
+         <SPAN CLASS="MATH"><IMG
+            WIDTH="85" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5814.png"
+            ALT="$ O(B+\log \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$"></SPAN>.
+         This is summarized by the following pair of theorems:
+      <P>
+      <P>
+      <DIV>
+         <B>Theorem  <SPAN CLASS="arabic">14</SPAN>..<SPAN CLASS="arabic">1</SPAN></B> (External Memory <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5815.png"
+            ALT="$ B$"></SPAN>-Trees)  &nbsp; 
+         <I>
+            A BTree implements the SSet interface. In the external memory model,
+            a BTree supports the operations <!-- MATH
+               $\ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5816.png"
+               ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$"></SPAN>, <!-- MATH
+               $\ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="75" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5817.png"
+               ALT="$ \ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$"></SPAN>, and <!-- MATH
+               $\ensuremath{\mathrm{find}(\ensuremath{\mathit{x}})}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="52" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5818.png"
+               ALT="$ \ensuremath{\mathrm{find}(\ensuremath{\mathit{x}})}$"></SPAN>
+            in <!-- MATH
+               $O(\log_B \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="68" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5819.png"
+               ALT="$ O(\log_B \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$"></SPAN> time per operation.
+         </I>
+      </DIV>
+      <P></P>
+      <P>
+      <P>
+      <DIV>
+         <B>Theorem  <SPAN CLASS="arabic">14</SPAN>..<SPAN CLASS="arabic">2</SPAN></B> (Word-RAM <SPAN CLASS="MATH"><IMG
+            WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+            SRC="img5820.png"
+            ALT="$ B$"></SPAN>-Trees)  &nbsp; 
+         <I>
+            A BTree implements the SSet interface. In the word-RAM model, and
+            ignoring the cost of splits, merges, and borrows, a BTree supports
+            the operations <!-- MATH
+               $\ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5821.png"
+               ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$"></SPAN>, <!-- MATH
+               $\ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="75" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5822.png"
+               ALT="$ \ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$"></SPAN>, and <!-- MATH
+               $\ensuremath{\mathrm{find}(\ensuremath{\mathit{x}})}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="52" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5823.png"
+               ALT="$ \ensuremath{\mathrm{find}(\ensuremath{\mathit{x}})}$"></SPAN> in <!-- MATH
+               $O(\log \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="60" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5824.png"
+               ALT="$ O(\log \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$"></SPAN>
+            time per operation.
+            Furthermore, beginning with an empty BTree, any sequence of <SPAN CLASS="MATH"><IMG
+               WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5825.png"
+               ALT="$ m$"></SPAN>
+            <!-- MATH
+               $\ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5826.png"
+               ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$"></SPAN> and <!-- MATH
+               $\ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$
+               -->
+            <SPAN CLASS="MATH"><IMG
+               WIDTH="75" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5827.png"
+               ALT="$ \ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$"></SPAN> operations results in a total of <SPAN CLASS="MATH"><IMG
+               WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+               SRC="img5828.png"
+               ALT="$ O(Bm)$"></SPAN>
+            time spent performing splits, merges, and borrows.
+         </I>
+      </DIV>
+      <P></P>
+      <P>
+      <DIV CLASS="navigation">
+         <HR>
+         <!--Navigation Panel-->
+         <A NAME="tex2html1298"
+            HREF="14_3_Discussion_Exercises.html">
+         <IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+         <A NAME="tex2html1292"
+            HREF="14_External_Memory_Searchin.html">
+         <IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+         <A NAME="tex2html1286"
+            HREF="14_1_Block_Store.html">
+         <IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+         <A NAME="tex2html1294"
+            HREF="Contents.html">
+         <IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+         <A NAME="tex2html1296"
+            HREF="Index.html">
+         <IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+         <BR>
+         <B> Next:</B> <A NAME="tex2html1299"
+            HREF="14_3_Discussion_Exercises.html">14.3 Discussion and Exercises</A>
+         <B> Up:</B> <A NAME="tex2html1293"
+            HREF="14_External_Memory_Searchin.html">14. External Memory Searching</A>
+         <B> Previous:</B> <A NAME="tex2html1287"
+            HREF="14_1_Block_Store.html">14.1 The Block Store</A>
+         &nbsp; <B>  <A NAME="tex2html1295"
+            HREF="Contents.html">Contents</A></B> 
+         &nbsp; <B>  <A NAME="tex2html1297"
+            HREF="Index.html">Index</A></B> 
+      </DIV>
+      <!--End of Navigation Panel-->
+      <ADDRESS>
+         <a href="http://opendatastructures.org/">opendatastructures.org</a>
+         <script type="text/javascript">
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-5860680-3']);
+            _gaq.push(['_trackPageview']);
+            
+            (function() {
+              var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+              ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+              var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+            })();
+         </script>
+      </ADDRESS>
+      </P>
+   </BODY>
+</HTML>

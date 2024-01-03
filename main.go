@@ -168,7 +168,7 @@ func readDoc(parent *tags) (*tags, bool) {
 							tag.name = tag_name
 						} else {
 							tag.attributes[last_recorded_attr] = strings.TrimRight(tag_name, "/")
-							//fmt.Println("what is going on ", strings.TrimRight(tag_name, "/"), tag.name, last_recorded_attr)
+
 						}
 						return tag, false
 					}
@@ -193,6 +193,7 @@ func readDoc(parent *tags) (*tags, bool) {
 					}
 					trimmed := strings.TrimSpace(strings.ToLower(tag_name))
 					if ALLOWED_TAGS_NO_CLOSE[trimmed] {
+
 						return tag, false
 					}
 				} else {
@@ -217,9 +218,9 @@ func readDoc(parent *tags) (*tags, bool) {
 				}
 
 				for new_child != nil && new_child.element_type != CLOSING_TAG {
-					//fmt.Println("new child ", new_child, bts, tag.name)
+
 					if new_child.name == "" && new_child.content == "" {
-						log.Fatal("Cannot read document ", new_child)
+						log.Fatal("Cannot read document ", tag.children[0], new_child)
 					}
 					if new_child.element_type == TEXT {
 						stripped := strings.TrimSpace(new_child.content)
@@ -232,6 +233,7 @@ func readDoc(parent *tags) (*tags, bool) {
 
 					new_child, _ = readDoc(tag)
 				}
+
 				return tag, false
 			}
 		} else if bts == "/" && previous == "<" {
@@ -248,9 +250,6 @@ func readDoc(parent *tags) (*tags, bool) {
 				}
 			}
 			if bts == " " && !is_quoted {
-				// if len(stack) == 2 {
-				// 	stack = nil
-				// }
 				if tag.name == "" {
 					tag.name = strings.TrimSpace(tag_name)
 				} else if last_recorded_attr != "" {
@@ -261,7 +260,7 @@ func readDoc(parent *tags) (*tags, bool) {
 				tag_name = ""
 				last_recorded_attr = ""
 				continue
-			} else if bts == "=" && is_tag_opened {
+			} else if bts == "=" && is_tag_opened && !is_quoted {
 				last_recorded_attr = tag_name
 				tag_name = ""
 				continue
@@ -298,7 +297,7 @@ func rootPoint() *tags {
 }
 
 func main() {
-	b, _ := os.Open("./html/youtube.html")
+	b, _ := os.Open("./html/showmax.html")
 
 	reader = bufio.NewReader(b)
 	root := rootPoint()
@@ -311,8 +310,10 @@ func main() {
 		fmt.Println("a ", v.attributes["href"])
 	}
 	fmt.Println("root ", root)
-	//fmt.Println("find by attribute ", FindByKey(root, "disable-upgrade", "true")[0].parent)
-	//fmt.Println("find by tags ", FindByTag(root, "body"))
+	fmt.Println("find by attribute ", FindByKey(root, "id", "swimmer"))
+	//fmt.Println("find by tags ", FindByTag(root, "style"))
+	//fmt.Println("find by tags ", FindByTag(root, "style")[1].children[0])
+	//fmt.Println("looking for a text ", LookForText(root, "computers")[0].parent)
 	//fmt.Println("root ", root.children[0].children[1])
 	//fmt.Println("find by tags ", FindByTag(root, "footer")[0].parent)
 }
