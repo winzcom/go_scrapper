@@ -51,16 +51,16 @@
       <A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
       <UL CLASS="ChildLinks">
          <LI><A NAME="tex2html1300"
-            HREF="14_2_B_Trees.html#SECTION001721000000000000000"><SPAN CLASS="arabic">14</SPAN>.<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">1</SPAN> Searching</A>
+            HREF="14_2_B_Trees.html#SECTION001721000000000000000"><SPAN CLASS="arabic">14</SPAN>.<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">1</SPAN> Searching</A></LI>
          <LI><A NAME="tex2html1301"
-            HREF="14_2_B_Trees.html#SECTION001722000000000000000"><SPAN CLASS="arabic">14</SPAN>.<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">2</SPAN> Addition</A>
+            HREF="14_2_B_Trees.html#SECTION001722000000000000000"><SPAN CLASS="arabic">14</SPAN>.<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">2</SPAN> Addition</A></LI>
          <LI><A NAME="tex2html1302"
-            HREF="14_2_B_Trees.html#SECTION001723000000000000000"><SPAN CLASS="arabic">14</SPAN>.<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">3</SPAN> Removal</A>
+            HREF="14_2_B_Trees.html#SECTION001723000000000000000"><SPAN CLASS="arabic">14</SPAN>.<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">3</SPAN> Removal</A></LI>
          <LI><A NAME="tex2html1303"
             HREF="14_2_B_Trees.html#SECTION001724000000000000000"><SPAN CLASS="arabic">14</SPAN>.<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">4</SPAN> Amortized Analysis of <SPAN CLASS="MATH"><IMG
             WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
             SRC="img5734.png"
-            ALT="$ B$"></SPAN>-Trees</A>
+            ALT="$ B$"></SPAN>-Trees</A></LI>
       </UL>
       <!--End of Table of Child-Links-->
       <HR>
@@ -1654,7 +1654,7 @@
                WIDTH="60" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
                SRC="img5588.png"
                ALT="$ O(\log \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$"></SPAN> time in the word-RAM model.
-            <P>
+            <P></P>
          </DD>
          <DT><STRONG>Upward phase:</STRONG></DT>
          <DD>
@@ -2455,7 +2455,7 @@
                SRC="img5693.png"
                ALT="$ B-1$"></SPAN> keys.  This process is illustrated in
             Figure&nbsp;<A HREF="#fig:btree-borrow">14.9</A>.
-            <P>
+            <P></P>
             <DIV ALIGN="CENTER">
                <A NAME="fig:btree-borrow"></A><A NAME="66909"></A>
                <TABLE>
@@ -2541,7 +2541,7 @@
                   </TR>
                </TABLE>
             </DIV>
-            <P>
+            <P></P>
          </DD>
          <DT><STRONG>Merging:</STRONG></DT>
          <DD>
@@ -2610,7 +2610,7 @@
                SRC="img5713.png"
                ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>, now
             has one less child and therefore needs to give up one of its keys.)
-            <P>
+            <P></P>
             <DIV ALIGN="CENTER">
                <A NAME="fig:btree-merge"></A><A NAME="66911"></A>
                <TABLE>
@@ -2780,8 +2780,9 @@
             SRC="img5734.png"
             ALT="$ B$"></SPAN>-Trees
       </H2>
-      <P>
-         Thus far, we have shown that
+      </P>
+      <P></P>
+         Thus far, we have shown that</P>
       <OL>
          <LI>
             In the external memory model, the running time of <!-- MATH
@@ -2854,8 +2855,8 @@
             WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
             SRC="img5745.png"
             ALT="$ B$"></SPAN>-trees.
-      <P>
-      <P>
+      <P></P>
+      <P></P>
       <DIV>
          <A NAME="lem:btree-split"><B>Lemma  <SPAN CLASS="arabic">14</SPAN>..<SPAN CLASS="arabic">1</SPAN></B></A> &nbsp; 
          <I>
@@ -2886,7 +2887,7 @@
          </I>
       </DIV>
       <P></P>
-      <P>
+      <P></P>
       <P></P>
       <DIV>
          <I>Proof</I>.
@@ -2931,7 +2932,7 @@
          These credits are illustrated using the  symbol in
          Figures&nbsp;<A HREF="#fig:btree-split">14.5</A>, <A HREF="#fig:btree-borrow">14.9</A>, and
          <A HREF="#fig:btree-merge">14.10</A>.
-         <P>
+         <P></P>
             To keep track of these credits the proof maintains the following
             <SPAN  CLASS="textit">credit invariant</SPAN>:
             <A NAME="65053"></A>Any non-root node with <SPAN CLASS="MATH"><IMG
@@ -2968,7 +2969,7 @@
             <IMG
                WIDTH="17" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
                SRC="img5751.png"
-               ALT="$ \qedsymbol$">
+               ALT="$ \qedsymbol$"></P>
       </DIV>
       <P></P>
       <H4><A NAME="SECTION001724010000000000000">
@@ -2989,7 +2990,7 @@
          WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
          SRC="img5764.png"
          ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$"></SPAN>.
-      <P>
+      <P></P>
          Each split operation occurs because a key is added to a node, <!-- MATH
             $\ensuremath{\ensuremath{\mathit{u}}}$
             -->
@@ -3049,7 +3050,7 @@
             ALT="$ B-1$"></SPAN> keys) to maintain the
          credit invariant.  Therefore, we can pay for the split and maintain
          the credit invariant during any split.
-      <P>
+      <P></P>
          The only other modification to nodes that occur during an <!-- MATH
             $\ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$
             -->
@@ -3086,7 +3087,7 @@
             WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
             SRC="img5781.png"
             ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{x}})}$"></SPAN> method.
-      <P>
+      <P></P>
       <H4><A NAME="SECTION001724020000000000000">
          <SPAN CLASS="arabic">14</SPAN>.<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">4</SPAN>.<SPAN CLASS="arabic">0</SPAN>.<SPAN CLASS="arabic">2</SPAN> Removing:</A>
       </H4>
@@ -3126,7 +3127,7 @@
          ALT="$ 2B-2$"></SPAN> keys.
       Each such merge therefore frees up two credits that can be used to
       pay for the merge.
-      <P>
+      <P></P>
          After any merges are performed, at most one borrow operation occurs,
          after which no further merges or borrows occur.  This borrow operation
          only occurs if we remove a key from a leaf, <!-- MATH
@@ -3148,7 +3149,7 @@
             ALT="$ \ensuremath{\ensuremath{\mathit{v}}}$"></SPAN> therefore has one credit, and this credit goes towards
          the cost of the borrow.  This single credit is not enough to pay for
          the borrow, so we create one credit to complete the payment.
-      <P>
+      <P></P>
          At this point, we have created one credit and we still need to show
          that the credit invariant can be maintained.  In the worst case,
          <!-- MATH
@@ -3217,7 +3218,7 @@
             SRC="img5801.png"
             ALT="$ \ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$"></SPAN>
          operation, this means that we create at most three credits, as required.
-      <P>
+      <P></P>
          If the <!-- MATH
             $\ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$
             -->
@@ -3238,7 +3239,7 @@
             SRC="img5805.png"
             ALT="$ B-1$"></SPAN> keys and must be given
          one credit, which we create.
-      <P>
+      <P></P>
          In either case--whether the removal finishes with a borrow
          operation or not--at most three credits need to be created during a
          call to <!-- MATH
@@ -3249,7 +3250,7 @@
             SRC="img5806.png"
             ALT="$ \ensuremath{\mathrm{remove}(\ensuremath{\mathit{x}})}$"></SPAN> to maintain the credit invariant and pay for all
          borrows and merges that occur. This completes the proof of the lemma.
-      <P>
+      <P></P>
          The purpose of Lemma&nbsp;<A HREF="#lem:btree-split">14.1</A> is to show that, in the word-RAM
          model the cost of splits, merges and joins during a sequence of <SPAN CLASS="MATH"><IMG
             WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
@@ -3295,8 +3296,8 @@
             SRC="img5814.png"
             ALT="$ O(B+\log \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}})$"></SPAN>.
          This is summarized by the following pair of theorems:
-      <P>
-      <P>
+      <P></P>
+      <P></P>
       <DIV>
          <B>Theorem  <SPAN CLASS="arabic">14</SPAN>..<SPAN CLASS="arabic">1</SPAN></B> (External Memory <SPAN CLASS="MATH"><IMG
             WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
@@ -3333,8 +3334,8 @@
          </I>
       </DIV>
       <P></P>
-      <P>
-      <P>
+      <P></P>
+      <P></P>
       <DIV>
          <B>Theorem  <SPAN CLASS="arabic">14</SPAN>..<SPAN CLASS="arabic">2</SPAN></B> (Word-RAM <SPAN CLASS="MATH"><IMG
             WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
