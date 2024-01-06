@@ -101,6 +101,11 @@ func readDoc(parent *tags) (*tags, bool) {
 
 	var is_quoted bool
 	//var closing_contents string
+	if parent != nil && NOCHILD_ALLOWED[strings.TrimSpace(parent.name)] {
+		drop = true
+	}
+
+	var last_quote string
 
 	for {
 		b, err := reader.ReadByte()
@@ -115,26 +120,31 @@ func readDoc(parent *tags) (*tags, bool) {
 			}
 			break
 		}
-		if parent != nil && NOCHILD_ALLOWED[strings.TrimSpace(parent.name)] {
-			drop = true
-		}
 		if drop {
 			p, _ := reader.Peek(2)
 			p1, _ := reader.Peek(1)
 
-			if bts == "<" && string(p1) == "/" && !is_quoted {
-				closing = true
-				tag_name = ""
-				tag.element_type = CLOSING_TAG
+			if bts == "<" && !is_quoted { //// quotes removed
+				if string(p1) == "/" {
+					closing = true
+					tag_name = ""
+					tag.element_type = CLOSING_TAG
+				}
 			} else if bts == ">" && closing && !is_quoted {
 				return tag, true
-			} else if bts == "\"" {
-				if is_quoted {
+			} else if (bts == "\"" || bts == "`") && previous != "\\" {
+				/***
+				Plan is working
+				**/
+
+				if is_quoted && last_quote == bts {
 					is_quoted = false
-				} else {
+					last_quote = ""
+				} else if last_quote == "" {
 					is_quoted = true
+					last_quote = bts
 				}
-			} else if string(p) == "</" {
+			} else if string(p) == "</" && !is_quoted {
 				if letter_count > 0 {
 					tag.content = tag_name
 					tag.element_type = TEXT
@@ -232,13 +242,15 @@ func readDoc(parent *tags) (*tags, bool) {
 				new_child, _ := readDoc(tag)
 
 				if new_child.name == "" && new_child.content == "" && new_child.element_type != CLOSING_TAG {
-					log.Fatalf("Invalid Document seems %v+ does not have closing tag", stack[len(stack)-1])
+					// log.Fatalf("Invalid Document seems %v+ does not have closing tag and tag %v", stack[len(stack)-1], tag)
+					return tag, false
 				}
 
 				for new_child != nil && new_child.element_type != CLOSING_TAG {
 					//fmt.Println("for every child\n\n", new_child)
 					if new_child.name == "" && new_child.content == "" {
-						log.Fatalf("Invalid Document seems %v+ does not have closing tag", stack[len(stack)-1])
+						return tag, false
+						//log.Fatalf("Invalid Document seems %v+ does not have closing tag", stack[len(stack)-1])
 					}
 					if new_child.element_type == TEXT {
 						stripped := strings.TrimSpace(new_child.content)
@@ -268,11 +280,11 @@ func readDoc(parent *tags) (*tags, bool) {
 							}
 						}
 						log.Fatalf(
-							"%v+  around line %d, has no appropriate closing tag or closed tag %q on line %d, has no opening tag %s",
-							tag.parent,
-							self_line + 1,
+							"%q around line %d, has no appropriate closing tag or closed tag %q on line %d, has no opening tag %s",
+							stack[len(stack)-1].name,
+							self_line+1,
 							new_child.name,
-							line_counter,
+							line_counter+1,
 							content,
 						)
 					}
@@ -366,7 +378,9 @@ func main() {
 	fmt.Println("anchild len ", len(anchors))
 
 	// for _, v := range anchors {
-	// 	fmt.Println("a ", v.attributes["href"])
+	// 	if strings.Contains(v.attributes["href"], "jujutsu") {
+	// 		fmt.Println(v)
+	// 	}
 	// }
 	fmt.Println("root ", root)
 	//fmt.Println("find by attribute ", FindByKey(root, "id", "army"))
