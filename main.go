@@ -11,6 +11,8 @@ import (
 	"strings"
 )
 
+var Cache []*Node = []*Node{}
+
 const (
 	CLOSING_TAG = "CLOSING_TAG"
 	TAG         = "TAG"
@@ -58,6 +60,9 @@ type tags struct {
 	content      string
 	text         string
 	attributes   Attr
+	next         *tags
+	prev         *tags
+	links        *NodeLink
 }
 
 var reader *bufio.Reader
@@ -148,6 +153,7 @@ func readDoc(parent *tags) (*tags, bool) {
 				if letter_count > 0 {
 					tag.content = tag_name
 					tag.element_type = TEXT
+					// build the list of text nodes
 					//reader.UnreadByte() //// cancel unread
 					return tag, false
 				}
@@ -167,6 +173,7 @@ func readDoc(parent *tags) (*tags, bool) {
 					reader.UnreadByte()
 					tag.content = tag_name
 					tag.element_type = TEXT
+					tag.links = BuildTextNodes(tag_name)
 					return tag, false
 				}
 				if letter_count == 1 {
@@ -190,7 +197,7 @@ func readDoc(parent *tags) (*tags, bool) {
 					if previous == "/" && !is_quoted {
 						tag.element_type = TAG
 						if strings.TrimSpace(tag.name) == "" {
-							tag.name = tag_name
+							tag.name = strings.TrimSpace(tag_name)
 						} else {
 							tag.attributes[last_recorded_attr] = strings.TrimRight(tag_name, "/")
 
@@ -202,7 +209,7 @@ func readDoc(parent *tags) (*tags, bool) {
 					}
 					tag.element_type = CLOSING_TAG
 					if tag.name == "" && tag_name != "" {
-						tag.name = tag_name
+						tag.name = strings.TrimSpace(tag_name)
 					}
 					return tag, true
 				}
@@ -215,7 +222,7 @@ func readDoc(parent *tags) (*tags, bool) {
 					return tag, false
 				}
 				if tag.name == "" {
-					tag.name = tag_name
+					tag.name = strings.TrimSpace(tag_name)
 					if tag.name == "" {
 						log.Fatal("Invalid Html Document")
 					}
@@ -242,55 +249,68 @@ func readDoc(parent *tags) (*tags, bool) {
 				new_child, _ := readDoc(tag)
 
 				if new_child.name == "" && new_child.content == "" && new_child.element_type != CLOSING_TAG {
-					// log.Fatalf("Invalid Document seems %v+ does not have closing tag and tag %v", stack[len(stack)-1], tag)
-					return tag, false
+					log.Fatalf("Invalid Document seems %v+ does not have closing tag and tag %v", stack[len(stack)-1], tag)
+					//return tag, false
 				}
 
-				for new_child != nil && new_child.element_type != CLOSING_TAG {
-					//fmt.Println("for every child\n\n", new_child)
-					if new_child.name == "" && new_child.content == "" {
-						return tag, false
-						//log.Fatalf("Invalid Document seems %v+ does not have closing tag", stack[len(stack)-1])
-					}
-					if new_child.element_type == TEXT {
-						stripped := strings.TrimSpace(new_child.content)
-						if len(stripped) > 0 {
+				for {
+					for new_child != nil && new_child.element_type != CLOSING_TAG {
+						//fmt.Println("for every child\n\n", new_child)
+						if new_child.name == "" && new_child.content == "" {
+							return tag, false
+							//log.Fatalf("Invalid Document seems %v+ does not have closing tag", stack[len(stack)-1])
+						}
+						child_len := len(tag.children)
+
+						if new_child.element_type == TEXT {
+							stripped := strings.TrimSpace(new_child.content)
+							if len(stripped) > 0 {
+								if child_len > 0 {
+									last_child := tag.children[child_len-1]
+									last_child.next = new_child
+									new_child.prev = last_child
+								}
+								tag.children = append(tag.children, new_child)
+							}
+						} else {
+							if child_len > 0 {
+								last_child := tag.children[child_len-1]
+								last_child.next = new_child
+							}
 							tag.children = append(tag.children, new_child)
 						}
-					} else {
-						tag.children = append(tag.children, new_child)
-					}
 
-					new_child, _ = readDoc(tag)
-				}
-				child_name := strings.TrimSpace(new_child.name)
-				if new_child.element_type == CLOSING_TAG && strings.TrimSpace(new_child.name) != "" {
-					if strings.TrimSpace(tag.name) != child_name {
-						var last_child *tags
-						var content string
-						if len(tag.children) > 0 {
-							last_child = tag.children[len(tag.children)-1]
-							if last_child.element_type == TAG {
-								content = fmt.Sprintf(
-									"after the tag %s with attributes %v+ ", last_child.element_type,
-									last_child.attributes,
-								)
-							} else if last_child.element_type == COMMENT {
-								content = fmt.Sprintf("after the comment %s", last_child.text)
-							}
-						}
-						log.Fatalf(
-							"%q around line %d, has no appropriate closing tag or closed tag %q on line %d, has no opening tag %s",
-							stack[len(stack)-1].name,
-							self_line+1,
-							new_child.name,
-							line_counter+1,
-							content,
-						)
+						new_child, _ = readDoc(tag)
+					}
+					child_name := strings.TrimSpace(new_child.name)
+					if new_child.element_type == CLOSING_TAG && strings.TrimSpace(new_child.name) != "" && strings.TrimSpace(tag.name) != child_name {
+						// var last_child *tags
+						// var content string
+						// if len(tag.children) > 0 {
+						// 	last_child = tag.children[len(tag.children)-1]
+						// 	if last_child.element_type == TAG {
+						// 		content = fmt.Sprintf(
+						// 			"after the tag %s with attributes %v+ ", last_child.element_type,
+						// 			last_child.attributes,
+						// 		)
+						// 	} else if last_child.element_type == COMMENT {
+						// 		content = fmt.Sprintf("after the comment %s", last_child.text)
+						// 	}
+						// }
+						// log.Fatalf(
+						// 	"%q around line %d, has no appropriate closing tag or closed tag %q on line %d, has no opening tag %s",
+						// 	stack[len(stack)-1].name,
+						// 	self_line+1,
+						// 	new_child.name,
+						// 	line_counter+1,
+						// 	content,
+						// )
+						new_child, _ = readDoc(tag)
+					} else {
+						stack = stack[0 : len(stack)-1]
+						return tag, false
 					}
 				}
-				stack = stack[0 : len(stack)-1]
-				return tag, false
 			}
 		} else if bts == "/" && previous == "<" && !is_comment { ////////
 			closing = true
@@ -344,7 +364,6 @@ func readDoc(parent *tags) (*tags, bool) {
 				is_comment = true
 				is_tag_opened = false
 				tag_name = ""
-
 			}
 		}
 		previous = bts
@@ -354,21 +373,23 @@ func readDoc(parent *tags) (*tags, bool) {
 
 func rootPoint() *tags {
 	tag, _ := readDoc(nil)
-	if len(stack) > 0 {
-		fmt.Printf("last cloas %v+", stack)
-	}
-	if tag.element_type != COMMENT {
-		return tag
-	}
-	tag, _ = readDoc(nil)
-	if len(stack) > 0 {
-		fmt.Printf("last cloas %v+", stack)
+	for tag.element_type == COMMENT {
+		tag, _ = readDoc(nil)
 	}
 	return tag
 }
 
 func main() {
-	b, _ := os.Open("./html/iso.html")
+
+	// resp, err := http.Get("https://developer.atlassian.com/cloud/jira/platform/getting-started-with-forge/")
+
+	// if err != nil {
+	// 	log.Fatal("error gettting url ", err)
+	// }
+
+	// defer resp.Body.Close()
+
+	b, _ := os.Open("./html/text.html")
 
 	reader = bufio.NewReader(b)
 	root := rootPoint()
@@ -377,12 +398,23 @@ func main() {
 
 	fmt.Println("anchild len ", len(anchors))
 
-	// for _, v := range anchors {
-	// 	if strings.Contains(v.attributes["href"], "jujutsu") {
-	// 		fmt.Println(v)
-	// 	}
-	// }
-	fmt.Println("root ", root)
-	//fmt.Println("find by attribute ", FindByKey(root, "id", "army"))
-	//fmt.Println("find by tags ", len(FindByTag(root, "script")))
+	for _, v := range anchors {
+		fmt.Println("links ", v.attributes["href"])
+	}
+	fmt.Println("root ", root.children[0])
+	data := struct {
+		name string
+		last string
+		like string
+		here string
+		set  string
+	}{
+		name: "Hello",
+		last: "world",
+		set:  "set",
+		here: "in the house",
+	}
+	root = Rebuild(root, data)
+	fmt.Println("recontruct ", root.children[0].children[1].children[0].children[0])
+	//fmt.Println("recontruct ", root.children[0].children[1].children[0])
 }

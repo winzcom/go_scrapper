@@ -1,0 +1,868 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rust Atomics and Locks — Chapter 1. Basics of Rust Concurrency</title>
+<meta name="author" content="Mara Bos">
+<meta name="theme-color" content="#FF69B4">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div id="site">
+<nav class="index">
+<a href=".">Rust Atomics and Locks</a>
+</nav>
+<article id="basics"><h1><a href="">Chapter 1. Basics of Rust Concurrency</a></h1><p><a class="indexterm" id="index-basics"></a> <a class="indexterm" id="index-concurrencybasics"></a>
+Long before multi-core processors were commonplace,
+operating systems allowed for a single computer to run many programs concurrently.
+This is achieved by rapidly switching between processes,
+allowing each to repeatedly make a little bit of progress, one by one.
+Nowadays, virtually all our computers and even our phones and watches have processors with multiple cores,
+which can truly execute multiple processes <span>in parallel</span>.</p><p><a class="indexterm" id="index-processes"></a>
+Operating systems isolate processes from each other as much as possible,
+allowing a program to do its thing while completely unaware of what any other processes are doing.
+<a class="indexterm" id="index-kernel"></a>
+For example, a process cannot normally access the memory of another process,
+or communicate with it in any way, without asking the operating system’s kernel first.</p><p><a class="indexterm" id="index-threads"></a>
+However, a program can spawn extra <em>threads of execution</em>, as part of the same <em>process</em>.
+Threads within the same process are not isolated from each other.
+Threads share memory and can interact with each other through that memory.</p><p>This chapter will explain how threads are spawned in Rust, and all the basic
+concepts around them, such as how to safely share data between multiple threads.
+The concepts explained in this chapter are foundational to the rest of the book.</p><div class="note" role="note" aria-label="note"><div class="icon" aria-hidden="true"><i class="note"></i></div><div class="text"><p>If you’re already familiar with these parts of Rust, feel free to skip ahead.
+However, before you continue to the next chapters,
+make sure you have a good understanding of
+threads, interior mutability, <code>Send</code> and <code>Sync</code>,
+and know what a mutex, a condition variable, and thread parking are.</p></div></div><section id="threads"><h2><a href="#threads">Threads in Rust</a></h2><p><a class="indexterm" id="index-mainthread"></a>
+Every program starts with exactly one thread: the main thread.
+This thread will execute your <code>main</code> function and can be used to spawn more threads if necessary.</p><p><a class="indexterm" id="index-threads-spawning"></a> <a class="indexterm" id="index-spawningthreads"></a>
+In Rust, new threads are spawned using the <code>std::<wbr>thread::<wbr>spawn</code> function from the standard library.
+It takes a single argument: the function the new thread will execute.
+The thread stops once this function returns.</p><p>Let’s take a look at an example:</p><pre>use std::thread;
+
+fn main() {
+    thread::spawn(f);
+    thread::spawn(f);
+
+    println!("Hello from the main thread.");
+}
+
+fn f() {
+    println!("Hello from another thread!");
+
+    let id = thread::current().id();
+    println!("This is my thread id: {id:?}");
+}</pre><p><a class="indexterm" id="index-currentthread"></a>
+We spawn two threads that will both execute <code>f</code> as their main function.
+Both of these threads will print a message and show their <em>thread id</em>,
+while the main thread will also print its own message.</p><aside id="thread-id"><h3><a href="#thread-id">Thread ID</a></h3><p><a class="indexterm" id="index-ThreadId"></a> <a class="indexterm" id="index-Threadobject-id"></a>
+The Rust standard library assigns every thread a unique identifier.
+This identifier is accessible through <code>Thread::<wbr>id()</code> and is of the type <code>ThreadId</code>.
+There’s not much you can do with a <code>ThreadId</code> other than copying it around and checking for equality.
+There is no guarantee that these IDs will be assigned consecutively, only that they will be different for each thread.</p></aside><p>If you run our example program above several times, you might notice the output varies between runs.
+This is the output I got on my machine during one <span>particular run</span>:</p><pre>Hello from the main thread.
+Hello from another thread!
+This is my thread id:</pre><p>Surprisingly, part of the output seems to be missing.</p><p>What happened here is that the main thread finished executing the <code>main</code> function
+before the newly spawned threads finished executing their functions.</p><p>Returning from <code>main</code> will exit the entire program, even if other threads are still running.</p><p>In this particular example, one of the newly spawned threads had just enough
+time to get to halfway through the second message, before the program was shut
+down by the main thread.</p><p><a class="indexterm" id="index-joiningthreads"></a> <a class="indexterm" id="index-threads-joining"></a> <a class="indexterm" id="index-JoinHandle"></a>
+If we want to make sure the threads are finished before we return from <code>main</code>,
+we can wait for them by <em>joining</em> them.
+To do so, we have to use the <code>JoinHandle</code> returned by the <code>spawn</code> function:</p><pre>fn main() {
+    let t1 = thread::spawn(f);
+    let t2 = thread::spawn(f);
+
+    println!("Hello from the main thread.");
+
+    t1.join().unwrap();
+    t2.join().unwrap();
+}</pre><p><a class="indexterm" id="index-joinmethod"></a> <a class="indexterm" id="index-threads-panicking"></a> <a class="indexterm" id="index-panicking-whenjoiningathread"></a>
+The <code>.join()</code> method waits until the thread has finished executing and returns a <code>std::<wbr>thread::<wbr>Result</code>.
+If the thread did not successfully finish its function because it panicked,
+this will contain the panic message.
+We could attempt to handle that situation, or just call <code>.unwrap()</code> to panic
+when joining a panicked thread.</p><p>Running this version of our program will no longer result in truncated output:</p><pre>Hello from the main thread.
+Hello from another thread!
+This is my thread id: ThreadId(3)
+Hello from another thread!
+This is my thread id: ThreadId(2)</pre><p>The only thing that still changes between runs is the order in which the messages <span>are printed</span>:</p><pre>Hello from the main thread.
+Hello from another thread!
+Hello from another thread!
+This is my thread id: ThreadId(2)
+This is my thread id: ThreadId(3)</pre><aside id="output-locking"><h3><a href="#output-locking">Output Locking</a></h3><p><a class="indexterm" id="index-printlnuseofoutputlocking"></a> <a class="indexterm" id="index-outputlocking"></a>
+The <code>println</code> macro uses <code>std::<wbr>io::<wbr>Stdout::<wbr>lock()</code> to make sure its output does not get interrupted.
+A <code>println!()</code> expression will wait until any concurrently running one is finished before writing any output.
+If this was not the case, we could’ve gotten more interleaved output such as:</p><pre>Hello fromHello from another thread!
+ another This is my threthreadHello fromthread id: ThreadId!
+( the main thread.
+2)This is my thread
+id: ThreadId(3)</pre></aside><p>Rather than passing the name of a function to <code>std::<wbr>thread::<wbr>spawn</code>,
+as in our example above,
+it’s far more common to pass it a <em>closure</em>.
+<a class="indexterm" id="index-closures-spawningthreadsusing"></a> <a class="indexterm" id="index-closures-capturedvalues-moving"></a>
+This allows us to capture values to move into the new thread:</p><pre>let numbers = vec![1, 2, 3];
+
+thread::spawn(move || {
+    for n in &amp;numbers {
+        println!("{n}");
+    }
+}).join().unwrap();</pre><p><a class="indexterm" id="index-moveclosure"></a> <a class="indexterm" id="index-ownership-moving"></a>
+Here, ownership of <code>numbers</code> is transferred to the newly spawned thread,
+since we used a <code>move</code> closure.
+If we had not used the <code>move</code> keyword,
+the closure would have captured <code>numbers</code> by reference.
+This would have resulted in a compiler error, since the new thread might outlive that variable.</p><p>Since a thread might run until the very end of the program’s execution,
+the <code>spawn</code> function has a <code>'static</code> lifetime bound on its argument type.
+<a class="indexterm" id="index-staticlifetime"></a> <a class="indexterm" id="index-lifetime-static"></a>
+In other words, it only accepts functions that may be kept around forever.
+A closure capturing a local variable by reference may not be kept around forever,
+since that reference would become invalid the moment the local variable ceases to exist.</p><p><a class="indexterm" id="index-threads-returningavalue"></a>
+Getting a value back out of the thread is done by returning it from the closure.
+This return value can be obtained from the <code>Result</code> returned by the <code>join</code> method:</p><pre>
+let numbers = Vec::from_iter(0..=1000);
+
+let t = thread::spawn(move || {
+    let len = numbers.len();
+    let sum = numbers.iter().sum::&lt;usize&gt;();
+    sum / len  <span class="callout">1</span>
+});
+
+let average = t.join().unwrap(); <span class="callout">2</span>
+
+println!("average: {average}");
+</pre><p>Here, the value returned by the thread’s closure (<span class="callout">1</span>)
+is sent back to the main thread through the <code>join</code> method (<span class="callout">2</span>).</p><p><a class="indexterm" id="index-threads-panicking-2"></a> <a class="indexterm" id="index-panicking-whenjoiningathread-2"></a>
+If <code>numbers</code> had been empty, the thread would’ve panicked while trying to divide by zero (<span class="callout">1</span>),
+and <code>join</code> would’ve returned that panic message instead,
+causing the main thread to panic too because of <code>unwrap</code> (<span class="callout">2</span>).</p><aside id="thread-builder"><h3><a href="#thread-builder">Thread Builder</a></h3><p><a class="indexterm" id="index-threadbuilder"></a>
+The <code>std::<wbr>thread::<wbr>spawn</code> function is actually just a convenient shorthand for
+<code>std::<wbr>thread::<wbr>Builder::<wbr>new().spawn().unwrap()</code>.</p><p>A <code>std::<wbr>thread::<wbr>Builder</code> allows you to set some settings for the new thread before spawning it.
+You can use it to configure the stack size for the new thread and to give the new thread a name.
+<a class="indexterm" id="index-panicking-threadnameinpanicmessages"></a> <a class="indexterm" id="index-stacksize"></a> <a class="indexterm" id="index-threadname"></a> <a class="indexterm" id="index-nameofathread"></a> <a class="indexterm" id="index-currentthread-2"></a>
+The name of a thread is available through <code>std::<wbr>thread::<wbr>current().name()</code>, will be used in panic messages,
+and will be visible in monitoring and debugging tools on most platforms.</p><p><a class="indexterm" id="index-spawningthreads-failingto"></a> <a class="indexterm" id="index-panicking-whenspawningathread"></a>
+Additionally, <code>Builder</code>'s <code>spawn</code> function returns an <code>std::<wbr>io::<wbr>Result</code>,
+allowing you to handle situations where spawning a new thread fails.
+This might happen if the operating system runs out of memory,
+or if resource limits have been applied to your program.
+The <code>std::<wbr>thread::<wbr>spawn</code> function simply panics if it is unable to spawn a new thread.</p></aside></section><section id="scoped-threads"><h2><a href="#scoped-threads">Scoped Threads</a></h2><p><a class="indexterm" id="index-threads-scoped"></a> <a class="indexterm" id="index-scopedthreads"></a> <a class="indexterm" id="index-borrowing-localvariablesinathread"></a>
+If we know for sure that a spawned thread will definitely not outlive a certain scope,
+that thread could safely borrow things that do not live forever, such as local variables, as long as they outlive that scope.</p><p><a class="indexterm" id="index-spawningthreads-scoped"></a>
+The Rust standard library provides the <code>std::<wbr>thread::<wbr>scope</code> function to spawn such <em>scoped threads</em>.
+It allows us to spawn threads that cannot outlive the scope of the closure we pass to that function,
+making it possible to safely borrow local variables.</p><p>How it works is best shown with an example:</p><pre>let numbers = vec![1, 2, 3];
+
+thread::scope(|s| { <span class="callout">1</span>
+    s.spawn(|| { <span class="callout">2</span>
+        println!("length: {}", numbers.len());
+    });
+    s.spawn(|| { <span class="callout">2</span>
+        for n in &amp;numbers {
+            println!("{n}");
+        }
+    });
+}); <span class="callout">3</span></pre><table class="callouts"><tr><td><span class="callout">1</span><td><p>We call the <code>std::<wbr>thread::<wbr>scope</code> function with a closure.
+Our closure is directly executed and gets an argument, <code>s</code>, representing the scope.</p><tr><td><span class="callout">2</span><td><p>We use <code>s</code> to spawn threads.
+<a class="indexterm" id="index-closures-spawningscopedthreadsusing"></a>
+The closures can borrow local variables like <code>numbers</code>.</p><tr><td><span class="callout">3</span><td><p>When the scope ends, all threads that haven’t been joined yet are automatically joined.</p></table><p>This pattern guarantees that none of the threads spawned in the scope can outlive the scope.
+Because of that, this scoped <code>spawn</code> method does not have a <code>'static</code> bound on its argument type,
+allowing us to reference anything as long as it outlives the scope, such as <code>numbers</code>.</p><p>In the example above, both of the new threads are concurrently accessing <code>numbers</code>.
+This is fine, because neither of them (nor the main thread) modifies it.
+If we were to change the first thread to modify <code>numbers</code>, as shown below,
+the compiler wouldn’t allow us to spawn another thread that also uses <code>numbers</code>:</p><pre>let mut numbers = vec![1, 2, 3];
+
+thread::scope(|s| {
+    s.spawn(|| {
+        numbers.push(1);
+    });
+    s.spawn(|| {
+        numbers.push(2); // Error!
+    });
+});</pre><p>The exact error message depends on the version of the Rust compiler, since it’s often improved to produce better diagnostics,
+but attempting to compile the code above will result in something like this:
+<a class="indexterm" id="index-borrowing-error"></a></p><pre>error[E0499]: cannot borrow `numbers` as mutable more than once at a time
+ --&gt; example.rs:7:13
+  |
+4 |     s.spawn(|| {
+  |             -- first mutable borrow occurs here
+5 |         numbers.push(1);
+  |         ------- first borrow occurs due to use of `numbers` in closure
+  |
+7 |     s.spawn(|| {
+  |             ^^ second mutable borrow occurs here
+8 |         numbers.push(2);
+  |         ------- second borrow occurs due to use of `numbers` in closure</pre><aside id="leakpocalypse"><h3><a href="#leakpocalypse">The Leakpocalypse</a></h3><p><a class="indexterm" id="index-Leakpocalypse"></a>
+Before Rust 1.0, the standard library had a function named <code>std::<wbr>thread::<wbr>scoped</code>
+that would directly spawn a thread, just like <code>std::<wbr>thread::<wbr>spawn</code>.
+It allowed non-<code>'static</code> captures, because instead of a <code>JoinHandle</code>,
+it returned a <code>JoinGuard</code> which joined the thread when dropped.
+Any borrowed data only needed to outlive this <code>JoinGuard</code>.
+This seemed safe, as long as the <code>JoinGuard</code> got dropped at some point.
+<a class="indexterm" id="index-JoinGuard"></a> <a class="indexterm" id="index-guards-joinguard"></a></p><p>Just before the release of Rust 1.0,
+it slowly became clear that it’s not possible to guarantee that something will be dropped.
+There are many ways, such as creating a cycle of reference-counted nodes,
+that make it possible to forget about something, or <em>leak</em> it, without dropping it.
+<a class="indexterm" id="index-leaking"></a> </p><p>Eventually, in what some people refer to as "The Leakpocalypse,"
+the conclusion was made that the design of a (safe) interface cannot rely on the assumption that
+objects will always be dropped at the end of their lifetime.
+Leaking an object might reasonably result in leaking more objects
+(e.g., leaking a <code>Vec</code> will also leak its elements),
+but it may not result in undefined behavior.
+Because of this conclusion, <code>std::<wbr>thread::<wbr>scoped</code> was no longer deemed safe
+and was removed from the standard library.
+Additionally, <code>std::<wbr>mem::<wbr>forget</code> was upgraded from an <code>unsafe</code> function to a <em>safe</em> function,
+to emphasize that forgetting (or leaking) is always a possibility.
+<a class="indexterm" id="index-memforget"></a></p><p>Only much later, in Rust 1.63, a new <code>std::<wbr>thread::<wbr>scope</code> function was added with a
+new design that does not rely on <code>Drop</code> for correctness.
+ </p></aside></section><section id="shared-ownership-and-reference-counting"><h2><a href="#shared-ownership-and-reference-counting">Shared Ownership and Reference Counting</a></h2><p><a class="indexterm" id="index-ownership-sharing"></a> <a class="indexterm" id="index-sharedownership"></a>
+So far we’ve looked at transferring ownership of a value to a thread using a <code>move</code> closure (<a href="#threads">"Threads in Rust"</a>)
+and borrowing data from longer-living parent threads (<a href="#scoped-threads">"Scoped Threads"</a>).
+When sharing data between two threads where neither thread is guaranteed to outlive the other,
+neither of them can be the owner of that data.
+Any data shared between them will need to live as long as the longest living thread.</p><section id="statics"><h3><a href="#statics">Statics</a></h3><p><a class="indexterm" id="index-statics"></a> <a class="indexterm" id="index-sharedownership-statics"></a>
+There are several ways to create something that’s not owned by a single thread.
+The simplest one is a <code>static</code> value, which is "owned" by the entire program,
+instead of an individual thread.
+In the following example, both threads can access <code>X</code>, but neither of them owns it:</p><pre>static X: [i32; 3] = [1, 2, 3];
+
+thread::spawn(|| dbg!(&amp;X));
+thread::spawn(|| dbg!(&amp;X));</pre><p>A <code>static</code> item has a constant initializer, is never dropped,
+and already exists before the main function of the program even starts.
+Every thread can borrow it, since it’s guaranteed to always exist.</p></section><section id="leaking"><h3><a href="#leaking">Leaking</a></h3><p><a class="indexterm" id="index-leaking-2"></a> <a class="indexterm" id="index-sharedownership-leaking"></a> <a class="indexterm" id="index-Box-leak"></a>
+Another way to share ownership is by <em>leaking</em> an allocation.
+Using <code>Box::<wbr>leak</code>, one can release ownership of a <code>Box</code>, promising to never drop it.
+From that point on, the <code>Box</code> will live forever, without an owner,
+allowing it to be borrowed by any thread for as long as the program runs.</p><pre>let x: &amp;'static [i32; 3] = Box::leak(Box::new([1, 2, 3]));
+
+thread::spawn(move || dbg!(x));
+thread::spawn(move || dbg!(x));</pre><p>The <code>move</code> closure might make it look like we’re moving ownership into the threads,
+but a closer look at the type of <code>x</code> reveals that we’re only giving the threads a <em>reference</em> to the data.</p><div class="note" role="note" aria-label="tip"><div class="icon" aria-hidden="true"><i class="tip"></i></div><div class="text"><p><a class="indexterm" id="index-Copytrait-moving"></a>
+References are <code>Copy</code>, meaning that when you "move" them, the original still exists,
+just like with an integer or boolean.</p></div></div><p>Note how the <code>'static</code> lifetime doesn’t mean that the value lived since the start of the program,
+but only that it lives to the end of the program.
+The past is simply not relevant.</p><p>The downside of leaking a <code>Box</code> is that we’re <em>leaking memory</em>.
+We allocate something, but never drop and deallocate it.
+This can be fine if it happens only a limited number of times.
+But if we keep doing this, the program will slowly run out of memory.</p></section><section id="arc"><h3><a href="#arc">Reference Counting</a></h3><p><a class="indexterm" id="index-referencecounting"></a> <a class="indexterm" id="index-sharedownership-referencecounting"></a>
+To make sure that shared data gets dropped and deallocated, we can’t completely give up its ownership.
+Instead, we can <em>share ownership</em>.
+By keeping track of the number of owners,
+we can make sure the value is dropped only when there are no owners left.</p><p><a class="indexterm" id="index-Rc"></a> <a class="indexterm" id="index-Clonetrait"></a>
+The Rust standard library provides this functionality through the <code>std::<wbr>rc::<wbr>Rc</code> type,
+short for "reference counted." It is very similar to a <code>Box</code>, except cloning it will not allocate anything new,
+but instead increment a counter stored next to the contained value.
+Both the original and cloned <code>Rc</code> will refer to the same allocation;
+they <em>share ownership</em>.</p><pre>use std::rc::Rc;
+
+let a = Rc::new([1, 2, 3]);
+let b = a.clone();
+
+assert_eq!(a.as_ptr(), b.as_ptr()); // Same allocation!</pre><p>Dropping an <code>Rc</code> will decrement the counter.
+Only the last <code>Rc</code>, which will see the counter drop to zero,
+will be the one dropping and deallocating the contained data.</p><p>If we were to try to send an <code>Rc</code> to another thread, however,
+we would run into the following compiler error:</p><pre>error[E0277]: `Rc` cannot be sent between threads safely
+    |
+8   |     thread::spawn(move || dbg!(b));
+    |                   ^^^^^^^^^^^^^^^</pre><p><a class="indexterm" id="index-threadsafety"></a>
+As it turns out, <code>Rc</code> is not <em>thread safe</em> (more on that in <a href="#thread-safety">"Thread Safety: Send and Sync"</a>).
+If multiple threads had an <code>Rc</code> to the same allocation,
+they might try to modify the reference counter at the same time,
+which can give unpredictable results.</p><p><a class="indexterm" id="index-Arc"></a> 
+Instead, we can use <code>std::<wbr>sync::<wbr>Arc</code>, which stands for "atomically reference counted."
+It’s identical to <code>Rc</code>, except it guarantees that modifications to the reference counter
+are indivisible <em>atomic</em> operations, making it safe to use it with multiple threads.
+(More on that in <a href="atomics.html">Chapter 2</a>.)</p><pre>use std::sync::Arc;
+
+let a = Arc::new([1, 2, 3]); <span class="callout">1</span>
+let b = a.clone(); <span class="callout">2</span>
+
+thread::spawn(move || dbg!(a)); <span class="callout">3</span>
+thread::spawn(move || dbg!(b)); <span class="callout">3</span></pre><table class="callouts"><tr><td><span class="callout">1</span><td><p>We put an array in a new allocation together with a reference counter, which starts at one.</p><tr><td><span class="callout">2</span><td><p>Cloning the <code>Arc</code> increments the reference count to two and provides us with a second <code>Arc</code> to the same allocation.</p><tr><td><span class="callout">3</span><td><p>Both threads get their own <code>Arc</code> through which they can access the shared array.
+Both decrement the reference counter when they drop their <code>Arc</code>.
+The last thread to drop its <code>Arc</code> will see the counter drop to zero and will be the one to drop and deallocate the array.</p></table><aside id="naming-clones"><h4><a href="#naming-clones">Naming Clones</a></h4><p><a class="indexterm" id="index-Arc-namingclones"></a> <a class="indexterm" id="index-Clonetrait-2"></a> <a class="indexterm" id="index-closures-capturedvalues-naming"></a>
+Having to give every clone of an <code>Arc</code> a different name can quickly make the code quite cluttered and hard to follow.
+While every clone of an <code>Arc</code> is a separate object, each clone represents the same shared value,
+which is not well reflected by naming each one differently.</p><p><a class="indexterm" id="index-shadowing"></a>
+Rust allows (and encourages) you to <em>shadow</em> variables by defining a new variable with the same name.
+If you do that in the same scope, the original variable cannot be named anymore.
+But by opening a new scope, a statement like <code>let a = a.clone();</code> can be used to
+reuse the same name within that scope,
+while leaving the original variable available outside the scope.</p><p>By wrapping a closure in a new scope (with <code>{}</code>), we can clone variables before moving them into the closure,
+without having to rename them.</p><figure class="table"><table class="without-headers"><tbody><tr><td><pre>let a = Arc::new([1, 2, 3]);
+
+let b = a.clone();
+
+thread::spawn(move || {
+    dbg!(b);
+});
+
+dbg!(a);</pre><p><br>The clone of the <code>Arc</code> lives in the same scope.
+Each thread gets its own clone with a different name.</p></td><td><pre>let a = Arc::new([1, 2, 3]);
+
+thread::spawn({
+    let a = a.clone();
+    move || {
+        dbg!(a);
+    }
+});
+
+dbg!(a);</pre><p>The clone of the <code>Arc</code> lives in a different scope.
+We can use the same name in each thread.</p></td></tr></tbody></table></figure></aside><p>Because ownership is shared, reference counting pointers (<code>Rc&lt;T&gt;</code> and <code>Arc&lt;T&gt;</code>)
+have the same restrictions as shared references (<code>&amp;T</code>).
+They do not give you mutable access to their contained value,
+since the value might be borrowed by other code at the <span>same time</span>.</p><p>For example, if we were to try to sort the slice of integers in an <code>Arc&lt;[i32]&gt;</code>,
+the compiler would stop us from doing so, telling us that we’re not allowed to mutate <span>the data</span>:
+ </p><pre>error[E0596]: cannot borrow data in an `Arc` as mutable
+  |
+6 |     a.sort();
+  |     ^^^^^^^^</pre></section></section><section id="borrowing-and-races"><h2><a href="#borrowing-and-races">Borrowing and Data Races</a></h2><p><a class="indexterm" id="index-borrowing"></a>
+In Rust, values can be borrowed in two ways:</p><dl><dt>Immutable borrowing</dt><dd><p>Borrowing something with <code>&amp;</code> gives an <em>immutable reference</em>.
+<a class="indexterm" id="index-borrowing-immutable"></a> <a class="indexterm" id="index-references-immutable"></a> <a class="indexterm" id="index-immutablereferences"></a>
+Such a reference can be copied. Access to the data it references is shared
+between all copies of such a reference.
+As the name implies, the compiler doesn’t normally allow you to <em>mutate</em> something through such a reference,
+since that might affect other code that’s currently borrowing the same data.</p></dd><dt>Mutable borrowing</dt><dd><p>Borrowing something with <code>&amp;mut</code> gives a <em>mutable reference</em>.
+<a class="indexterm" id="index-borrowing-mutable"></a> <a class="indexterm" id="index-references-mutable"></a> <a class="indexterm" id="index-mutablereferences"></a>
+A mutable borrow guarantees it’s the only active borrow of that data.
+This ensures that mutating the data will not change anything that other code is currently looking at.</p></dd></dl><p><a class="indexterm" id="index-dataraces"></a> <a class="indexterm" id="index-undefinedbehavior-dataraces"></a>
+These two concepts together fully prevent <em>data races</em>:
+situations where one thread is mutating data while another is concurrently accessing it.
+Data races are generally <em>undefined behavior</em>,
+which means the compiler does not need to take these situations into account.
+It will simply assume they do not happen.</p><p>To clarify what that means, let’s take a look at an example
+where the compiler can make a useful assumption using the borrowing rules:</p><pre>fn f(a: &amp;i32, b: &amp;mut i32) {
+    let before = *a;
+    *b += 1;
+    let after = *a;
+    if before != after {
+        x(); // never happens
+    }
+}</pre><p>Here, we get an immutable reference to an integer,
+and store the value of the integer both before and after incrementing the integer that <code>b</code> refers to.
+The compiler is free to assume that the fundamental rules about borrowing and data races are upheld,
+which means that <code>b</code> can’t possibly refer to the same integer as <code>a</code> does.
+In fact, nothing in the entire program can mutably borrow the integer that <code>a</code> refers to as long as <code>a</code> is borrowing it.
+Therefore, the compiler can easily conclude that <code>*a</code> will not change and the condition of the <code>if</code> statement will never be true,
+and can completely remove the call to <code>x</code> from the program as an optimization.</p><p>It’s impossible to write a Rust program that breaks the compiler’s assumptions,
+other than by using an <code>unsafe</code> block to disable some of the compiler’s safety checks.</p><aside id="undefined-behavior"><h3><a href="#undefined-behavior">Undefined Behavior</a></h3><p><a class="indexterm" id="index-undefinedbehavior"></a>
+Languages like C, C++, and Rust have a set of rules that need to be followed to avoid something called <em>undefined behavior</em>.
+For example, one of Rust’s rules is that there may never be more than one mutable reference to any object.</p><p>In Rust, it’s only possible to break any of these rules when using <code>unsafe</code> code.
+<a class="indexterm" id="index-unsafecode"></a>
+"Unsafe" doesn’t mean that the code is incorrect or never safe to use,
+but rather that the compiler is not validating for you that the code is safe. If the code does violate these rules, it is called <em>unsound</em>.
+<a class="indexterm" id="index-unsound"></a></p><p>The compiler is allowed to assume, without checking, that these rules are never broken.
+When broken, this results in something called <em>undefined behavior</em>, which we need to avoid at all costs.
+If we allow the compiler to make an assumption that is not actually true,
+it can easily result in more wrong conclusions about different parts of your code,
+affecting your whole program.</p><p>As a concrete example, let’s take a look at a small snippet that uses the <code>get_<wbr>unchecked</code> method on a slice:</p><pre>let a = [123, 456, 789];
+let b = unsafe { a.get_unchecked(index) };</pre><p>The <code>get_<wbr>unchecked</code> method gives us an element of the slice given its index, just like <code>a[index]</code>,
+but allows the compiler to assume the index is always within bounds, without any checks.</p><p>This means that in this code snippet, because <code>a</code> is of length 3,
+the compiler may assume that <code>index</code> is less than three.
+It’s up to us to make sure its assumption holds.</p><p>If we break this assumption, for example if we run this with <code>index</code> equal to 3,
+anything might happen.
+It might result in reading from memory whatever was stored in the bytes right after <code>a</code>.
+It might cause the program to crash.
+It might end up executing some entirely unrelated part of the program.
+It can cause all kinds of havoc.</p><p><a class="indexterm" id="index-undefinedbehavior-timetravel"></a> <a class="indexterm" id="index-timetravel"></a>
+Perhaps surprisingly, undefined behavior can even "travel back in time," causing problems in code that precedes it.
+To understand how that can happen,
+imagine we had a <code>match</code> statement before our previous snippet, as follows:</p><pre>match index {
+   0 =&gt; x(),
+   1 =&gt; y(),
+   _ =&gt; z(index),
+}
+
+let a = [123, 456, 789];
+let b = unsafe { a.get_unchecked(index) };</pre><p>Because of the unsafe code, the compiler is allowed to assume <code>index</code> is only ever 0, 1, or 2.
+It may logically conclude that the last arm of our <code>match</code> statement will only ever match a 2,
+and thus that <code>z</code> is only ever called as <code>z(2)</code>.
+That conclusion might be used not only to optimize the <code>match</code>, but also to optimize <code>z</code> itself.
+This can include throwing out unused parts of the code.</p><p>If we execute this with an <code>index</code> of <code>3</code>, our program might attempt to
+execute parts that have been optimized away, resulting in completely unpredictable behavior,
+long before we get to the <code>unsafe</code> block on the last line.
+Just like that, undefined behavior can propagate through a whole program,
+both backwards and forwards, in often very unexpected ways.</p><p><a class="indexterm" id="index-unsafefunctions"></a>
+When calling any <code>unsafe</code> function,
+read its documentation carefully and make sure you fully understand its <em>safety requirements</em>: the assumptions you need to uphold, as the caller, to avoid undefined behavior.
+<a class="indexterm" id="index-safetyrequirementsofunsafefunctions"></a></p></aside></section><section id="interior-mutability"><h2><a href="#interior-mutability">Interior Mutability</a></h2><p> <a class="indexterm" id="index-interiormutability"></a>
+The borrowing rules as introduced in the previous section are simple, but can be quite limiting—especially when multiple threads are involved.
+Following these rules makes communication between threads extremely limited and almost impossible,
+since no data that’s accessible by multiple threads can be mutated.</p><p>Luckily, there is an escape hatch: <em>interior mutability</em>.
+A data type with interior mutability slightly bends the borrowing rules.
+Under certain conditions, those types can allow mutation through an "immutable" reference.</p><p>In <a href="#arc">"Reference Counting"</a>, we’ve already seen one subtle example involving interior mutability.
+Both <code>Rc</code> and <code>Arc</code> mutate a reference counter,
+even though there might be multiple clones all using the same reference counter.</p><p><a class="indexterm" id="index-sharedreferences"></a> <a class="indexterm" id="index-exclusivereferences"></a> <a class="indexterm" id="index-borrowing-shared"></a> <a class="indexterm" id="index-borrowing-exclusive"></a> <a class="indexterm" id="index-references-shared"></a> <a class="indexterm" id="index-references-exclusive"></a>
+As soon as interior mutable types are involved,
+calling a reference "immutable" or "mutable" becomes confusing and inaccurate,
+since some things can be mutated through both.
+The more accurate terms are "shared" and "exclusive":
+a <em>shared reference</em> (<code>&amp;T</code>) can be copied and shared with others,
+while an <em>exclusive reference</em> (<code>&amp;mut T</code>) guarantees it’s the only <em>exclusive borrowing</em> of that <code>T</code>.
+For most types, shared references do not allow mutation, but there are exceptions.
+Since in this book we will mostly be working with these exceptions,
+we’ll use the more accurate terms in the rest of this book.</p><div class="note" role="note" aria-label="caution"><div class="icon" aria-hidden="true"><i class="caution"></i></div><div class="text"><p><a class="indexterm" id="index-borrowing-bendingtherules"></a> <a class="indexterm" id="index-borrowing-undefinedbehavior"></a> <a class="indexterm" id="index-undefinedbehavior-borrowing"></a>
+Keep in mind that interior mutability only bends the rules of shared borrowing to allow mutation when shared.
+It does not change anything about exclusive borrowing.
+Exclusive borrowing still guarantees that there are no other active borrows.
+Unsafe code that results in more than one active exclusive reference to something
+always invokes undefined behavior, regardless of interior mutability.</p></div></div><p>Let’s take a look at a few types with interior mutability
+and how they can allow mutation through shared references without causing undefined behavior.</p><section id="cell"><h3><a href="#cell">Cell</a></h3><p><a class="indexterm" id="index-Cell"></a>
+A <code>std::<wbr>cell::<wbr>Cell&lt;T&gt;</code> simply wraps a <code>T</code>, but allows mutations through a shared reference.
+To avoid undefined behavior,
+it only allows you to copy the value out (if <code>T</code> is <code>Copy</code>), or replace it with another value as a whole.
+In addition, it can only be used within a single thread.</p><p>Let’s take a look at an example similar to the one in the previous section,
+but this time using <code>Cell&lt;i32&gt;</code> instead of <code>i32</code>:</p><pre>use std::cell::Cell;
+
+fn f(a: &amp;Cell&lt;i32&gt;, b: &amp;Cell&lt;i32&gt;) {
+    let before = a.get();
+    b.set(b.get() + 1);
+    let after = a.get();
+    if before != after {
+        x(); // might happen
+    }
+}</pre><p>Unlike last time, it is now possible for the <code>if</code> condition to be true.
+Because a <code>Cell&lt;i32&gt;</code> has interior mutability,
+the compiler can no longer assume its value won’t change as long as we have a shared reference to it.
+Both <code>a</code> and <code>b</code> might refer to the same value, such that mutating through <code>b</code> might affect <code>a</code> as well.
+It may still assume, however, that no other threads are accessing the cells concurrently.</p><p>The restrictions on a <code>Cell</code> are not always easy to work with.
+Since it can’t directly let us borrow the value it holds,
+we need to move a value out (leaving something in its place),
+modify it, then put it back, to mutate its contents:</p><pre>fn f(v: &amp;Cell&lt;Vec&lt;i32&gt;&gt;) {
+    let mut v2 = v.take(); // Replaces the contents of the Cell with an empty Vec
+    v2.push(1);
+    v.set(v2); // Put the modified Vec back
+}</pre></section><section id="refcell"><h3><a href="#refcell">RefCell</a></h3><p><a class="indexterm" id="index-RefCell"></a>
+Unlike a regular <code>Cell</code>, a <code>std::<wbr>cell::<wbr>RefCell</code> does allow you to borrow its contents, at a small runtime cost.
+A <code>RefCell&lt;T&gt;</code> does not only hold a <code>T</code>,
+but also holds a counter that keeps track of any outstanding borrows.
+<a class="indexterm" id="index-panicking-RefCellborrowing"></a>
+If you try to borrow it while it is already mutably borrowed (or vice-versa),
+it will panic, which avoids undefined behavior.
+Just like a <code>Cell</code>, a <code>RefCell</code> can only be used within a single thread.</p><p>Borrowing the contents of <code>RefCell</code> is done by calling <code>borrow</code> or <code>borrow_<wbr>mut</code>:</p><pre>use std::cell::RefCell;
+
+fn f(v: &amp;RefCell&lt;Vec&lt;i32&gt;&gt;) {
+    v.borrow_mut().push(1); // We can modify the `Vec` directly.
+}</pre><p>While <code>Cell</code> and <code>RefCell</code> can be very useful,
+they become rather useless when we need to do something with multiple threads.
+So let’s move on to the types that are relevant for concurrency.</p></section><section id="mutex-and-rwlock"><h3><a href="#mutex-and-rwlock">Mutex and RwLock</a></h3><p><a class="indexterm" id="index-RwLock"></a>
+An <code>RwLock</code> or <em>reader-writer lock</em> is the concurrent version of a <code>RefCell</code>.
+An <code>RwLock&lt;T&gt;</code> holds a <code>T</code> and tracks any outstanding borrows.
+However, unlike a <code>RefCell</code>, it does not panic on conflicting borrows.
+Instead, it blocks the current thread—​putting it to sleep—​while
+waiting for conflicting borrows to disappear.
+We’ll just have to patiently wait for our turn with the data,
+after the other threads are done with it.</p><p>Borrowing the contents of an <code>RwLock</code> is called <em>locking</em>.
+By <em>locking</em> it we temporarily block concurrent conflicting borrows,
+allowing us to borrow it without causing data races.</p><p><a class="indexterm" id="index-Mutex"></a>
+A <code>Mutex</code> is very similar, but conceptually slightly simpler.
+Instead of keeping track of the number of shared and exclusive borrows like an <code>RwLock</code>,
+it only allows exclusive borrows.</p><p>We’ll go more into detail on these types in <a href="#mutexes">"Locking: Mutexes and RwLocks"</a>.</p></section><section id="atomics"><h3><a href="#atomics">Atomics</a></h3><p><a class="indexterm" id="index-atomictypes"></a>
+The atomic types represent the concurrent version of a <code>Cell</code>,
+and are the main topic of Chapters <a href="atomics.html">2</a> and <a href="memory-ordering.html">3</a>.
+Like a <code>Cell</code>, they avoid undefined behavior by making us copy values in and out as a whole,
+without letting us borrow the contents directly.</p><p>Unlike a <code>Cell</code>, though, they cannot be of arbitrary size.
+Because of this, there is no generic <code>Atomic&lt;T&gt;</code> type for any <code>T</code>,
+but there are only specific atomic types such as <code>AtomicU32</code> and <code>AtomicPtr&lt;T&gt;</code>.
+Which ones are available depends on the platform,
+since they require support from the processor to avoid data races.
+(We’ll dive into that in <a href="hardware.html">Chapter 7</a>.)</p><p>Since they are so limited in size,
+atomics often don’t directly contain the information that needs to be shared between threads.
+Instead, they are often used as a tool to make it possible to share other—​often bigger—​things between threads.
+When atomics are used to say something about other data,
+things can get surprisingly complicated.</p></section><section id="unsafecell"><h3><a href="#unsafecell">UnsafeCell</a></h3><p><a class="indexterm" id="index-UnsafeCell"></a> 
+An <code>UnsafeCell</code> is the primitive building block for interior mutability.</p><p>An <code>UnsafeCell&lt;T&gt;</code> wraps a <code>T</code>,
+but does not come with any conditions or restrictions to avoid undefined behavior.
+Instead, its <code>get()</code> method just gives a raw pointer to the value it wraps,
+which can only be meaningfully used in <code>unsafe</code> blocks.
+It leaves it up to the user to use it in a way that does not cause any undefined behavior.</p><p>Most commonly, an <code>UnsafeCell</code> is not used directly,
+but wrapped in another type that provides safety through a limited interface, such as <code>Cell</code> or <code>Mutex</code>.
+All types with interior mutability—​including all types discussed above—​are built on top of <code>UnsafeCell</code>.
+</p></section></section><section id="thread-safety"><h2><a href="#thread-safety">Thread Safety: Send and Sync</a></h2><p><a class="indexterm" id="index-threadsafety-2"></a>
+In this chapter, we’ve seen several types that are not <em>thread safe</em>,
+types that can only be used on a single thread, such as <code>Rc</code>, <code>Cell</code>, and others.
+Since that restriction is needed to avoid undefined behavior,
+it’s something the compiler needs to understand and check for you,
+so you can use these types without having to use <code>unsafe</code> blocks.</p><p>The language uses two special traits to keep track of which types
+can be safely used across threads:</p><dl><dt>Send</dt><dd><p><a class="indexterm" id="index-Sendtrait"></a> <a class="indexterm" id="index-ownership-transferringtoanotherthreadSend"></a>
+A type is <code>Send</code> if it can be sent to another thread. In other words, if ownership of a value of that type can be transferred to another thread.
+For example, <code>Arc&lt;i32&gt;</code> is <code>Send</code>, but <code>Rc&lt;i32&gt;</code> is not.</p></dd><dt>Sync</dt><dd><p><a class="indexterm" id="index-Synctrait"></a> <a class="indexterm" id="index-borrowing-frommultiplethreadsSync"></a>
+A type is <code>Sync</code> if it can be shared with another thread.
+In other words, a type <code>T</code> is <code>Sync</code> if and only if a shared reference to that type, <code>&amp;T</code>, is <code>Send</code>.
+For example, an <code>i32</code> is <code>Sync</code>, but a <code>Cell&lt;i32&gt;</code> is not.
+(A <code>Cell&lt;i32&gt;</code> is <code>Send</code>, however.)</p></dd></dl><p>All primitive types such as <code>i32</code>, <code>bool</code>, and <code>str</code> are both <code>Send</code> and <code>Sync</code>.</p><p><a class="indexterm" id="index-autotraits"></a>
+Both of these traits are <em>auto traits</em>,
+which means that they are automatically implemented for your types based on their fields.
+A <code>struct</code> with fields that are all <code>Send</code> and <code>Sync</code>, is itself also <code>Send</code> and <code>Sync</code>.</p><p><a class="indexterm" id="index-PhantomData"></a>
+The way to opt out of either of these is to add a field to your type that does not implement the trait.
+For that purpose, the special <code>std::<wbr>marker::<wbr>PhantomData&lt;T&gt;</code> type often comes in handy.
+That type is treated by the compiler as a <code>T</code>, except it doesn’t actually exist at runtime.
+It’s a zero-sized type, taking no space.</p><p>Let’s take a look at the following <code>struct</code>:</p><pre>use std::marker::PhantomData;
+
+struct X {
+    handle: i32,
+    _not_sync: PhantomData&lt;Cell&lt;()&gt;&gt;,
+}</pre><p>In this example, <code>X</code> would be both <code>Send</code> and <code>Sync</code> if <code>handle</code> was its only field.
+However, we added a zero-sized <code>PhantomData&lt;Cell&lt;()&gt;&gt;</code> field, which is treated as if it were a <code>Cell&lt;()&gt;</code>.
+Since a <code>Cell&lt;()&gt;</code> is not <code>Sync</code>, neither is <code>X</code>.
+It is still <code>Send</code>, however, since all its fields implement <code>Send</code>.</p><p><a class="indexterm" id="index-pointers-neitherSendnorSync"></a>
+Raw pointers (<code>*const T</code> and <code>*mut T</code>) are neither <code>Send</code> nor <code>Sync</code>,
+since the compiler doesn’t know much about what they represent.</p><p>The way to opt in to either of the traits is the same as with any other trait; use an <code>impl</code> block to implement the trait for your type:</p><pre>struct X {
+    p: *mut i32,
+}
+
+unsafe impl Send for X {}
+unsafe impl Sync for X {}</pre><p><a class="indexterm" id="index-unsafetraitimplementation"></a>
+Note how implementing these traits requires the <code>unsafe</code> keyword,
+since the compiler cannot check for you if it’s correct.
+It’s a promise you make to the compiler, which it will just have to trust.</p><p>If you try to move something into another thread which is not <code>Send</code>,
+the compiler will politely stop you from doing that.
+Here is a small example to demonstrate that:</p><pre>fn main() {
+    let a = Rc::new(123);
+    thread::spawn(move || { // Error!
+        dbg!(a);
+    });
+}</pre><p>Here, we try to send an <code>Rc&lt;i32&gt;</code> to a new thread,
+but <code>Rc&lt;i32&gt;</code>, unlike <code>Arc&lt;i32&gt;</code>, does not implement <code>Send</code>.</p><p>If we try to compile the example above, we’re faced with an error that looks something like this:
+<a class="indexterm" id="index-Sendtrait-error"></a></p><pre>error[E0277]: `Rc&lt;i32&gt;` cannot be sent between threads safely
+   --&gt; src/main.rs:3:5
+    |
+3   |     thread::spawn(move || {
+    |     ^^^^^^^^^^^^^ `Rc&lt;i32&gt;` cannot be sent between threads safely
+    |
+    = help: within `[closure]`, the trait `Send` is not implemented for `Rc&lt;i32&gt;`
+note: required because it's used within this closure
+   --&gt; src/main.rs:3:19
+    |
+3   |     thread::spawn(move || {
+    |                   ^^^^^^^
+note: required by a bound in `spawn`</pre><p>The <code>thread::<wbr>spawn</code> function requires its argument to be <code>Send</code>,
+and a closure is only <code>Send</code> if all of its captures are.
+If we try to capture something that’s not <code>Send</code>,
+our mistake is caught, protecting us from undefined behavior.
+</p></section><section id="mutexes"><h2><a href="#mutexes">Locking: Mutexes and RwLocks</a></h2><p><a class="indexterm" id="index-mutexes"></a> 
+The most commonly used tool for sharing (mutable) data between threads is a <em>mutex</em>,
+which is short for "mutual exclusion."
+The job of a mutex is to ensure threads have exclusive access
+to some data by temporarily blocking other threads that try
+to access it at the same time.</p><p><a class="indexterm" id="index-blocking-mutexes"></a>
+Conceptually, a mutex has only two states: locked and unlocked.
+When a thread locks an unlocked mutex, the mutex is marked as locked
+and the thread can immediately continue.
+When a thread then attempts to lock an already locked mutex,
+that operation will <em>block</em>.
+The thread is put to sleep while it waits for the mutex to be unlocked.
+Unlocking is only possible on a locked mutex, and should be done
+by the same thread that locked it.
+If other threads are waiting to lock the mutex, unlocking will cause one
+of those threads to be woken up, so it can try to lock the mutex again
+and continue its course.</p><p>Protecting data with a mutex is simply the agreement between all threads
+that they will only access the data when they have the mutex locked.
+That way, no two threads can ever access that data concurrently and cause a data race.</p><section id="rusts-mutex"><h3><a href="#rusts-mutex">Rust’s Mutex</a></h3><p><a class="indexterm" id="index-Mutex-2"></a> <a class="indexterm" id="index-mutexes-MutextypeinRust"></a>
+The Rust standard library provides this functionality through <code>std::<wbr>sync::<wbr>Mutex&lt;T&gt;</code>.
+It is generic over a type <code>T</code>, which is the type of the data the mutex is protecting.
+By making this <code>T</code> part of the mutex, the data can only be accessed through the mutex,
+allowing for a safe interface that can guarantee all threads will uphold the agreement.</p><p>To ensure a locked mutex can only be unlocked by the thread that locked it,
+it does not have an <code>unlock()</code> method.
+<a class="indexterm" id="index-MutexGuard"></a> <a class="indexterm" id="index-guards-mutexguard"></a>
+Instead, its <code>lock()</code> method returns a special type called a <code>MutexGuard</code>.
+This guard represents the guarantee that we have locked the mutex.
+It behaves like an exclusive reference through the <code>DerefMut</code> trait,
+giving us exclusive access to the data the mutex protects.
+<a class="indexterm" id="index-DerefMuttrait"></a>
+Unlocking the mutex is done by dropping the guard.
+When we drop the guard, we give up our ability to access the data,
+and the <code>Drop</code> implementation of the guard will unlock the mutex.
+<a class="indexterm" id="index-Droptrait"></a></p><p><a class="indexterm" id="index-mutexes-example"></a>
+Let’s take a look at an example to see a mutex in practice:</p><pre>use std::sync::Mutex;
+
+fn main() {
+    let n = Mutex::new(0);
+    thread::scope(|s| {
+        for _ in 0..10 {
+            s.spawn(|| {
+                let mut guard = n.lock().unwrap();
+                for _ in 0..100 {
+                    *guard += 1;
+                }
+            });
+        }
+    });
+    assert_eq!(n.into_inner().unwrap(), 1000);
+}</pre><p>Here, we have a <code>Mutex&lt;i32&gt;</code>, a mutex protecting an integer,
+and we spawn ten threads to each increment the integer one hundred times.
+Each thread will first lock the mutex to obtain a <code>MutexGuard</code>,
+and then use that <code>guard</code> to access the integer and modify it.
+The <code>guard</code> is implicitly dropped right after,
+when that variable goes out of scope.</p><p><a class="indexterm" id="index-mutexes-intoinner"></a>
+After the threads are done, we can safely remove the protection from the integer through <code>into_<wbr>inner()</code>.
+The <code>into_<wbr>inner</code> method takes ownership of the mutex,
+which guarantees that nothing else can have a reference to the mutex anymore, making locking unnecessary.</p><p>Even though the increments happen in steps of one,
+a thread observing the integer would only ever see multiples of 100,
+since it can only look at the integer when the mutex is unlocked.
+Effectively, thanks to the mutex, the one hundred increments together are now a
+single indivisible—​atomic—​operation.</p><p>To clearly see the effect of the mutex, we can make each thread wait a second before unlocking the mutex:</p><pre>use std::time::Duration;
+
+fn main() {
+    let n = Mutex::new(0);
+    thread::scope(|s| {
+        for _ in 0..10 {
+            s.spawn(|| {
+                let mut guard = n.lock().unwrap();
+                for _ in 0..100 {
+                    *guard += 1;
+                }
+                thread::sleep(Duration::from_secs(1)); // New!
+            });
+        }
+    });
+    assert_eq!(n.into_inner().unwrap(), 1000);
+}</pre><p>When you run the program now, you will see that it takes about 10 seconds to complete.
+Each thread only waits for one second, but the mutex ensures that only one thread at a time can do so.</p><p><a class="indexterm" id="index-MutexGuard-dropping"></a> <a class="indexterm" id="index-guards-dropping"></a> <a class="indexterm" id="index-dropfunction"></a>
+If we drop the guard—and therefore unlock the mutex—before sleeping one second, we will see it happen in parallel instead:</p><pre>fn main() {
+    let n = Mutex::new(0);
+    thread::scope(|s| {
+        for _ in 0..10 {
+            s.spawn(|| {
+                let mut guard = n.lock().unwrap();
+                for _ in 0..100 {
+                    *guard += 1;
+                }
+                drop(guard); // New: drop the guard before sleeping!
+                thread::sleep(Duration::from_secs(1));
+            });
+        }
+    });
+    assert_eq!(n.into_inner().unwrap(), 1000);
+}</pre><p>With this change, this program takes only about one second,
+since now the 10 threads can execute their one-second sleep at the same time.
+This shows the importance of keeping the amount of time a mutex is locked as short as possible.
+Keeping a mutex locked longer than necessary can completely nullify any benefits of parallelism,
+effectively forcing everything to happen serially instead.</p></section><section id="lock-poisoning"><h3><a href="#lock-poisoning">Lock Poisoning</a></h3><p><a class="indexterm" id="index-lockpoisoning"></a> <a class="indexterm" id="index-poisoninglock"></a> <a class="indexterm" id="index-mutexes-poisoning"></a> <a class="indexterm" id="index-panicking-poisonedmutexes"></a>
+The <code>unwrap()</code> calls in the examples above relate to <em>lock poisoning</em>.</p><p>A <code>Mutex</code> in Rust gets marked as <em>poisoned</em> when a thread panics while holding the lock.
+When that happens, the <code>Mutex</code> will no longer be locked,
+but calling its <code>lock</code> method will result in an <code>Err</code> to indicate it has been poisoned.</p><p>This is a mechanism to protect against leaving the data that’s protected by a mutex in an inconsistent state.
+In our example above, if a thread would panic after incrementing the integer fewer than 100 times,
+the mutex would unlock and the integer would be left in an unexpected state where it is no longer a multiple of 100,
+possibly breaking assumptions made by other threads.
+Automatically marking the mutex as poisoned in that case forces the user to handle this possibility.</p><p>Calling <code>lock()</code> on a poisoned mutex still locks the mutex.
+The <code>Err</code> returned by <code>lock()</code> contains the <code>MutexGuard</code>,
+allowing us to correct an inconsistent state if <span>necessary</span>.</p><p>While lock poisoning might seem like a powerful mechanism,
+recovering from a potentially inconsistent state is not often done in practice.
+Most code either disregards poison or uses <code>unwrap()</code> to panic if the lock was poisoned,
+effectively propagating panics to all users of the mutex.</p><aside id="lifetime-of-mutexguard"><h4><a href="#lifetime-of-mutexguard">Lifetime of the MutexGuard</a></h4><p><a class="indexterm" id="index-lifetime-ofmutexguard"></a> <a class="indexterm" id="index-mutexes-lifetimeofmutexguard"></a> <a class="indexterm" id="index-MutexGuard-lifetimeof"></a>
+While it’s convenient that implicitly dropping a guard unlocks the mutex,
+it can sometimes lead to subtle surprises.
+If we assign the guard a name with a <code>let</code> statement (as in our examples above),
+it’s relatively straightforward to see when it will be dropped, since local variables are dropped at the end of the scope they are defined in.
+Still, not explicitly dropping a guard might lead to keeping the mutex locked for longer than necessary, as demonstrated in the examples above.</p><p>Using a guard <em>without</em> assigning it a name is also possible, and can be very convenient at times.
+Since a <code>MutexGuard</code> behaves like an exclusive reference to the protected data,
+we can directly use it without assigning a name to the guard first.
+For example, if you have a <code>Mutex&lt;Vec&lt;i32&gt;&gt;</code>, you can lock the mutex, push an item into the <code>Vec</code>, and unlock the mutex again, in a single statement:</p><pre>list.lock().unwrap().push(1);</pre><p>Any temporaries produced within a larger expression, such as the guard returned by <code>lock()</code>, will be dropped at the end of the statement.
+While this might seem obvious and reasonable, it leads to a common pitfall that usually involves a <code>match</code>, <code>if let</code>, or <code>while let</code> statement.
+Here is an example that runs into this pitfall:</p><pre>if let Some(item) = list.lock().unwrap().pop() {
+    process_item(item);
+}</pre><p>If our intention was to lock the list, pop an item, unlock the list, and <em>then</em> process the item after the list is unlocked,
+we made a subtle but important mistake here.
+<a class="indexterm" id="index-ifletstatement-lifetimeoftemporaries"></a>
+The temporary guard is not dropped until the end of the entire <code>if let</code> statement,
+meaning we needlessly hold on to the lock while processing the item.</p><p>Perhaps surprisingly, this does not happen for a similar <code>if</code> statement, such as in this example:</p><pre>if list.lock().unwrap().pop() == Some(1) {
+    do_something();
+}</pre><p>Here, the temporary guard does get dropped before the body of the <code>if</code> statement is executed.
+The reason is that the condition of a regular <code>if</code> statement is always a plain boolean, which cannot borrow anything.
+There is no reason to extend the lifetime of temporaries from the condition to the end of the statement.
+For an <code>if let</code> statement, however, that might not be the case.
+If we had used <code>front()</code> rather than <code>pop()</code>, for example, <code>item</code> would be borrowing from the list,
+making it necessary to keep the guard around.
+Since the borrow checker is only really a check and does <em>not</em> influence when or in what order things are dropped,
+the same happens when we use <code>pop()</code>, even though that wouldn’t have been necessary.</p><p>We can avoid this by moving the pop operation to a separate <code>let</code> statement.
+Then the <code>guard</code> is dropped at the end of that statement, before the <code>if let</code>:</p><pre>let item = list.lock().unwrap().pop();
+if let Some(item) = item {
+    process_item(item);
+}</pre></aside></section><section id="reader-writer-lock"><h3><a href="#reader-writer-lock">Reader-Writer Lock</a></h3><p><a class="indexterm" id="index-reader-writerlocks"></a> <a class="indexterm" id="index-RwLock-2"></a>
+A mutex is only concerned with exclusive access.
+The <code>MutexGuard</code> will provide us an exclusive reference (<code>&amp;mut T</code>) to the protected data,
+even if we only wanted to look at the data and a shared reference (<code>&amp;T</code>) would have sufficed.</p><p>A reader-writer lock is a slightly more complicated version of a mutex
+that understands the difference between exclusive and shared access, and can provide either.
+It has three states: unlocked, locked by a single <em>writer</em> (for exclusive access),
+and locked by any number of <em>readers</em> (for shared access).
+It is commonly used for data that is often read by multiple threads, but only updated once in a while.</p><p>The Rust standard library provides this lock through the <code>std::<wbr>sync::<wbr>RwLock&lt;T&gt;</code> type.
+It works similarly to the standard <code>Mutex</code>, except its interface is mostly split in two parts.
+Instead of a single <code>lock()</code> method, it has a <code>read()</code> and <code>write()</code> method for locking as either a reader or a writer.
+It comes with two guard types, one for readers and one for writers: <code>RwLockReadGuard</code> and <code>RwLockWriteGuard</code>.
+<a class="indexterm" id="index-RwLockWriteGuard"></a> <a class="indexterm" id="index-RwLockReadGuard"></a> <a class="indexterm" id="index-guards-writeguard"></a> <a class="indexterm" id="index-guards-readguard"></a>
+The former only implements <code>Deref</code> to behave like a shared reference to the protected data,
+while the latter also implements <code>DerefMut</code> to behave like an exclusive reference.
+<a class="indexterm" id="index-Dereftrait"></a> <a class="indexterm" id="index-DerefMuttrait-2"></a></p><p>It is effectively the multi-threaded version of <code>RefCell</code>, dynamically tracking the number of references to ensure the borrow rules are upheld.
+<a class="indexterm" id="index-RefCell-RwLockcomparedto"></a></p><p>Both <code>Mutex&lt;T&gt;</code> and <code>RwLock&lt;T&gt;</code> require <code>T</code> to be <code>Send</code>, because they can be used to send a <code>T</code> to another thread.
+<a class="indexterm" id="index-Sendtrait-requirementbyMutexandRwLock"></a> <a class="indexterm" id="index-mutexes-Sendrequirement"></a> <a class="indexterm" id="index-reader-writerlocks-Sendrequirement"></a>
+An <code>RwLock&lt;T&gt;</code> additionally requires <code>T</code> to also implement <code>Sync</code>,
+because it allows multiple threads to hold a shared reference (<code>&amp;T</code>) to the protected data.
+<a class="indexterm" id="index-Synctrait-requirementbyRwLock"></a> <a class="indexterm" id="index-reader-writerlocks-Syncrequirement"></a>
+(Strictly speaking, you can create a lock for a <code>T</code> that doesn’t fulfill these requirements,
+but you wouldn’t be able to share it between threads as the lock itself won’t implement <code>Sync</code>.)</p><p>The Rust standard library provides only one general purpose <code>RwLock</code> type,
+but its implementation depends on the operating system.
+There are many subtle variations between reader-writer lock implementations.
+Most implementations will block new readers when there is a writer waiting,
+even when the lock is already read-locked.
+<a class="indexterm" id="index-reader-writerlocks-writerstarvation"></a> <a class="indexterm" id="index-writerstarvation"></a> <a class="indexterm" id="index-starvation"></a>
+This is done to prevent <em>writer starvation</em>, a situation where many readers
+collectively keep the lock from ever unlocking, never allowing any writer to
+update the data.</p><aside id="mutexes-in-other-languages"><h4><a href="#mutexes-in-other-languages">Mutexes in Other Languages</a></h4><p><a class="indexterm" id="index-mutexes-inotherlanguages"></a>
+Rust’s standard <code>Mutex</code> and <code>RwLock</code> types look a bit different than
+those you find in other languages like C or C++.</p><p><a class="indexterm" id="index-mutexes-ascontainer"></a>
+The biggest difference is that Rust’s <code>Mutex&lt;T&gt;</code> <em>contains</em> the data it is protecting.
+In C++, for example, <code>std::<wbr>mutex</code> does not contain the data it protects, nor does it even
+know what it is protecting.
+This means that it is the responsibility of the user to remember which data is protected and by which mutex,
+and ensure the right mutex is locked every time "protected" data is accessed.
+This is useful to keep in mind when reading code involving mutexes in other languages,
+or when communicating with programmers who are not familiar with Rust.
+A Rust programmer might talk about "the data inside the mutex," or say things like "wrap it in a mutex," which can be confusing to those only familiar with mutexes in other languages.</p><p>If you really need a stand-alone mutex that doesn’t contain anything,
+for example to protect some external hardware, you can use <code>Mutex&lt;()&gt;</code>.
+But even in a case like that, you are probably better off defining a (possibly zero-sized)
+type to interface with that hardware and wrapping that in a <code>Mutex</code> instead.
+That way, you are still forced to lock the mutex before you can interact with the hardware.
+ </p></aside></section></section><section id="waiting"><h2><a href="#waiting">Waiting: Parking and Condition Variables</a></h2><p>When data is mutated by multiple threads,
+there are many situations where they would need to wait for some event, for some condition about the data to become true.
+For example, if we have a mutex protecting a <code>Vec</code>,
+we might want to wait until it contains anything.</p><p>While a mutex does allow threads to wait until it becomes unlocked,
+it does not provide functionality for waiting for any other conditions.
+If a mutex was all we had, we’d have to keep locking the mutex to repeatedly check if there’s anything in the <span><code>Vec</code> yet</span>.</p><section id="parking"><h3><a href="#parking">Thread Parking</a></h3><p>  <a class="indexterm" id="index-threadparking"></a>  
+One way to wait for a notification from another thread is called <em>thread parking</em>.
+A thread can <em>park</em> itself, which puts it to sleep, stopping it from consuming any CPU cycles.
+Another thread can then <em>unpark</em> the parked thread, waking it up from its nap.</p><p><a class="indexterm" id="index-currentthread-3"></a> <a class="indexterm" id="index-Threadobject-unpark"></a>
+Thread parking is available through the <code>std::<wbr>thread::<wbr>park()</code> function.
+For unparking, you call the <code>unpark()</code> method on a <code>Thread</code> object representing the thread that you want to unpark.
+Such an object can be obtained from the join handle returned by <code>spawn</code>,
+or by the thread itself through  <code>std::<wbr>thread::<wbr>current()</code>.</p><p>Let’s dive into an example that uses a mutex to share a queue between two threads.
+In the following example,
+a newly spawned thread will consume items from the queue,
+while the main thread will insert a new item into the queue every second.
+Thread parking is used to make the consuming thread wait when the queue is empty.</p><pre>use std::collections::VecDeque;
+
+fn main() {
+    let queue = Mutex::new(VecDeque::new());
+
+    thread::scope(|s| {
+        // Consuming thread
+        let t = s.spawn(|| loop {
+            let item = queue.lock().unwrap().pop_front();
+            if let Some(item) = item {
+                dbg!(item);
+            } else {
+                thread::park();
+            }
+        });
+
+        // Producing thread
+        for i in 0.. {
+            queue.lock().unwrap().push_back(i);
+            t.thread().unpark();
+            thread::sleep(Duration::from_secs(1));
+        }
+    });
+}</pre><p>The consuming thread runs an infinite loop in which it pops items out of the queue to display them using the <code>dbg</code> macro.
+When the queue is empty, it stops and goes to sleep using the <code>park()</code> function.
+If it gets unparked, the <code>park()</code> call returns, and the <code>loop</code> continues,
+popping items from the queue again until it is empty.
+And so on.</p><p>The producing thread produces a new number every second by pushing it into the queue.
+Every time it adds an item, it uses the <code>unpark()</code> method on the <code>Thread</code> object that refers to the consuming thread to unpark it.
+That way, the consuming thread gets woken up to process the new element.</p><p>An important observation to make here is that this program would still be theoretically correct,
+although inefficient, if we remove parking.
+This is important, because <code>park()</code> does not guarantee that it will only return because of a matching <code>unpark()</code>.
+While somewhat rare, it might have <em>spurious wake-ups</em>.
+Our example deals with that just fine, because the consuming thread will lock the queue,
+see that it is empty, and directly unlock it and park itself again.
+<a class="indexterm" id="index-spuriouswake-ups"></a> <a class="indexterm" id="index-threadparking-spuriouswake-ups"></a></p><p>An important property of thread parking is that a call to <code>unpark()</code> <em>before</em> the thread parks itself does not get lost.
+The request to unpark is still recorded, and the next time the thread tries to park itself,
+it clears that request and directly continues without actually going to sleep.
+To see why that is critical for correct operation, let’s go through a possible ordering of the steps executed by both threads:</p><ol><li><p>The consuming thread—let’s call it C—locks the queue.</p></li><li><p>C tries to pop an item from the queue, but it is empty, resulting in <code>None</code>.</p></li><li><p>C unlocks the queue.</p></li><li><p>The producing thread, which we’ll call P, locks the queue.</p></li><li><p>P pushes a new item onto the queue.</p></li><li><p>P unlocks the queue again.</p></li><li><p>P calls <code>unpark()</code> to notify C that there are new items.</p></li><li><p>C calls <code>park()</code> to go to sleep, to wait for more items.</p></li></ol><p>While there is most likely only a very brief moment between releasing the queue in step 3 and parking in step 8,
+steps 4 through 7 could potentially happen in that moment before the thread parks itself.
+If <code>unpark()</code> would do nothing if the thread wasn’t parked, the notification would be lost.
+The consuming thread would still be waiting, even if there were an item in the queue.
+Thanks to unpark requests getting saved for a future call to <code>park()</code>, we don’t have to worry about this.</p><p>However, unpark requests don’t stack up.
+Calling <code>unpark()</code> two times and then calling <code>park()</code> two times afterwards still results in the thread going to sleep.
+The first <code>park()</code> clears the request and returns directly, but the second one goes to sleep as usual.</p><p>This means that in our example above it’s important that we only park the thread
+if we’ve seen the queue is empty, rather than park it after every processed item.
+While it’s extremely unlikely to happen in this example because of the huge (one second) sleep,
+it’s possible for multiple <code>unpark()</code> calls to wake up only a single <code>park()</code> call.</p><p>Unfortunately, this does mean that if <code>unpark()</code> is called right after
+<code>park()</code> returns, but before the queue gets locked and emptied out,
+the <code>unpark()</code> call was unnecessary but still causes the next <code>park()</code> call to instantly return.
+This results in the (empty) queue getting locked and unlocked an extra time.
+While this doesn’t affect the correctness of the program, it does affect its efficiency and performance.</p><p>This mechanism works well for simple situations like in our example,
+but quickly breaks down when things get more complicated.
+For example, if we had multiple consumer threads taking items from the same queue,
+the producer thread would have no way of knowing which of the consumers is actually waiting and should be woken up.
+The producer will have to know exactly when a consumer is waiting, and what condition it is waiting for.
+</p></section><section id="condvar"><h3><a href="#condvar">Condition Variables</a></h3><p><a class="indexterm" id="index-conditionvariables"></a> <a class="indexterm" id="index-blocking-conditionvariables"></a>
+Condition variables are a more commonly used option for waiting for something to happen to data protected by a mutex.
+They have two basic operations: <em>wait</em> and <em>notify</em>.
+Threads can wait on a condition variable,
+after which they can be woken up when another thread notifies that same condition variable.
+Multiple threads can wait on the same condition variable, and notifications can either be sent to one waiting thread, or to all of them.</p><p>This means that we can create a condition variable for specific events or conditions we’re interested in,
+such as the queue being non-empty, and wait on that condition.
+Any thread that causes that event or condition to happen then notifies the condition variable,
+without having to know which or how many threads are interested in that notification.</p><p>To avoid the issue of missing notifications in the brief moment between unlocking a mutex and waiting for a condition variable,
+condition variables provide a way to <em>atomically</em> unlock the mutex and start waiting.
+This means there is simply no possible moment for notifications to get lost.</p><p><a class="indexterm" id="index-Condvar"></a>
+The Rust standard library provides a condition variable as <code>std::<wbr>sync::<wbr>Condvar</code>.
+Its <code>wait</code> method takes a <code>MutexGuard</code> that proves we’ve locked the mutex.
+It first unlocks the mutex and goes to sleep.
+Later, when woken up, it relocks the mutex and returns a new <code>MutexGuard</code>
+(which proves that the mutex is locked again).</p><p>It has two notify functions: <code>notify_<wbr>one</code> to wake up just one waiting thread (if any),
+and <code>notify_<wbr>all</code> to wake them all up.</p><p>Let’s modify the example we used for thread parking to use <code>Condvar</code> instead:
+<a class="indexterm" id="index-conditionvariables-example"></a></p><pre>use std::sync::Condvar;
+
+let queue = Mutex::new(VecDeque::new());
+let not_empty = Condvar::new();
+
+thread::scope(|s| {
+    s.spawn(|| {
+        loop {
+            let mut q = queue.lock().unwrap();
+            let item = loop {
+                if let Some(item) = q.pop_front() {
+                    break item;
+                } else {
+                    q = not_empty.wait(q).unwrap();
+                }
+            };
+            drop(q);
+            dbg!(item);
+        }
+    });
+
+    for i in 0.. {
+        queue.lock().unwrap().push_back(i);
+        not_empty.notify_one();
+        thread::sleep(Duration::from_secs(1));
+    }
+});</pre><p>We had to change a few things:</p><ul><li><p>We now not only have a <code>Mutex</code> containing the queue, but also a <code>Condvar</code> to communicate the "not empty" condition.</p></li><li><p>We no longer need to know which thread to wake up, so we don’t store the return value from <code>spawn</code> anymore.
+Instead, we notify the consumer through the condition variable with the <code>notify_<wbr>one</code> method.</p></li><li><p>Unlocking, waiting, and relocking is all done by the <code>wait</code> method.
+We had to restructure the control flow a bit to be able to pass the guard to the <code>wait</code> method,
+while still dropping it before processing an item.</p></li></ul><p>Now we can spawn as many consuming threads as we like, and even spawn more later, without having to change anything.
+The condition variable takes care of delivering the notifications to whichever thread is interested.</p><p>If we had a more complicated system with threads that are interested in different conditions,
+we could define a <code>Condvar</code> for each condition.
+For example, we could define one to indicate the queue is non-empty and another one to indicate it is empty.
+Then each thread would wait for whichever condition is relevant to what they are doing.</p><p>Normally, a <code>Condvar</code> is only ever used together with a single <code>Mutex</code>.
+If two threads try to concurrently <code>wait</code> on a condition variable using two different mutexes,
+it might cause a panic.
+<a class="indexterm" id="index-panicking-usingaCondvarwithmultiplemutexes"></a></p><p>A downside of a <code>Condvar</code> is that it only works when used together with a <code>Mutex</code>,
+but for most use cases that is perfectly fine, as that’s exactly what’s already used to protect the data anyway.</p><p>Both <code>thread::<wbr>park()</code> and <code>Condvar::<wbr>wait()</code> also have a variant with a time limit:
+<code>thread::<wbr>park_<wbr>timeout()</code> and <code>Condvar::<wbr>wait_<wbr>timeout()</code>.
+These take a <code>Duration</code> as an extra argument, which is the time after which it should
+give up waiting for a notification and unconditionally wake up.
+<a class="indexterm" id="index-conditionvariables-timeout"></a> <a class="indexterm" id="index-threadparking-timeout"></a> <a class="indexterm" id="index-timeout-conditionvariables"></a> <a class="indexterm" id="index-timeout-threadparking"></a> </p></section></section><section id="summary"><h2><a href="#summary">Summary</a></h2><ul><li><p>Multiple threads can run concurrently within the same program and can be spawned at any time.</p></li><li><p>When the main thread ends, the entire program ends.</p></li><li><p>Data races are undefined behavior, which is fully prevented (in safe code) by Rust’s type system.</p></li><li><p>Data that is <code>Send</code> can be sent to other threads, and data that is <code>Sync</code> can be shared between threads.</p></li><li><p>Regular threads might run as long as the program does, and thus can only borrow <code>'static</code> data such as statics and leaked allocations.</p></li><li><p>Reference counting (<code>Arc</code>) can be used to share ownership to make sure data lives as long as at least one thread is using it.</p></li><li><p>Scoped threads are useful to limit the lifetime of a thread to allow it to borrow non-<code>'static</code> data, such as local variables.</p></li><li><p><code>&amp;T</code> is a <em>shared</em> reference. <code>&amp;mut T</code> is an <em>exclusive</em> reference. Regular types do not allow mutation through a shared reference.</p></li><li><p>Some types have interior mutability, thanks to <code>UnsafeCell</code>, which allows for mutation through shared references.</p></li><li><p><code>Cell</code> and <code>RefCell</code> are the standard types for single-threaded interior mutability.
+Atomics, <code>Mutex</code>, and <code>RwLock</code> are their multi-threaded equivalents.</p></li><li><p><code>Cell</code> and atomics only allow replacing the value as a whole,
+while <code>RefCell</code>, <code>Mutex</code>, and <code>RwLock</code> allow you to mutate the value directly by dynamically <span>enforcing</span> access rules.</p></li><li><p>Thread parking can be a convenient way to wait for some condition.</p></li><li><p>When a condition is about data protected by a <code>Mutex</code>,
+  using a <code>Condvar</code> is more convenient, and can be more efficient, than thread parking.
+ </p></li></ul></section></article><nav class="next"><a href="atomics.html">Next: Chapter 2. Atomics</a></nav></div>
+<footer>
+<p><a href=".">Rust Atomics and Locks</a><br>&copy; 2023 ♥ Mara Bos</p>
+<p><a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License" src="https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png"></a></p>
+<p class="report-issue"><a href="https://github.com/m-ou-se/rust-atomics-and-locks/issues/">Report an issue</a></p>
+</footer>
+</body>
+</html>
