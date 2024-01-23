@@ -276,6 +276,7 @@ func readDoc(parent *tags) (*tags, bool) {
 							if child_len > 0 {
 								last_child := tag.children[child_len-1]
 								last_child.next = new_child
+								new_child.prev = last_child
 							}
 							tag.children = append(tag.children, new_child)
 						}
@@ -401,20 +402,24 @@ func main() {
 	for _, v := range anchors {
 		fmt.Println("links ", v.attributes["href"])
 	}
-	fmt.Println("root ", root.children[0])
+	//fmt.Println("root ", root.children[0])
 	data := struct {
-		name string
-		last string
-		like string
-		here string
-		set  string
+		Runner []int
+		Set    string
+		Like   string
+		Name   string
+		Seth   string
+		WE     string
 	}{
-		name: "Hello",
-		last: "world",
-		set:  "set",
-		here: "in the house",
+		Runner: []int{1, 2},
+		//Set:    "like",
+		Like: "set",
+		Seth: "jkl",
+		Name: "FIFA 23",
+		WE:   "We",
 	}
 	root = Rebuild(root, data)
-	fmt.Println("recontruct ", root.children[0].children[1].children[0].children[0])
+	fmt.Println("recontruct ", root.children[0].children[0])
+	//fmt.Println("recontruct ", root.children[0].children[2].children[1].children[0])
 	//fmt.Println("recontruct ", root.children[0].children[1].children[0])
 }
