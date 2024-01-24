@@ -193,7 +193,6 @@ func findNextElse(tag *tags) *tags {
 }
 
 func addNodes(tag *tags, stack []*tags) []*tags {
-	//fmt.Println("who called you ", tag)
 	v := tag.next
 	var ignore bool
 	for v != nil {
@@ -387,6 +386,8 @@ func subcommands(command string, tag *tags, link Node, mapper map[string]interfa
 		}
 		stack, end_tag := addNodesUntilEnd(tag, nls)
 
+		fmt.Println("node untilo end ", end_tag, tag.next.next)
+
 		new_stack := make([]*tags, 0)
 
 		for ; ll >= 0; ll -= 1 {
@@ -395,6 +396,21 @@ func subcommands(command string, tag *tags, link Node, mapper map[string]interfa
 		new_stack = append(new_stack, addNodes(end_tag, make([]*tags, 0))...)
 		fmt.Println("new linker ", tag.links.head.next)
 		return new_stack
+	} else {
+		head := tag.links.head
+
+		repl := head.replacement
+
+		val, ok := mapper[repl]
+
+		if !ok {
+			log.Fatalf("\n\n no value set for %s", repl)
+		}
+
+		if val != "" {
+			stack = append(stack, addNodes(tag, make([]*tags, 0))...)
+			return stack
+		}
 	}
 	return []*tags{}
 }
@@ -407,8 +423,7 @@ func goLinks(tag *tags, mapper map[string]interface{}, head *Node, prev []*tags)
 		log.Fatal("Provide a condition to check for")
 	}
 	value, ok := mapper[replacement]
-
-	if ok && value != nil {
+	if ok && value != "" {
 		// find the elements within range of
 		if len(prev) == 0 {
 			// get all previous nodes
@@ -426,12 +441,19 @@ func goLinks(tag *tags, mapper map[string]interface{}, head *Node, prev []*tags)
 				crl := len(replacers_command)
 				for i, v := range replacers_command {
 					if v.command == "" {
-						_, ok := mapper[v.replacement]
-						if !ok {
-							log.Fatalf("\nno value received for %s ", v.replacement)
+						if v.replacement != "" {
+							_, ok := mapper[v.replacement]
+							if !ok {
+								log.Fatalf("\nno value received for %s ", v.replacement)
+							}
 						}
-						insert(mapper[v.replacement].(string), new_tag_link)
+						if v.replacement != "" {
+							insert(mapper[v.replacement].(string), new_tag_link)
+						} else {
+							insert(v.value, new_tag_link)
+						}
 					} else {
+						fmt.Println("do we ever come here ", tag)
 						if i+1 < crl {
 							repl := v.replacement
 							val, ok := mapper[repl]
@@ -494,7 +516,14 @@ func goLinks(tag *tags, mapper map[string]interface{}, head *Node, prev []*tags)
 		} else {
 			stack = subcommands(link.head.command, tag, *link.head, mapper, nil)
 			stack = append(prev, stack...)
+			return nil, stack
 		}
+	} else {
+		next_command_tag := findNextElse(tag)
+		if next_command_tag.links.head.command == "elif" {
+			return goLinks(next_command_tag, mapper, next_command_tag.links.head, prev)
+		}
+
 	}
 	return nil, stack
 }
@@ -601,7 +630,6 @@ func Replacer(root *tags, data interface{}) *tags {
 			}
 		}
 	}
-	fmt.Println("linkers size ", len(linkers))
 	for _, v := range linkers {
 		var prev []*tags
 		//fmt.Println("linkers ", v)

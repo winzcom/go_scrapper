@@ -390,7 +390,7 @@ func main() {
 
 	// defer resp.Body.Close()
 
-	b, _ := os.Open("./html/text.html")
+	b, _ := os.Open("./html/tc.html")
 
 	reader = bufio.NewReader(b)
 	root := rootPoint()
@@ -412,14 +412,14 @@ func main() {
 		WE     string
 	}{
 		Runner: []int{1, 2},
-		//Set:    "like",
-		Like: "set",
+		Set:    "like",
+		//Like: "set",
 		Seth: "jkl",
 		Name: "FIFA 23",
 		WE:   "We",
 	}
 	root = Rebuild(root, data)
-	fmt.Println("recontruct ", root.children[0].children[0])
+	fmt.Println("recontruct ", root.children[0].children[2])
 	//fmt.Println("recontruct ", root.children[0].children[2].children[1].children[0])
 	//fmt.Println("recontruct ", root.children[0].children[1].children[0])
 }

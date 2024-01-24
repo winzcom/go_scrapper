@@ -4,7 +4,7 @@
 			<h1>See</h1>
 			<h2>Name</h2>
 			{{if .Like}} {{.WE}}<div>{{.}}<p></p></div>
-			{{else}} {{range .Runner}}<p>Hello</p>
+			{{elif .Set}} <p>Hello world</p> {{else}} {{range .Runner}}<p>Hello</p>
 			{{end}}
 			<a>!!!!</a>
 		</p>
