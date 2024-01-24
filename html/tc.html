@@ -1,8 +1,9 @@
 <html>
 	<body>
 		<pre>{{.Like}}</pre>
-		{{if .Name}}<p></p>{{elif .Set}} {{range .Runner}}<a></a>{{else}}<h1></h1>{{end}}
-		<p>{{range .Runner}}<address></address><b></b>{{end}}</p>
-		<aside>{{if .Like}} {{.Seth}} {{end}}</aside>
+		{{if .Name}}<p>Hello</p>{{elif .Set}} {{range .Runner}}<a></a>{{else}}<h1></h1>{{end}}
+		<canvas>{{range .Runner}}<address></address><b></b>{{end}}</canvas>
+		<aside>{{if .Like}} {{.Seth}} {{else}} {{.Name}} {{end}}</aside>
+		<ol>{{if .Name}}<li>Yes</li>{{else}}<li>No</li>{{end}}</ol>
 	</body>
 </html>

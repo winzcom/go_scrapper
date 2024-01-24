@@ -162,8 +162,21 @@ func findNextEnd(l *Node) *Node {
 		if l.command == "" || l.command != "end" {
 			l = l.next
 		} else {
-			return l.next
+			fmt.Println("finder end ", l)
+			return l
 		}
+	}
+}
+
+func findNextElseLink(l *Node) *Node {
+	for {
+		if l == nil {
+			return nil
+		}
+		if l.command != "" && (l.command == "elif" || l.command == "else") {
+			return l
+		}
+		l = l.next
 	}
 }
 
@@ -342,6 +355,10 @@ func walkLinks(link *Node) []*Node {
 			if not_allowed_command[cur.command] {
 				ignore = true
 			}
+			if cur.command == "end" {
+				cur = cur.next
+				continue
+			}
 		}
 		if !ignore {
 			replacers_commands = append(replacers_commands, cur)
@@ -386,144 +403,218 @@ func subcommands(command string, tag *tags, link Node, mapper map[string]interfa
 		}
 		stack, end_tag := addNodesUntilEnd(tag, nls)
 
-		fmt.Println("node untilo end ", end_tag, tag.next.next)
-
 		new_stack := make([]*tags, 0)
 
 		for ; ll >= 0; ll -= 1 {
 			new_stack = append(new_stack, stack...)
 		}
-		new_stack = append(new_stack, addNodes(end_tag, make([]*tags, 0))...)
-		fmt.Println("new linker ", tag.links.head.next)
+		nlso := addNodes(end_tag, make([]*tags, 0))
+		new_stack = append(new_stack, nlso...)
+
 		return new_stack
 	} else {
 		head := tag.links.head
 
-		repl := head.replacement
-
-		val, ok := mapper[repl]
-
-		if !ok {
-			log.Fatalf("\n\n no value set for %s", repl)
+		if &link != nil {
+			head = &link
 		}
+		if command == "else" {
 
-		if val != "" {
-			stack = append(stack, addNodes(tag, make([]*tags, 0))...)
-			return stack
+		} else {
+			repl := head.replacement
+			if repl != "" {
+				val, ok := mapper[repl]
+				new_stack, end_tag := addNodesUntilEnd(tag, make([]*tags, 0))
+
+				if len(new_stack) > 0 {
+					new_stack = append(new_stack, addNodes(end_tag, make([]*tags, 0))...)
+				}
+
+				if !ok {
+					fmt.Println("hgggg ", head)
+					log.Fatalf("\n\n no value set for %s", repl)
+				}
+
+				if val != "" {
+					return new_stack
+				} else {
+					//  l := findNextElseLink(&link)
+				}
+			} else {
+				stack = append(stack, addNodes(tag, make([]*tags, 0))...)
+				return stack
+			}
 		}
 	}
 	return []*tags{}
 }
 
+func linkWalker(tag *tags, replacers_command []*Node, mapper map[string]interface{}, new_tag_link *NodeLink, prev []*tags, link *Node) (*NodeLink, []*tags) {
+	if len(replacers_command) > 0 {
+
+		crl := len(replacers_command)
+		for i, v := range replacers_command {
+			if v.command == "" {
+				if v.replacement != "" {
+					_, ok := mapper[v.replacement]
+					if !ok {
+						log.Fatalf("\nno value received for %s ", v.replacement)
+					}
+				}
+				if v.replacement != "" {
+					insert(mapper[v.replacement].(string), new_tag_link)
+				} else {
+					insert(v.value, new_tag_link)
+				}
+			} else {
+				if i+1 < crl {
+					repl := v.replacement
+					val, ok := mapper[repl]
+					if ok && val != nil {
+						//lel := len(val.([]int))
+						wlinks := walkLinks(v)
+						nl := refixLinks(wlinks)
+						for _, v := range wlinks {
+							if v.command == "" && v.replacement != "" {
+								_, ok := mapper[v.replacement]
+								if !ok {
+									log.Fatalf("\nno value received for %s ", v.replacement)
+								}
+								insert(mapper[v.replacement].(string), nl)
+							}
+						}
+						new_tag_link = joinLinks(new_tag_link, nl)
+						tag.links.head = new_tag_link.head
+						// are we done
+						var stack []*tags
+						if tag.next != nil {
+							var ts *tags
+							if nl != nil {
+								ts = tag
+							}
+							stack = subcommands(v.command, tag, *v, mapper, ts)
+						}
+						stack = append(prev, stack...)
+						return nil, stack
+					}
+				} else {
+					var ts *tags
+					if new_tag_link.head != nil {
+						ts = tag
+						ts.links = new_tag_link
+					}
+					new_stack := subcommands(v.command, tag, *v, mapper, ts)
+					stack = append(prev, new_stack...)
+					return nil, stack
+				}
+				break
+			}
+		}
+		var ts *tags
+		if new_tag_link.head != nil {
+			ts = tag
+			ts.links = new_tag_link
+		}
+		tag.links = new_tag_link
+		new_s := make([]*tags, 0)
+		if ts != nil {
+			new_s = append(new_s, ts)
+		}
+		nk, end_t := addNodesUntilEnd(tag, new_s)
+		var rend *tags = end_t
+		if rend == nil {
+			elink := findNextEnd(link)
+			tag.links = new_tag_link
+			if elink != nil {
+				rend = tag
+			}
+			new_stack := []*tags{tag}
+
+			new_stack = append(prev, new_stack...)
+
+			new_stack = append(new_stack, addNodes(tag, make([]*tags, 0))...)
+			return nil, new_stack
+		}
+		stack = append(stack, nk...)
+		stack = append(stack, addNodes(rend, make([]*tags, 0))...)
+		stack = append(prev, stack...)
+		return nil, stack
+	}
+	return nil, stack
+}
+
 func goLinks(tag *tags, mapper map[string]interface{}, head *Node, prev []*tags) (*NodeLink, []*tags) {
-	replacement := tag.links.head.replacement
+	var replacement string = tag.links.head.replacement
+	if head != nil {
+		replacement = head.replacement
+	}
 
 	link := tag.links
 	if replacement == "" {
 		log.Fatal("Provide a condition to check for")
 	}
+	var start_head *Node = link.head
+
+	if head != nil {
+		start_head = head
+	}
+
+	if len(prev) == 0 && tag.links.head.command == "if" {
+		// get all previous nodes
+		prev = lookForPrev(tag)
+	}
+
 	value, ok := mapper[replacement]
 	if ok && value != "" {
 		// find the elements within range of
-		if len(prev) == 0 {
-			// get all previous nodes
-			prev = lookForPrev(tag)
-		}
-		if link.head != nil && link.head.next != nil {
-			replacers_command := walkLinks(link.head)
+		if start_head != nil && start_head.next != nil {
+			replacers_command := walkLinks(start_head)
 			// if len(commands) == 0 {
 			// 	replaceContent(re)
 			// }
 			// traverse the links
 			new_tag_link := newLink()
-			if len(replacers_command) > 0 {
-
-				crl := len(replacers_command)
-				for i, v := range replacers_command {
-					if v.command == "" {
-						if v.replacement != "" {
-							_, ok := mapper[v.replacement]
-							if !ok {
-								log.Fatalf("\nno value received for %s ", v.replacement)
-							}
-						}
-						if v.replacement != "" {
-							insert(mapper[v.replacement].(string), new_tag_link)
-						} else {
-							insert(v.value, new_tag_link)
-						}
-					} else {
-						fmt.Println("do we ever come here ", tag)
-						if i+1 < crl {
-							repl := v.replacement
-							val, ok := mapper[repl]
-							if ok && val != nil {
-								//lel := len(val.([]int))
-								wlinks := walkLinks(v)
-								fmt.Println("washt sls ", wlinks)
-								nl := refixLinks(wlinks)
-								for _, v := range wlinks {
-									if v.command == "" && v.replacement != "" {
-										_, ok := mapper[v.replacement]
-										if !ok {
-											log.Fatalf("\nno value received for %s ", v.replacement)
-										}
-										insert(mapper[v.replacement].(string), nl)
-									}
-								}
-								new_tag_link = joinLinks(new_tag_link, nl)
-								tag.links.head = new_tag_link.head
-								// are we done
-								var stack []*tags
-								if tag.next != nil {
-									var ts *tags
-									if nl != nil {
-										ts = tag
-									}
-									stack = subcommands(v.command, tag, *v, mapper, ts)
-								}
-								stack = append(prev, stack...)
-								return nil, stack
-							}
-						} else {
-							var ts *tags
-							if new_tag_link.head != nil {
-								ts = tag
-								ts.links = new_tag_link
-							}
-							stack = subcommands(v.command, tag, *v, mapper, ts)
-							stack = append(prev, stack...)
-						}
-						break
-					}
-				}
-				var ts *tags
-				if new_tag_link.head != nil {
-					ts = tag
-					ts.links = new_tag_link
-				}
-				tag.links = new_tag_link
-				new_s := make([]*tags, 0)
-				if ts != nil {
-					new_s = append(new_s, ts)
-				}
-				nk, end_t := addNodesUntilEnd(tag, new_s)
-				stack = append(stack, nk...)
-				stack = append(stack, addNodes(end_t, make([]*tags, 0))...)
-				stack = append(prev, stack...)
-				return nil, stack
-			}
+			link_walks, stack_walk := linkWalker(
+				tag, replacers_command,
+				mapper, new_tag_link, prev,
+				start_head,
+			)
+			return link_walks, stack_walk
 		} else {
-			stack = subcommands(link.head.command, tag, *link.head, mapper, nil)
-			stack = append(prev, stack...)
+
+			new_stack := subcommands(link.head.command, tag, *link.head, mapper, nil)
+			stack = append(prev, new_stack...)
 			return nil, stack
 		}
 	} else {
-		next_command_tag := findNextElse(tag)
-		if next_command_tag.links.head.command == "elif" {
-			return goLinks(next_command_tag, mapper, next_command_tag.links.head, prev)
-		}
+		//var starter_head *Node
+		linking := tag.links.head
 
+		if head != nil {
+			linking = head
+		}
+		var next_command_tag *tags
+		l := findNextElseLink(linking)
+		if l != nil {
+			next_command_tag = tag
+			linking = l
+		} else {
+			next_command_tag = findNextElse(tag)
+			linking = next_command_tag.links.head
+		}
+		if linking.command == "elif" {
+			return goLinks(next_command_tag, mapper, linking, prev)
+		}
+		if l != nil {
+			replacers_command := walkLinks(l)
+			if tag.parent.name == "aside" {
+				fmt.Println("linksers ", replacers_command[0])
+			}
+			return linkWalker(
+				next_command_tag, replacers_command,
+				mapper, newLink(), prev, l,
+			)
+		}
 	}
 	return nil, stack
 }
