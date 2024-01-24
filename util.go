@@ -454,7 +454,9 @@ func subcommands(command string, tag *tags, link Node, mapper map[string]interfa
 			head = &link
 		}
 		if command == "else" {
-
+			// else with tags
+			new_stack, _ := addNodesUntilEnd(tag, make([]*tags, 0))
+			return new_stack
 		} else {
 			repl := head.replacement
 			if repl != "" {
@@ -646,12 +648,18 @@ func goLinks(tag *tags, mapper map[string]interface{}, head *Node, prev []*tags)
 			linking = l
 		} else {
 			eltag := findNextElse(tag)
+			if tag.parent.name == "ol" {
+				fmt.Println("eltag 1", eltag)
+			}
 			if eltag != nil {
 				next_command_tag = eltag
+				linking = next_command_tag.links.head
 			}
-			linking = next_command_tag.links.head
 		}
 		if linking.command == "elif" {
+			if tag.parent.name == "ol" {
+				fmt.Println("eltag 2", linking)
+			}
 			return goLinks(next_command_tag, mapper, linking, prev)
 		}
 		if l != nil {
@@ -665,14 +673,13 @@ func goLinks(tag *tags, mapper map[string]interface{}, head *Node, prev []*tags)
 			}
 			return l, s
 		} else {
-			replacers_command, commands := walkLinksWithNode(linking)
-			fmt.Println("anytafd ", replacers_command)
+			replacers_command, commands := walkLinksWithNode(linking.next)
 			if len(replacers_command) > 0 {
 				return linkWalker(next_command_tag, replacers_command, mapper, newLink(), prev, linking, commands)
 			}
+			return nil, subcommands(linking.command, next_command_tag, *linking, mapper, nil)
 		}
 	}
-	return nil, stack
 }
 
 func ttr(tag *tags, mapper map[string]interface{}, prev []*tags) *tags {
