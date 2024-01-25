@@ -54,7 +54,7 @@ func newLink() *NodeLink {
 }
 
 func getReplacer(text string) (string, string) {
-	reg := regexp.MustCompile(`{{(\.*.+?)\s*}}`)
+	reg := regexp.MustCompile(`"{0,1}{{(\.*.+?)\s*}}"{0,1}`)
 
 	all_match := reg.FindAllStringSubmatch(text, -1)
 	if len(all_match) > 0 {
@@ -67,7 +67,10 @@ func getReplacer(text string) (string, string) {
 				} else {
 
 					if first[1][0] == '.' {
-						return first[1][1:], ""
+						if len(first[1][1:]) > 0 {
+							return first[1][1:], ""
+						}
+						return first[1][0:], ""
 					} else {
 						return "", first[1]
 					}
@@ -83,7 +86,7 @@ func insert(text string, n *NodeLink) {
 		value: text,
 	}
 	strip_text := strings.TrimSpace(text)
-	if ok, _ := regexp.MatchString(`^{{.*?}}$`, strip_text); ok {
+	if ok, _ := regexp.MatchString(`^"{0,1}{{.*?}}"{0,1}$`, strip_text); ok {
 		replacer, command := getReplacer(text)
 		if command != "" && replacer != "" {
 			nln.conditional = true
@@ -569,9 +572,6 @@ func linkWalker(tag *tags, replacers_command []*Node, mapper map[string]interfac
 
 			new_stack = append(prev, new_stack...)
 			new_stack = append(new_stack, addNodes(tag, make([]*tags, 0))...)
-			if tag.parent.name == "aside" {
-				fmt.Println("asdddd empty ", new_stack)
-			}
 			return nil, new_stack
 		}
 		stack = append(stack, nk...)
@@ -614,10 +614,6 @@ func goLinks(tag *tags, mapper map[string]interface{}, head *Node, prev []*tags)
 			replacers_command, commands = walkLinksWithNode(start_head)
 		}
 		if start_head != nil && start_head.next != nil {
-
-			if tag.parent.name == "pre" {
-				fmt.Println("unavailable ", replacers_command)
-			}
 			new_tag_link := newLink()
 			link_walks, stack_walk := linkWalker(
 				tag, replacers_command,
@@ -648,18 +644,12 @@ func goLinks(tag *tags, mapper map[string]interface{}, head *Node, prev []*tags)
 			linking = l
 		} else {
 			eltag := findNextElse(tag)
-			if tag.parent.name == "ol" {
-				fmt.Println("eltag 1", eltag)
-			}
 			if eltag != nil {
 				next_command_tag = eltag
 				linking = next_command_tag.links.head
 			}
 		}
 		if linking.command == "elif" {
-			if tag.parent.name == "ol" {
-				fmt.Println("eltag 2", linking)
-			}
 			return goLinks(next_command_tag, mapper, linking, prev)
 		}
 		if l != nil {
@@ -668,9 +658,6 @@ func goLinks(tag *tags, mapper map[string]interface{}, head *Node, prev []*tags)
 				next_command_tag, replacers_command,
 				mapper, newLink(), prev, l, commands,
 			)
-			if tag.parent.name == "aside" {
-				fmt.Println("linksers ", s[0])
-			}
 			return l, s
 		} else {
 			replacers_command, commands := walkLinksWithNode(linking.next)
@@ -734,7 +721,45 @@ func Replacer2(root *tags, data interface{}) *tags {
 	return ttr(root, mapper, prev)
 }
 
-func Replacer(root *tags, data interface{}) *tags {
+func atrributeChecker(tag *tags) []*Node {
+	var attr_linkers []*Node
+
+	if tag.attr_linker != nil {
+		for _, v := range tag.attr_linker {
+			head := v.head
+			cur := head
+			for cur != nil {
+				if cur != nil {
+					if cur.replacement != "" {
+						attr_linkers = append(attr_linkers, cur)
+					}
+				}
+				cur = cur.next
+			}
+		}
+	}
+	return attr_linkers
+}
+
+func attr_replacer(node *Node, mapper map[string]interface{}) {
+	if node.replacement != "" && mapper[node.replacement] != nil {
+		node.value = mapper[node.replacement].(string)
+	}
+}
+
+func attr_merger(tag *tags) {
+	for k, _ := range tag.attr_linker {
+		var content string
+		head := tag.attr_linker[k].head
+		for head != nil {
+			content += head.value + " "
+			head = head.next
+		}
+		tag.attributes[k] = content
+	}
+}
+
+func Replacer(root *tags, data interface{}) (*tags, map[string]interface{}) {
 	kindof := reflect.ValueOf(data)
 	var mapper map[string]interface{}
 
@@ -761,6 +786,8 @@ func Replacer(root *tags, data interface{}) *tags {
 	}
 	// get all linkers
 	var linkers []*tags
+	var attr_linkers []*Node
+	var taggers []*tags
 
 	linker_map := map[string]bool{
 		"else": true,
@@ -774,8 +801,15 @@ func Replacer(root *tags, data interface{}) *tags {
 		if len(queue) > 0 {
 			tag = queue[0]
 			if tag.links != nil {
+				//fmt.Println("everythign ", tag.links.head.next.next.next.next.replacement)
+				// check links along
 				if (tag.links.head.command == "" && tag.links.head.replacement != "") || (tag.links.head.command != "" && linker_map[tag.links.head.command] == false) {
 					linkers = append(linkers, tag)
+				}
+			} else if tag.attr_linker != nil {
+				attr_linkers = atrributeChecker(tag)
+				if len(attr_linkers) > 0 {
+					taggers = append(taggers, tag)
 				}
 			}
 			queue = queue[1:]
@@ -784,9 +818,9 @@ func Replacer(root *tags, data interface{}) *tags {
 			}
 		}
 	}
+
 	for _, v := range linkers {
 		var prev []*tags
-		//fmt.Println("linkers ", v)
 		links, stack := goLinks(v, mapper, nil, prev)
 		if links != nil {
 			v.links = links
@@ -796,27 +830,36 @@ func Replacer(root *tags, data interface{}) *tags {
 			}
 		}
 	}
-	return root
+	for _, v := range attr_linkers {
+		attr_replacer(v, mapper)
+	}
+	for _, v := range taggers {
+		attr_merger(v)
+	}
+	return root, mapper
 }
 
-func Reconstruct(tag *tags) {
+func Reconstruct(tag *tags, mapper map[string]interface{}) {
 	//fmt.Println("all asd ", tag.children[0].children[0])
 	if tag.links != nil {
 		head := tag.links.head
 		var str_contruct string
 		for head != nil {
+			if head.replacement != "" {
+				head.value = mapper[head.replacement].(string)
+			}
 			str_contruct += head.value + " "
 			head = head.next
 		}
 		tag.content = str_contruct
 	}
 	for _, v := range tag.children {
-		Reconstruct(v)
+		Reconstruct(v, mapper)
 	}
 }
 
 func Rebuild(root *tags, data interface{}) *tags {
-	root = Replacer(root, data)
-	Reconstruct(root)
+	root, mapper := Replacer(root, data)
+	Reconstruct(root, mapper)
 	return root
 }

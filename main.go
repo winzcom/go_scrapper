@@ -52,6 +52,8 @@ var line_counter int
 
 type Attr map[string]string
 
+type AttrLinker map[string]*NodeLink
+
 type tags struct {
 	name         string
 	children     []*tags
@@ -60,6 +62,7 @@ type tags struct {
 	content      string
 	text         string
 	attributes   Attr
+	attr_linker  AttrLinker
 	next         *tags
 	prev         *tags
 	links        *NodeLink
@@ -200,7 +203,14 @@ func readDoc(parent *tags) (*tags, bool) {
 							tag.name = strings.TrimSpace(tag_name)
 						} else {
 							tag.attributes[last_recorded_attr] = strings.TrimRight(tag_name, "/")
-
+							if tag.attr_linker == nil {
+								tag.attr_linker = map[string]*NodeLink{
+									last_recorded_attr: BuildTextNodes(strings.TrimRight(tag_name, "/")),
+								}
+							} else {
+								tag.attr_linker[last_recorded_attr] = BuildTextNodes(strings.TrimRight(tag_name, "/"))
+							}
+							//tag.attr_linker[last_recorded_attr] = BuildTextNodes(strings.TrimRight(tag_name, "/"))
 						}
 						return tag, false /////////////
 					}
@@ -234,6 +244,13 @@ func readDoc(parent *tags) (*tags, bool) {
 					// set up the attributes
 					if last_recorded_attr != "" {
 						tag.attributes[last_recorded_attr] = tag_name
+						if tag.attr_linker == nil {
+							tag.attr_linker = map[string]*NodeLink{
+								last_recorded_attr: BuildTextNodes(strings.TrimRight(tag_name, "/")),
+							}
+						} else {
+							tag.attr_linker[last_recorded_attr] = BuildTextNodes(strings.TrimRight(tag_name, "/"))
+						}
 					} else if tag_name != "" {
 						tag.attributes[tag_name] = ""
 					}
@@ -334,6 +351,13 @@ func readDoc(parent *tags) (*tags, bool) {
 				if tag.name == "" {
 					tag.name = strings.TrimSpace(tag_name)
 				} else if last_recorded_attr != "" {
+					if tag.attr_linker == nil {
+						tag.attr_linker = map[string]*NodeLink{
+							last_recorded_attr: BuildTextNodes(strings.TrimRight(tag_name, "/")),
+						}
+					} else {
+						tag.attr_linker[last_recorded_attr] = BuildTextNodes(strings.TrimRight(tag_name, "/"))
+					}
 					tag.attributes[last_recorded_attr] = tag_name
 				} else {
 					tag.attributes[tag_name] = ""
@@ -390,7 +414,7 @@ func main() {
 
 	// defer resp.Body.Close()
 
-	b, _ := os.Open("./html/tc.html")
+	b, _ := os.Open("./html/text.html")
 
 	reader = bufio.NewReader(b)
 	root := rootPoint()
@@ -415,11 +439,11 @@ func main() {
 		Set:    "like",
 		Like:   "set",
 		Seth:   "jkl",
-		//Name:   "FIFA 23",
-		WE: "We",
+		Name:   "FIFA 23",
+		WE:     "We",
 	}
 	root = Rebuild(root, data)
-	fmt.Println("recontruct ", root.children[0])
+	fmt.Println("recontruct ", root.children[0].children[0].content)
 	//fmt.Println("recontruct ", root.children[0].children[2].children[1].children[0])
 	//fmt.Println("recontruct ", root.children[0].children[1].children[0])
 }
