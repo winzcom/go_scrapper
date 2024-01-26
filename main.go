@@ -443,7 +443,7 @@ func main() {
 		WE: "We",
 	}
 	root = Rebuild(root, data)
-	fmt.Println("recontruct ", root.children[0].children[3])
+	fmt.Println("recontruct ", root.children[0].children[4])
 	//fmt.Println("recontruct ", root.children[0].children[2].children[1].children[0])
 	//fmt.Println("recontruct ", root.children[0].children[1].children[0])
 }
