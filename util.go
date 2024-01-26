@@ -174,14 +174,15 @@ func findNextEnd(l *Node) *Node {
 }
 
 func findNextElseLink(l *Node) *Node {
+	ll := l.next
 	for {
-		if l == nil {
+		if ll == nil {
 			return nil
 		}
-		if l.command != "" && (l.command == "elif" || l.command == "else" || l.command == "end") {
-			return l
+		if ll.command != "" && (ll.command == "elif" || ll.command == "else" || ll.command == "end") {
+			return ll
 		}
-		l = l.next
+		ll = ll.next
 	}
 }
 
@@ -670,12 +671,13 @@ func goLinks(tag *tags, mapper map[string]interface{}, head *Node, prev []*tags)
 		}
 		var next_command_tag *tags = tag
 		l := findNextElseLink(linking)
+		//fmt.Println("new ,inker ", l, tag)
 		if l != nil {
 			next_command_tag = tag
 			linking = l
 		} else {
 			eltag := findNextElse(tag)
-			fmt.Println("new ,inker ", eltag)
+			//fmt.Println("new ,inker ", eltag)
 			if eltag != nil {
 				next_command_tag = eltag
 				linking = next_command_tag.links.head
@@ -692,11 +694,16 @@ func goLinks(tag *tags, mapper map[string]interface{}, head *Node, prev []*tags)
 			)
 			return l, s
 		} else {
-			replacers_command, commands := walkLinksWithNode(start_head.next)
+			replacers_command, commands := walkLinksWithNode(linking)
+			fmt.Println("what is the problem ", next_command_tag, "replacer ")
 			if len(replacers_command) > 0 {
 				return linkWalker(next_command_tag, replacers_command, mapper, newLink(), prev, linking, commands)
 			}
-			return nil, subcommands(linking.command, next_command_tag, *linking, mapper, nil)
+			sw := subcommands(linking.command, next_command_tag, *linking, mapper, nil)
+
+			prev = append(prev, sw...)
+
+			return nil, prev
 		}
 	}
 }
