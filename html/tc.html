@@ -1,7 +1,11 @@
 <html>
 	<body>
 		<pre a="{{.}}">{{.Like}} {{.Name}}</pre>
+<<<<<<< HEAD
 		{{if .Name}}<p>Hello</p>{{elif .Set}} {{range .Runner}}<a></a><h1></h1>{{end}}
+=======
+		{{if .Name}}<p>Hello</p>{{elif .Set}} {{range .Runner}}<a>{{.Set}}</a>{{end}}<h1></h1>
+>>>>>>> rt2
 		<canvas>{{range .Runner}}<address></address><b></b>{{end}}</canvas>
 		<aside>{{if .Like}} {{.Seth}} {{else}} {{.Name}} {{end}}</aside>
 		<ol>{{if .Name}}<li>Yes</li>{{else}} {{range .Runner}}<ul>No</ul>{{end}}</ol>

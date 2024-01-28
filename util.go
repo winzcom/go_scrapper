@@ -427,6 +427,31 @@ func refixLinks(nodes []*Node) *NodeLink {
 	return nl
 }
 
+func copyStruct(t *tags) *tags {
+	s := *t
+	p := &s
+
+	p.links = nil
+
+	if t.links != nil {
+		sl := *t.links
+		sl.head = sl.head.next
+		p.links = newLink()
+		p.links.head = &Node{}
+		p.links = joinLinks(p.links, &sl)
+	}
+	p.children = make([]*tags, 0)
+	if len(t.children) > 0 {
+		fc := make([]*tags, 0)
+
+		for _, v := range t.children {
+			fc = append(fc, copyStruct(v))
+		}
+		p.children = append(p.children, fc...)
+	}
+	return p
+}
+
 func subcommands(command string, tag *tags, link Node, mapper map[string]interface{}, nl *tags) []*tags {
 	if command == "range" {
 		repl := link.replacement
@@ -436,7 +461,7 @@ func subcommands(command string, tag *tags, link Node, mapper map[string]interfa
 		if !ok || val == nil {
 			return []*tags{}
 		}
-		ll := len(val.([]int)) - 1
+		ll := len(val.([]int))
 
 		nls := make([]*tags, 0)
 		if nl != nil {
@@ -446,12 +471,22 @@ func subcommands(command string, tag *tags, link Node, mapper map[string]interfa
 
 		new_stack := make([]*tags, 0)
 
-		for ; ll >= 0; ll -= 1 {
-			new_stack = append(new_stack, stack...)
+		for lo := 0; lo < ll; lo += 1 {
+
+			csp := make([]*tags, len(stack))
+			copy(csp, stack)
+
+			lll := len(csp) - 1
+			for llo := 0; llo <= lll; llo += 1 {
+				csp[llo] = copyStruct(csp[llo])
+				//fmt.Println("scsp ", csp[0])
+				fmt.Println("addres ", &csp, llo)
+				csp[0].children[0].links.head.value = fmt.Sprint(val.([]int)[lo])
+				new_stack = append(new_stack, csp[0])
+			}
 		}
 		nlso := addNodes(end_tag, make([]*tags, 0))
 		new_stack = append(new_stack, nlso...)
-
 		return new_stack
 	} else {
 		head := tag.links.head
@@ -473,7 +508,7 @@ func subcommands(command string, tag *tags, link Node, mapper map[string]interfa
 				}
 
 				if !ok {
-					fmt.Println("hgggg ", head)
+					//fmt.Println("hgggg ", head)
 					log.Fatalf("\n\n no value set for %s", repl)
 				}
 
@@ -609,18 +644,23 @@ func buildPrevLinks(start *Node) *NodeLink {
 
 func goLinks(tag *tags, mapper map[string]interface{}, head *Node, prev []*tags) (*NodeLink, []*tags) {
 	var replacement string = tag.links.head.replacement
+
 	if head != nil {
 		replacement = head.replacement
 	}
 
-	link := tag.links
-	if replacement == "" {
-		log.Fatal("Provide a condition to check for")
-	}
-	var start_head *Node = link.head
+	var start_head *Node = tag.links.head
 
 	if head != nil {
 		start_head = head
+	}
+
+	link := tag.links
+	if replacement == "" {
+		if start_head.command != "" {
+			log.Fatal("Provide a condition to check for")
+		}
+		return nil, []*tags{}
 	}
 
 	if len(prev) == 0 && tag.links.head.command == "if" {
@@ -658,10 +698,10 @@ func goLinks(tag *tags, mapper map[string]interface{}, head *Node, prev []*tags)
 				lw, sw := linkWalker(tag, dc, mapper, buildPrevLinks(start_head), prev, nil, commands)
 				return lw, sw
 			}
-			//fmt.Println("stops here ", head)
 			new_stack := subcommands(start_head.command, tag, *start_head, mapper, nil)
-			stack = append(prev, new_stack...)
-			return nil, stack
+			new_stack = append(prev, new_stack...)
+			fmt.Println("stops here ", new_stack[1].children[0].links.head)
+			return nil, new_stack
 		}
 	} else {
 		//var starter_head *Node
@@ -695,7 +735,6 @@ func goLinks(tag *tags, mapper map[string]interface{}, head *Node, prev []*tags)
 			return l, s
 		} else {
 			replacers_command, commands := walkLinksWithNode(linking)
-			fmt.Println("what is the problem ", next_command_tag, "replacer ")
 			if len(replacers_command) > 0 {
 				return linkWalker(next_command_tag, replacers_command, mapper, newLink(), prev, linking, commands)
 			}
@@ -884,6 +923,7 @@ func Replacer(root *tags, data interface{}) *tags {
 			}
 		}
 	}
+
 	for _, v := range linkers {
 		var prev []*tags
 		links, stack := goLinks(v.t, mapper, v.n, prev)
@@ -892,8 +932,8 @@ func Replacer(root *tags, data interface{}) *tags {
 		} else {
 
 			if len(stack) > 0 {
-				ls := reworkLinks(stack)
-				v.t.parent.children = ls
+				//ls := reworkLinks(stack)
+				v.t.parent.children = stack
 			}
 		}
 	}
